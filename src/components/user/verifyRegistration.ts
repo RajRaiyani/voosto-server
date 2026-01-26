@@ -35,7 +35,6 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     RETURNING *
   `, [userData.first_name, userData.last_name, userData.email, passwordHash]);
 
-
   const tokenExpiresAt = new Date(Date.now() + 24 * 3600000);
   const authToken = JwtToken.encode({ type: 'user_auth_token', data: { user_id: user.id } }, { expiresIn: `${tokenExpiresAt.getTime() - Date.now()}ms` });
 
@@ -51,7 +50,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
       created_at: user.created_at,
       is_profile_completed: user.is_profile_completed,
     },
-    expiresAt: tokenExpiresAt.toISOString(),
+    expires_at: tokenExpiresAt.toISOString(),
   });
 
 }

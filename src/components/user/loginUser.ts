@@ -41,6 +41,6 @@ export async function Controller(req: Request, res: Response, next: NextFunction
       is_profile_completed: user.is_profile_completed,
     },
     token: authToken,
-    expiresAt: tokenExpiresAt.toISOString(),
+    expires_at: tokenExpiresAt.toISOString(),
   });
 }

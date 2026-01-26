@@ -49,6 +49,9 @@ export async function Controller(req: Request, res: Response, next: NextFunction
 
   SendMail({ to: email, subject: 'Registration verification code', html: mailHtml });
 
-
+  return res.status(200).json({ 
+    token,
+    expires_at: expiresAt.toISOString(),
+  });
 }
 
