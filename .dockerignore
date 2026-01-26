@@ -1,0 +1,13 @@
+.env
+node_modules
+dist
+logs
+tmp
+test.js
+files
+commands
+FCM.json
+.wwebjs_cache
+.DS_Store
+.vscode
+.git

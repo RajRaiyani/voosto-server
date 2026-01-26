@@ -1,0 +1,15 @@
+.env
+.DS_Store
+.vscode
+
+/logs
+/out
+/dist
+
+/tmp
+test.js
+
+/files
+
+meta.json
+node_modules
