@@ -29,7 +29,13 @@ export async function Controller(req: Request, res: Response, next: NextFunction
   if (!isPasswordValid) return res.status(400).json({ message: 'Invalid email or password' });
 
   const tokenExpiresAt = new Date(Date.now() + 24 * 3600000);
-  const authToken = JwtToken.encode({ type: 'user_auth_token', data: { user_id: user.id } }, { expiresIn: `${tokenExpiresAt.getTime() - Date.now()}ms` });
+
+  const authTokenPayload = {
+    type: 'user_auth_token',
+    user_id: user.id,
+  };
+  
+  const authToken = JwtToken.encode(authTokenPayload, { expiresIn: `${tokenExpiresAt.getTime() - Date.now()}ms` });
 
   return res.status(200).json({ 
     user: {

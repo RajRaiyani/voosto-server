@@ -51,6 +51,7 @@ export default defineConfig([
   
       'semi': ['error', 'always'],
       'quotes': ['error', 'single'],
+      'comma-spacing': ['error', { 'before': false, 'after': true }],
     },
   },
 ]);

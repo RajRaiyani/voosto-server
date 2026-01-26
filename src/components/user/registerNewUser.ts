@@ -28,7 +28,8 @@ export async function Controller(req: Request, res: Response, next: NextFunction
 
   if (existingUser) return res.status(400).json({ message: 'User already exists' });
 
-  const tokenPayloadData = {
+  const tokenPayload = {
+    type: 'user_registration_token',
     first_name,
     last_name,
     email,
@@ -37,7 +38,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
 
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
-  const token = JwtToken.encode({ type: 'user_registration_token', data:tokenPayloadData }, { expiresIn: `${expiresAt.getTime() - Date.now()}ms` });
+  const token = JwtToken.encode(tokenPayload, { expiresIn: `${expiresAt.getTime() - Date.now()}ms` });
   const otp = generateOtp().toString();
 
   await db.query(`

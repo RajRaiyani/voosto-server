@@ -27,11 +27,11 @@ function parseDatabaseUrl(databaseUrl?: string) {
   else sslMode = process.env.DB_SSL_MODE === 'true';
 
   return {
-    host: host || process.env.DB_HOST,
-    port: port || process.env.DB_PORT,
-    user: user || process.env.DB_USER,
-    password: password || process.env.DB_PASSWORD,
-    database: database || process.env.DB_NAME,
+    host: host,
+    port: port,
+    user: user,
+    password: password,
+    database: database,
     sslMode,
   };
   
