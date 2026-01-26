@@ -1,0 +1,165 @@
+{
+  "info": {
+    "_postman_id": "d8f41c1f-f663-4cd3-adfa-247f87c9eb4e",
+    "name": "Voosto",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Register",
+          "id": "f2efac7d-b8a3-4be9-a0cc-58ba9c7468bf",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"first_name\": \"Raj\",\n    \"last_name\": \"Raiyani\",\n    \"email\": \"rpraiyani7@gmail.com\",\n    \"password\": \"admin@123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3007/users/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3007",
+              "path": [
+                "users",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Registration Verify",
+          "id": "6c56c1ca-b1a4-441d-8b00-ca940563005f",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidXNlcl9yZWdpc3RyYXRpb25fdG9rZW4iLCJmaXJzdF9uYW1lIjoiUmFqIiwibGFzdF9uYW1lIjoiUmFpeWFuaSIsImVtYWlsIjoicnByYWl5YW5pN0BnbWFpbC5jb20iLCJwYXNzd29yZCI6ImFkbWluQDEyMyIsImlhdCI6MTc2OTQ0ODk5MCwiZXhwIjoxNzY5NDQ5NTkwfQ.Hmpsl6MnmEsfoyBmviYtsbcrRGVF8d1KQ-coW6WzRME\",\n    \"otp\": \"642208\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3007/users/verify-registration",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3007",
+              "path": [
+                "users",
+                "verify-registration"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "id": "8260be90-0eb8-41f1-aa3d-a495df1ca829",
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "id": "f35f11dd-a7df-4adc-8615-8928ed51c26c",
+                "exec": [
+                  "let token = pm.response.json().token;",
+                  "",
+                  "pm.collectionVariables.set(\"token\",token)"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "id": "074624c5-07ec-460c-8c34-82869cdb643d",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"rraiyani62@gmail.com\",\n    \"password\": \"admin@123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3007/users/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3007",
+              "path": [
+                "users",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "8d7efeb9-8a6a-4000-ad38-5e1cc9d5157d"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "id": "47c266c3-483e-4fb5-a4d7-c1eeb58c5967",
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          "const token = pm.collectionVariables.get('token')",
+          "console.log('token',token);",
+          "",
+          "pm.request.headers.add({",
+          "    key: 'Authorization',",
+          "    value: `Bearer ${token}`",
+          "})"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "id": "761f5a29-e46b-4887-b5d8-e4ff79d8f301",
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ]
+}
