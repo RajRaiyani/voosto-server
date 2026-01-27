@@ -1,10 +1,10 @@
-export default function emailVerifyOtp(otp: string) {
+export default function resetPasswordLink(link: string) {
   return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Voostro – Email Verification</title>
+  <title>Voostro – Reset Password</title>
 </head>
 
 <body style="margin:0; padding:0; background-color:#fdf2f8;">
@@ -26,23 +26,30 @@ export default function emailVerifyOtp(otp: string) {
           <!-- Content -->
           <tr>
             <td style="padding:0 32px 24px; text-align:center;">
-              <h2 style="margin:0 0 12px; color:#1f2937;">Email Verification Code</h2>
+              <h2 style="margin:0 0 12px; color:#1f2937;">Reset Your Password</h2>
+
               <p style="margin:0 0 24px; color:#6b7280; font-size:14px;">
-                Use the following One Time Password (OTP) to verify your email address.
+                You requested to reset your password. Click the button below to continue.
               </p>
 
-              <!-- OTP -->
-              <div
-                style="font-size:36px; font-weight:bold; letter-spacing:6px; color:#1f2937; margin-bottom:24px;">
-                ${otp}
-              </div>
+              <!-- Button -->
+              <a href="${link}" target="_blank"
+                style="
+                  display:inline-block;
+                  padding:14px 28px;
+                  background:#f472b6;
+                  color:#ffffff;
+                  text-decoration:none;
+                  border-radius:8px;
+                  font-weight:bold;
+                  font-size:14px;
+                ">
+                Reset Password
+              </a>
 
-              <!-- Warning -->
-              <div
-                style="background:#f472b6; color:#ffffff; padding:16px; border-radius:8px; font-size:13px;">
-                Please do not share this code with anyone.  
-                This code will expire in <strong>10 minutes</strong>.
-              </div>
+              <p style="margin:24px 0 0; font-size:13px; color:#6b7280;">
+                This link will expire in <strong>15 minutes</strong>.
+              </p>
             </td>
           </tr>
 
@@ -50,7 +57,7 @@ export default function emailVerifyOtp(otp: string) {
           <tr>
             <td style="padding:24px; text-align:center; border-top:1px solid #fce7f3;">
               <p style="margin:0; font-size:12px; color:#6b7280;">
-                If you didn’t request this, you can safely ignore this email.
+                If you didn’t request a password reset, please ignore this email.
               </p>
             </td>
           </tr>
