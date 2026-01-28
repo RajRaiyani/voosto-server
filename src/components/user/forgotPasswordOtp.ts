@@ -3,46 +3,50 @@ import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
 import JwtToken from '@/utils/jwtToken.js';
 import { SendMail } from '@/service/mail/index.js';
-import resetPasswordLink from '@/utils/emailTemplates/resetPasswordLink.js';
+import emailVerifyOtp from '@/utils/emailTemplates/emailVerifyOtp.js';
 
 export const ValidationSchema = {
   body: z.object({
     email: z.email().toLowerCase(),
-    redirect_url: z.url(),
   }),
 };
+
+function generateOtp() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
 
 export async function Controller(
   req: Request,
   res: Response,
   next: NextFunction,
-  db: DatabaseClient
+  db: DatabaseClient,
 ) {
-  const { email, redirect_url } =
-    req.body as z.infer<typeof ValidationSchema.body>;
+  const { email } = req.body as z.infer<typeof ValidationSchema.body>;
 
   const user = await db.queryOne(
-    'SELECT id FROM users WHERE LOWER(email) = LOWER($1)',
-    [email]
+    'select id from users where Lower(email) = Lower($1)',
+    [email],
   );
 
-  if (!user) {
+  if(!user){
     return res.status(200).json({
       message: 'email not found',
     });
   }
 
+  const otp = generateOtp();
+
   const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
   const payload = {
-    type: 'password_reset',
+    type: 'forgot_password_otp',
     user_id: user.id,
   };
 
   const token = JwtToken.encode(payload, {
-    expiresIn: `${expiresAt.getTime() - Date.now()}ms`,
-  });
-
+    expiresIn: `${expiresAt.getTime() - Date.now()}ms`
+  });  
+    
   await db.query(
     `
     INSERT INTO tokens (token, expires_at, meta_data)
@@ -52,22 +56,21 @@ export async function Controller(
       token,
       expiresAt,
       {
-        type: 'password_reset',
+        type: 'forgot_password_otp',
         user_id: user.id,
-        redirect_url,
+        otp,
       },
     ]
   );
 
-  const magicLink = `${redirect_url}?token=${token}`;
-
   await SendMail({
     to: email,
-    subject: 'Reset your password',
-    html: resetPasswordLink(magicLink),
+    subject: 'forgot password otp',
+    html: emailVerifyOtp(otp),
   });
 
   return res.status(200).json({
-    message: 'Reset link has been sent to your email',
+    token,
+    expires_at: expiresAt.toISOString(),
   });
 }

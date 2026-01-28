@@ -44,14 +44,6 @@ export async function Controller(
     return res.status(400).json({ message: 'Invalid token' });
   }
 
-  if (new Date(record.expires_at) < new Date()) {
-    return res.status(400).json({ message: 'Token expired' });
-  }
-
-  if (record.meta_data.used_at) {
-    return res.status(400).json({ message: 'Token already used' });
-  }
-
   if (record.meta_data.type !== 'password_reset') {
     return res.status(400).json({ message: 'Invalid token' });
   }
@@ -60,26 +52,30 @@ export async function Controller(
 
   try {
     await db.query('BEGIN');
-  
-    await db.query(
-      'UPDATE users SET password_hash = $1 WHERE id = $2',
-      [passwordHash, record.meta_data.user_id]
-    );
-  
+
     await db.query(
       `
-      UPDATE tokens
-      SET meta_data = jsonb_set(meta_data, '{used_at}', to_jsonb(NOW()))
+      UPDATE users
+      SET password_hash = $1
+      WHERE id = $2
+      `,
+      [passwordHash, record.meta_data.user_id]
+    );
+
+    await db.query(
+      `
+      DELETE FROM tokens
       WHERE token = $1
       `,
       [token]
     );
-  
+
     await db.query('COMMIT');
   } catch (err) {
     await db.query('ROLLBACK');
     throw err;
   }
+
   return res.status(200).json({
     message: 'Password reset successful',
   });

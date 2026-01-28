@@ -7,6 +7,8 @@ import { ValidationSchema as VerifyRegistrationValidationSchema, Controller as V
 import { ValidationSchema as LoginUserValidationSchema, Controller as LoginUserController } from '@/components/user/loginUser.js';
 import { ValidationSchema as ForgotPasswordValidationSchema, Controller as ForgotPasswordController } from '@/components/user/forgotPassword.js';
 import { ValidationSchema as ResetPasswordValidationSchema, Controller as ResetPasswordController } from '@/components/user/resetPassword.js';
+import { ValidationSchema as ForgotPasswordOtpValidationSchema, Controller as ForgotPasswordOtpController } from '@/components/user/forgotPasswordOtp.js';
+import { ValidationSchema as VerifyForgotPasswordOtpValidationSchema, Controller as VerifyForgotPasswordOtpController } from '@/components/user/verifyForgotPasswordOtp.js';
 
 const router = express.Router();
 
@@ -15,4 +17,6 @@ router.post('/verify-registration', validate(VerifyRegistrationValidationSchema)
 router.post('/login', validate(LoginUserValidationSchema), withDatabase(LoginUserController));
 router.post('/forgot-password', validate(ForgotPasswordValidationSchema), withDatabase(ForgotPasswordController));
 router.post('/reset-password', validate(ResetPasswordValidationSchema), withDatabase(ResetPasswordController));
+router.post('/forgot-password-otp', validate(ForgotPasswordOtpValidationSchema), withDatabase(ForgotPasswordOtpController));
+router.post('/verify-forgot-password-otp', validate(VerifyForgotPasswordOtpValidationSchema), withDatabase(VerifyForgotPasswordOtpController));
 export default router;
