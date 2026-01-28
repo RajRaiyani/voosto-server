@@ -38,7 +38,7 @@ app.get('/ping', (req, res) => {
 
 app.use('/', appRoute);
 
-app.use('/files',express.static(env.fileStoragePath));
+app.use('/files', express.static(env.fileStoragePath));
 
 // Error handler
 app.use(errorHandler);

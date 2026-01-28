@@ -7,7 +7,7 @@ import bcrypt from 'bcryptjs';
 export const ValidationSchema = {
   body: z.object({
     token: z.string().trim().nonempty(),
-    otp: z.string().trim().nonempty(),
+    otp: z.string().trim().length(6),
   })
 };
 
