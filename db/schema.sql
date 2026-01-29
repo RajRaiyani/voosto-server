@@ -89,7 +89,7 @@ CREATE TABLE public.users (
     phone_number character varying(100),
     is_phone_number_verified boolean DEFAULT false NOT NULL,
     password_hash text NOT NULL,
-    profile_image uuid,
+    profile_image_id uuid,
     gender public.gender DEFAULT 'male'::public.gender NOT NULL,
     date_of_birth date,
     country_id uuid,
@@ -175,19 +175,19 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: users fk_users_country; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: users fk_users_country_id; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.users
-    ADD CONSTRAINT fk_users_country FOREIGN KEY (country_id) REFERENCES public.countries(id);
+    ADD CONSTRAINT fk_users_country_id FOREIGN KEY (country_id) REFERENCES public.countries(id);
 
 
 --
--- Name: users fk_users_profile_image; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: users fk_users_profile_image_id; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.users
-    ADD CONSTRAINT fk_users_profile_image FOREIGN KEY (profile_image) REFERENCES public.files(id);
+    ADD CONSTRAINT fk_users_profile_image_id FOREIGN KEY (profile_image_id) REFERENCES public.files(id);
 
 
 --
@@ -204,4 +204,5 @@ ALTER TABLE ONLY public.users
 INSERT INTO public.schema_migrations (version) VALUES
     ('20260125090150'),
     ('20260125112430'),
-    ('20260126083840');
+    ('20260126083840'),
+    ('20260129093241');

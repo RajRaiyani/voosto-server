@@ -5,11 +5,14 @@ import env from '@/config/env.js';
 import ServerError from '@/utils/serverError.js';
 import constant from '@/config/constant.js';
 
-export const upload = async (filePath: string) => {
+export const upload = async (filePath: string, newFilePath: string = '') => {
   const isFileExists = fs.existsSync(filePath);
   if (!isFileExists) throw new ServerError('NOT_FOUND', 'File not found');
-  await fsp.rename(filePath, path.join(env.fileStoragePath, path.basename(filePath)));
-  return path.basename(filePath);
+  const fileKey = path.join(newFilePath, path.basename(filePath));
+  if (!fs.existsSync(path.join(env.fileStoragePath, newFilePath))) fs.mkdirSync(path.join(env.fileStoragePath, newFilePath), { recursive: true });
+  await fsp.copyFile(filePath, path.join(env.fileStoragePath, fileKey));
+  await fsp.unlink(filePath);
+  return fileKey;
 };
 
 export const saveFile = async (fileName: string) => {
