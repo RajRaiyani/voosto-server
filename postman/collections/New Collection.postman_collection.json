@@ -1,0 +1,226 @@
+{
+  "info": {
+    "_postman_id": "b9191a0e-d54a-4e67-8d32-f7cd59a7c3d0",
+    "name": "Voosto Server",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "id": "95cde053-1c7b-4b6b-a5dc-38a6326d4148",
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "id": "39922060-b766-4688-87e8-afe08645e01a",
+                "exec": [
+                  "let token = pm.response.json().token;",
+                  "",
+                  "pm.collectionVariables.set(\"token\",token)"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "id": "71ce07f8-33eb-4ab6-958e-75d2405c7e73",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"rraiyani62@gmail.com\",\n    \"password\": \"Admin@123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/users/login",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "users",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Profile",
+          "id": "26158bb0-c511-49f1-8ee4-97abcacf5460",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/users/profile",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "users",
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Complate Profile",
+          "id": "0dbe37c8-621e-4f58-8e87-630eabe8c308",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"date_of_birth\": \"2003-02-03\",\n    \"gender\": \"male\",\n    \"country_id\": \"019bf86f-9e77-7961-a73a-9f68d6b7ed33\",\n    \"interested_activity\": \"Entertainment\",\n    \"profile_image_id\": \"019c0945-0dbf-7911-8a06-599fa40c880b\",\n    \"bio\": \"hellow world!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/users/complete-profile",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "users",
+                "complete-profile"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "66efc171-1ebf-4550-90c2-ed4bb1f246e7"
+    },
+    {
+      "name": "Meta",
+      "item": [
+        {
+          "name": "List Countries",
+          "id": "4fca4280-c18a-49d7-8567-e764ab73230c",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/meta/countries",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "meta",
+                "countries"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "list user interested activities",
+          "id": "a9b18b04-e0ae-42af-a3b7-2f26d4163964",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/meta/user-interested-activities",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "meta",
+                "user-interested-activities"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "febf4891-28e4-4007-b4a4-aa18ba10b7b0"
+    },
+    {
+      "name": "File",
+      "item": [
+        {
+          "name": "Upload File",
+          "id": "bd4a2934-30d3-4c09-b045-638c667f5d90",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/files/upload",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "files",
+                "upload"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "6d807025-e452-46fa-aed5-2630801b6cb5"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "id": "212c0856-38c8-415e-bb0d-27e70c44f3ee",
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          "const token = pm.collectionVariables.get('token')",
+          "console.log('token',token);",
+          "",
+          "pm.request.headers.add({",
+          "    key: 'Authorization',",
+          "    value: `Bearer ${token}`",
+          "})"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "id": "8d88016d-ce5a-47d4-9264-8c343b82d08d",
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "id": "6e21df7a-0ae7-43b2-a0dd-58236eeaf4c3",
+      "key": "token",
+      "value": ""
+    }
+  ]
+}
