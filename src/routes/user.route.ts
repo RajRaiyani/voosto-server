@@ -13,6 +13,7 @@ import { ValidationSchema as VerifyForgotPasswordOtpValidationSchema, Controller
 import { Controller as GetUserProfileController } from '@/components/user/getUserProfile.js';
 import { ValidationSchema as CompleteUserProfileValidationSchema, Controller as CompleteUserProfileController } from '@/components/user/completeUserProfile.js';
 
+  
 const router = express.Router();
 
 router.route('/register')
