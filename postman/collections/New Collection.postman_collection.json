@@ -69,7 +69,14 @@
           "id": "26158bb0-c511-49f1-8ee4-97abcacf5460",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidXNlcl9hdXRoX3Rva2VuIiwidXNlcl9pZCI6IjAxOWMwZGE1LTJhYzMtNzJlZi05MGM2LTljNDk2N2M5ZjI2ZiIsImlhdCI6MTc2OTc1NTQ5NCwiZXhwIjoxNzY5ODQxODk0fQ.XodwZZoOYMPQAGvaAownUuGmC_jyXKClzdaFdaCuJsI",
+                "type": "text",
+                "uuid": "9c0bf0f7-76d7-484c-b980-5568b82e741d"
+              }
+            ],
             "url": {
               "raw": "{{host}}/users/profile",
               "host": [
@@ -106,6 +113,97 @@
               "path": [
                 "users",
                 "complete-profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register",
+          "id": "ce583357-e46f-4da6-8491-37762f385251",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"smit\",\n  \"last_name\": \"chauhan\",\n  \"email\": \"yashchauhan9284@gmail.com\",\n  \"password\": \"smit@123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/users/register",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "users",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Register",
+          "id": "337ebb28-36ac-43aa-bbe9-f285a4236db7",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidXNlcl9yZWdpc3RyYXRpb25fdG9rZW4iLCJmaXJzdF9uYW1lIjoic21pdCIsImxhc3RfbmFtZSI6ImNoYXVoYW4iLCJlbWFpbCI6Inlhc2hjaGF1aGFuOTI4NEBnbWFpbC5jb20iLCJwYXNzd29yZCI6InNtaXRAMTIzIiwiaWF0IjoxNzY5NzU1MzM1LCJleHAiOjE3Njk3NTU5MzV9.CrgfSkMoOteEfD5MTnDJjQzr5aljxZuvCxzj2MvOM_c\",\n  \"otp\": \"589917\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/users/verify-registration",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "users",
+                "verify-registration"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Profile",
+          "id": "4662db65-cc9d-43f4-92bb-f2e399d9300d",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidXNlcl9hdXRoX3Rva2VuIiwidXNlcl9pZCI6IjAxOWMwZGE1LTJhYzMtNzJlZi05MGM2LTljNDk2N2M5ZjI2ZiIsImlhdCI6MTc2OTc1NTQ5NCwiZXhwIjoxNzY5ODQxODk0fQ.XodwZZoOYMPQAGvaAownUuGmC_jyXKClzdaFdaCuJsI",
+                "type": "text",
+                "uuid": "9c0bf0f7-76d7-484c-b980-5568b82e741d"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"smitu\",\n  \"last_name\": \"chauhan\",\n  \"phone_number\": \"9876543210\",\n  \"gender\": \"male\",\n  \"date_of_birth\": \"1990-05-15\",\n  \"bio\": \"Software developer passionate about building scalable applications\",\n  \"profile_image_id\":\"019c0dac-eb76-75c1-87c9-3d85300abadb\",\n  \"interested_activity\": \"Food & Drinks\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/users/profile",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "users",
+                "profile"
               ]
             }
           },
@@ -166,7 +264,27 @@
           "id": "bd4a2934-30d3-4c09-b045-638c667f5d90",
           "request": {
             "method": "POST",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidXNlcl9hdXRoX3Rva2VuIiwidXNlcl9pZCI6IjAxOWJmZjYyLTRmYTAtNzQ1Yi1hMmU2LWYzNGM4YzljNGE1ZCIsImlhdCI6MTc2OTcyMjQ1NSwiZXhwIjoxNzY5ODA4ODU0fQ.PgUlfttVDP56I2ZR1nlDHc8qmylxjKnWAiUrack0j5k",
+                "type": "text",
+                "uuid": "2c146198-d9fd-4cc8-891b-f6c5ffc6e3d9"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "uuid": "44060938-08f3-48c5-a2e0-eefead571e77",
+                  "src": [
+                    "/Users/yashchauhan/Downloads/ChatGPT Image Jan 22, 2026, 08_02_26 PM.png"
+                  ]
+                }
+              ]
+            },
             "url": {
               "raw": "{{host}}/files/upload",
               "host": [
@@ -218,7 +336,7 @@
   ],
   "variable": [
     {
-      "id": "6e21df7a-0ae7-43b2-a0dd-58236eeaf4c3",
+      "id": "f09abc26-8854-4b3f-bccc-12f1d632e15f",
       "key": "token",
       "value": ""
     }

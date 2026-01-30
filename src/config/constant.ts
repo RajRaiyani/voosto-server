@@ -9,41 +9,50 @@ const __dirname = dirname(__filename);
 
 const temporaryFileStoragePath = path.join(__dirname, '../../tmp');
 
-if (!fs.existsSync(temporaryFileStoragePath)) fs.mkdirSync(temporaryFileStoragePath);
-
+if (!fs.existsSync(temporaryFileStoragePath))
+  fs.mkdirSync(temporaryFileStoragePath);
 
 const userInterestedActivities = [
   {
     activity: 'All activities',
-    icon: '✨'
-  },{
+    icon: '✨',
+  },
+  {
     activity: 'Food & Drinks',
-    icons: '🍽️'
-  },{
+    icons: '🍽️',
+  },
+  {
     activity: 'Nightlife',
-    icons: '🎉'
-  },{
+    icons: '🎉',
+  },
+  {
     activity: 'Outdoor & Active',
-    icons: '🏕️'
-  },{
+    icons: '🏕️',
+  },
+  {
     activity: 'Sightseeing',
-    icons: '🗺️'
-  },{
+    icons: '🗺️',
+  },
+  {
     activity: 'Entertainment',
-    icons: '🎭'
-  },{
+    icons: '🎭',
+  },
+  {
     activity: 'Shopping',
-    icons: '🛍️'
-  },{
+    icons: '🛍️',
+  },
+  {
     activity: 'Wellness',
-    icons: '🧘'
-  },{
+    icons: '🧘',
+  },
+  {
     activity: 'Rideshare',
-    icons: '🚗'
-  },{
+    icons: '🚗',
+  },
+  {
     activity: 'Social',
-    icons: '💬'
-  }
+    icons: '💬',
+  },
 ];
 
 export default {
@@ -53,9 +62,8 @@ export default {
     token: {
       expiryInSeconds: 86400,
     },
-    interestedActivities : userInterestedActivities
+    interestedActivities: userInterestedActivities,
   },
 
   errorCodes,
-
 };

@@ -9,11 +9,11 @@ export const ValidationSchema = {
     last_name: UserSchema.lastName().optional(),
     phone_number: ConfigValidationSchema.phoneNumber().optional(),
     gender: ConfigValidationSchema.gender().optional(),
-    date_of_birth: z.date().optional(),
+    date_of_birth: z.coerce.date().optional(),
     country_id: ConfigValidationSchema.uuid().optional(),
     bio: z.string().trim().max(500, 'Bio must be less than 500 characters').optional(),
     interested_activity: UserSchema.interestedActivity().optional(),
-    profile_image: ConfigValidationSchema.uuid().optional(),
+    profile_image_id: ConfigValidationSchema.uuid().optional(),
   }).refine((data) => Object.keys(data).length > 0, {
     message: 'At least one field must be provided for update',
   }),
@@ -25,7 +25,7 @@ export async function Controller(req, res, next, db) {
 
   // Check if user exists
   const existingUser = await db.queryOne(
-    'SELECT id, profile_image FROM users WHERE id = $1',
+    'SELECT id, profile_image_id FROM users WHERE id = $1',
     [userId]
   );
 
@@ -45,15 +45,15 @@ export async function Controller(req, res, next, db) {
     }
   }
 
-  // If profile_image is provided, verify it exists
-  if (updateData.profile_image) {
+  // If profile_image_id is provided, verify it exists
+  if (updateData.profile_image_id) {
     const file = await db.queryOne(
       'SELECT id FROM files WHERE id = $1',
-      [updateData.profile_image]
+      [updateData.profile_image_id]
     );
 
     if (!file) {
-      return res.status(400).json({ message: 'Invalid profile_image file_id' });
+      return res.status(400).json({ message: 'Invalid profile_image_id file_id' });
     }
   }
 
@@ -86,7 +86,7 @@ export async function Controller(req, res, next, db) {
         country_id,
         bio,
         interested_activity,
-        profile_image,
+        profile_image_id,
         is_profile_completed,
         created_at,
         updated_at
@@ -95,12 +95,12 @@ export async function Controller(req, res, next, db) {
     );
 
     // Delete old profile image if it was changed
-    if (updateData.profile_image && existingUser.profile_image && 
-        existingUser.profile_image !== updateData.profile_image) {
+    if (updateData.profile_image_id && existingUser.profile_image_id && 
+        existingUser.profile_image_id !== updateData.profile_image_id) {
       try {
         const oldFile = await db.queryOne(
           'SELECT key FROM files WHERE id = $1',
-          [existingUser.profile_image]
+          [existingUser.profile_image_id]
         );
 
         if (oldFile) {
@@ -109,13 +109,18 @@ export async function Controller(req, res, next, db) {
 
           // Delete file record
           await db.query('DELETE FROM files WHERE id = $1', [
-            existingUser.profile_image,
+            existingUser.profile_image_id,
           ]);
         }
       } catch (error) {
         // Log error but don't fail the request
         console.error('Error deleting old profile image:', error);
       }
+    }
+
+    // Mark new profile image as saved
+    if (updateData.profile_image_id) {
+      await db.query('UPDATE files SET _status = $1 WHERE id = $2', ['saved', updateData.profile_image_id]);
     }
 
     // Commit transaction

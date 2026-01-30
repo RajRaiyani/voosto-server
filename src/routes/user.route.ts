@@ -12,6 +12,7 @@ import { ValidationSchema as ForgotPasswordOtpValidationSchema, Controller as Fo
 import { ValidationSchema as VerifyForgotPasswordOtpValidationSchema, Controller as VerifyForgotPasswordOtpController } from '@/components/user/verifyForgotPasswordOtp.js';
 import { Controller as GetUserProfileController } from '@/components/user/getUserProfile.js';
 import { ValidationSchema as CompleteUserProfileValidationSchema, Controller as CompleteUserProfileController } from '@/components/user/completeUserProfile.js';
+import { ValidationSchema as UpdateProfileValidationSchema, Controller as UpdateProfileController } from '@/components/user/updateProfile.js';
 
   
 const router = express.Router();
@@ -38,7 +39,8 @@ router.route('/verify-forgot-password-otp')
   .post(validate(VerifyForgotPasswordOtpValidationSchema), withDatabase(VerifyForgotPasswordOtpController));
 
 router.route('/profile')
-  .get(isUserLoggedIn, withDatabase(GetUserProfileController));
+  .get(isUserLoggedIn, withDatabase(GetUserProfileController))
+  .put(isUserLoggedIn, validate(UpdateProfileValidationSchema), withDatabase(UpdateProfileController));
 
 router.route('/complete-profile')
   .put(isUserLoggedIn, validate(CompleteUserProfileValidationSchema), withDatabase(CompleteUserProfileController));

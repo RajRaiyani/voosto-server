@@ -1,6 +1,6 @@
 import z from 'zod';
 
-const uuid = () => z.uuid({ version: 'v4' });
+const uuid = () => z.uuid({ version: 'v7' });
 
 export default {
   uuid,
