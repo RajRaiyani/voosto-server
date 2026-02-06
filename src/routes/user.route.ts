@@ -13,6 +13,10 @@ import { ValidationSchema as VerifyForgotPasswordOtpValidationSchema, Controller
 import { Controller as GetUserProfileController } from '@/components/user/getUserProfile.js';
 import { ValidationSchema as CompleteUserProfileValidationSchema, Controller as CompleteUserProfileController } from '@/components/user/completeUserProfile.js';
 import { ValidationSchema as UpdateProfileValidationSchema, Controller as UpdateProfileController } from '@/components/user/updateProfile.js';
+import { ValidationSchema as SendFriendRequestValidationSchema, Controller as SendFriendRequestController } from '@/components/user/sendFriendRequest.js';
+import { ValidationSchema as AcceptFriendRequestValidationSchema, Controller as AcceptFriendRequestController } from '@/components/user/acceptFriendRequest.js';
+import { Controller as ListIncomingRequestsController } from '@/components/user/listIncomingRequests.js';
+import { Controller as ListFriendsController } from '@/components/user/listFriends.js';
 
   
 const router = express.Router();
@@ -45,4 +49,15 @@ router.route('/profile')
 router.route('/complete-profile')
   .put(isUserLoggedIn, validate(CompleteUserProfileValidationSchema), withDatabase(CompleteUserProfileController));
 
+router.route('/friend-requests/send')
+  .post(isUserLoggedIn, validate(SendFriendRequestValidationSchema), withDatabase(SendFriendRequestController));
+
+router.route('/friend-requests/accept')
+  .post(isUserLoggedIn, validate(AcceptFriendRequestValidationSchema), withDatabase(AcceptFriendRequestController));
+
+router.route('/friend-requests/incoming')
+  .get(isUserLoggedIn, withDatabase(ListIncomingRequestsController));
+
+router.route('/friends')
+  .get(isUserLoggedIn, withDatabase(ListFriendsController));
 export default router;
