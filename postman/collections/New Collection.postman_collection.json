@@ -44,7 +44,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"email\": \"rraiyani62@gmail.com\",\n    \"password\": \"Admin@123\"\n}",
+              "raw": "{\n    \"email\": \"yashchauhan1775@gmail.com\",\n    \"password\": \"yash@123\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -267,7 +267,7 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidXNlcl9hdXRoX3Rva2VuIiwidXNlcl9pZCI6IjAxOWJmZjYyLTRmYTAtNzQ1Yi1hMmU2LWYzNGM4YzljNGE1ZCIsImlhdCI6MTc2OTcyMjQ1NSwiZXhwIjoxNzY5ODA4ODU0fQ.PgUlfttVDP56I2ZR1nlDHc8qmylxjKnWAiUrack0j5k",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidXNlcl9hdXRoX3Rva2VuIiwidXNlcl9pZCI6IjAxOWMyZTRiLTE1NDctN2VkMi04Y2ZkLTYzZTQ2OGEwOGI4NSIsImlhdCI6MTc3MDM3OTg3NiwiZXhwIjoxNzcwNDY2Mjc2fQ.ibDbOOtHm8Cxz8Oa7mo0fz2YbTgdo2f9zeibsX7gCH0",
                 "type": "text",
                 "uuid": "2c146198-d9fd-4cc8-891b-f6c5ffc6e3d9"
               }
@@ -282,6 +282,13 @@
                   "src": [
                     "/Users/yashchauhan/Downloads/ChatGPT Image Jan 22, 2026, 08_02_26 PM.png"
                   ]
+                },
+                {
+                  "key": "",
+                  "value": "",
+                  "type": "text",
+                  "uuid": "62d4ca89-1389-4fe9-bcdb-794afc4f1bad",
+                  "disabled": true
                 }
               ]
             },
@@ -300,6 +307,269 @@
         }
       ],
       "id": "6d807025-e452-46fa-aed5-2630801b6cb5"
+    },
+    {
+      "name": "Posts",
+      "item": [
+        {
+          "name": "Upload post",
+          "id": "d485075d-ad8f-4e5d-956b-8bd37a2e12a1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text",
+                "uuid": "481a989c-3f34-4bff-a5ed-20943a4736ed"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidXNlcl9hdXRoX3Rva2VuIiwidXNlcl9pZCI6IjAxOWMyZTRiLTE1NDctN2VkMi04Y2ZkLTYzZTQ2OGEwOGI4NSIsImlhdCI6MTc3MDM3OTg3NiwiZXhwIjoxNzcwNDY2Mjc2fQ.ibDbOOtHm8Cxz8Oa7mo0fz2YbTgdo2f9zeibsX7gCH0",
+                "type": "text",
+                "uuid": "01bc91b9-36fe-4b39-aa46-c6661cf784e1"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"My second Post\",\n  \"file_id\": \"019c32e1-c7a8-7612-9f12-14fc01abefa8\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/posts",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "posts"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List post",
+          "id": "2b9ed2c8-0841-47d4-a331-0b2179c32116",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidXNlcl9hdXRoX3Rva2VuIiwidXNlcl9pZCI6IjAxOWMyZTRiLTE1NDctN2VkMi04Y2ZkLTYzZTQ2OGEwOGI4NSIsImlhdCI6MTc3MDM3OTg3NiwiZXhwIjoxNzcwNDY2Mjc2fQ.ibDbOOtHm8Cxz8Oa7mo0fz2YbTgdo2f9zeibsX7gCH0",
+                "type": "text",
+                "uuid": "64ded498-bed8-4e7d-8c05-e59deb1a8806"
+              }
+            ],
+            "url": {
+              "raw": "{{host}}/posts",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "posts"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get post",
+          "id": "f92b3a17-2911-4512-a7ab-5db812dae7c5",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidXNlcl9hdXRoX3Rva2VuIiwidXNlcl9pZCI6IjAxOWMyZTRiLTE1NDctN2VkMi04Y2ZkLTYzZTQ2OGEwOGI4NSIsImlhdCI6MTc3MDM3OTg3NiwiZXhwIjoxNzcwNDY2Mjc2fQ.ibDbOOtHm8Cxz8Oa7mo0fz2YbTgdo2f9zeibsX7gCH0",
+                "type": "text",
+                "uuid": "d186dc96-a63c-404c-a574-e28654992435"
+              }
+            ],
+            "url": {
+              "raw": "{{host}}/posts/019c32e1-0fd3-76c5-a6bd-9314a10a7c89",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "posts",
+                "019c32e1-0fd3-76c5-a6bd-9314a10a7c89"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete post",
+          "id": "ceda54c2-ed0a-4d9c-bc03-696167f6813a",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidXNlcl9hdXRoX3Rva2VuIiwidXNlcl9pZCI6IjAxOWMyZTRiLTE1NDctN2VkMi04Y2ZkLTYzZTQ2OGEwOGI4NSIsImlhdCI6MTc3MDM3OTg3NiwiZXhwIjoxNzcwNDY2Mjc2fQ.ibDbOOtHm8Cxz8Oa7mo0fz2YbTgdo2f9zeibsX7gCH0",
+                "type": "text",
+                "uuid": "65cc16d9-86a4-436b-9a84-a792e4786d81"
+              }
+            ],
+            "url": {
+              "raw": "{{host}}/posts/019c32e1-0fd3-76c5-a6bd-9314a10a7c89",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "posts",
+                "019c32e1-0fd3-76c5-a6bd-9314a10a7c89"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "b9b15076-2484-4947-af7c-6a7cc8046143"
+    },
+    {
+      "name": "Friend requests",
+      "item": [
+        {
+          "name": "Send request",
+          "id": "9a7f3c01-c24f-4dbb-818a-5b92259a21c9",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidXNlcl9hdXRoX3Rva2VuIiwidXNlcl9pZCI6IjAxOWMyZTRiLTE1NDctN2VkMi04Y2ZkLTYzZTQ2OGEwOGI4NSIsImlhdCI6MTc3MDM3OTg3NiwiZXhwIjoxNzcwNDY2Mjc2fQ.ibDbOOtHm8Cxz8Oa7mo0fz2YbTgdo2f9zeibsX7gCH0",
+                "type": "text",
+                "uuid": "48088250-50d6-4d43-9232-a0ff2f67657b"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"receiver_id\": \"019c2e4d-444e-7545-96a5-7bed35ce1e8a\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/users/friend-requests/send",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "users",
+                "friend-requests",
+                "send"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Incoming request",
+          "id": "352c9fe8-a727-4928-b0ec-55a9a6184393",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidXNlcl9hdXRoX3Rva2VuIiwidXNlcl9pZCI6IjAxOWMyZTRlLWJhNjQtN2FjNS1iYzM0LWY5MjMwY2UxY2E2MyIsImlhdCI6MTc3MDM4MjA3OSwiZXhwIjoxNzcwNDY4NDc4fQ.JmEj3O2AZETRyFU1X7Uw1yxDcNMrCQDwgtygLDH0dJw",
+                "type": "text",
+                "uuid": "8bd8ccd7-b458-4c0f-86de-77debdbe5ad0"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/users/friend-requests/incoming",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "users",
+                "friend-requests",
+                "incoming"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Accept request",
+          "id": "d7237cc8-2ace-4c17-aa61-6a793d9f0ecb",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidXNlcl9hdXRoX3Rva2VuIiwidXNlcl9pZCI6IjAxOWMyZTRlLWJhNjQtN2FjNS1iYzM0LWY5MjMwY2UxY2E2MyIsImlhdCI6MTc3MDM4MjA3OSwiZXhwIjoxNzcwNDY4NDc4fQ.JmEj3O2AZETRyFU1X7Uw1yxDcNMrCQDwgtygLDH0dJw",
+                "type": "text",
+                "uuid": "54b94f63-5b8e-446b-a35c-d1bc9cd903b0"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sender_id\": \"019c2e4b-1547-7ed2-8cfd-63e468a08b85\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/users/friend-requests/accept",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "users",
+                "friend-requests",
+                "accept"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Friends list",
+          "id": "825f82fb-83df-41b9-b269-bbc134f6307b",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidXNlcl9hdXRoX3Rva2VuIiwidXNlcl9pZCI6IjAxOWMyZTRlLWJhNjQtN2FjNS1iYzM0LWY5MjMwY2UxY2E2MyIsImlhdCI6MTc3MDM4MjA3OSwiZXhwIjoxNzcwNDY4NDc4fQ.JmEj3O2AZETRyFU1X7Uw1yxDcNMrCQDwgtygLDH0dJw",
+                "type": "text",
+                "uuid": "9ff75763-49de-4561-8069-c30c2220fbb1"
+              }
+            ],
+            "url": {
+              "raw": "{{host}}/users/friends",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "users",
+                "friends"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "d173bcb1-f03d-4a24-afdf-90a7d2af89e6"
     }
   ],
   "event": [
@@ -336,7 +606,7 @@
   ],
   "variable": [
     {
-      "id": "f09abc26-8854-4b3f-bccc-12f1d632e15f",
+      "id": "3f5e2c0e-6f88-4a73-9141-cfed563ddf6d",
       "key": "token",
       "value": ""
     }
