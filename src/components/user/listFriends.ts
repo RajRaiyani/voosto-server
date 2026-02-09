@@ -7,19 +7,16 @@ export async function Controller(req: Request, res: Response, next: NextFunction
 
   const friends = await db.queryAll(`
     SELECT 
-      CASE 
-        WHEN fm.sender_id = $2 THEN fm.receiver_id
-        ELSE fm.sender_id
-      END as friend_id,
-      
+      u.id,
       u.first_name,
       u.last_name,
+      u.full_name,
       u.email,
       u.gender,
       u.bio,
       u.interested_activity,
       
-      CASE WHEN f.id IS NOT NULL THEN ($1 || '/' || f.key) ELSE NULL END as profile_image_url,
+      CASE WHEN f.id IS NOT NULL THEN f.url ELSE NULL END as profile_image_url,
       
       CASE WHEN c.id IS NOT NULL THEN
         json_build_object(

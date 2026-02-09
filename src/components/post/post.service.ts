@@ -1,5 +1,4 @@
 import { DatabaseClient } from '@/service/database/index.js';
-import Env from '@/config/env.js';
 
 export async function CreatePost(
   db: DatabaseClient,
@@ -21,59 +20,52 @@ export async function CreatePost(
   return post;
 }
 
-export async function GetPostById(db: DatabaseClient, post_id: string) {
+export async function GetPostById(db: DatabaseClient, post_id: string): Promise<{
+  id: string;
+  title: string;
+  file: {id: string; key: string; url: string; size: number; mimetype: string; created_at: string};
+  user: {id: string; first_name: string; last_name: string; full_name: string; email: string; profile_image_url: string};
+} | null> {
   const post = await db.queryOne(
     `
-    SELECT 
+    SELECT
       up.id,
-      up.user_id,
       up.title,
-      up.file_id,
-      up.meta_data,
-      
-      CASE WHEN f.id IS NOT NULL THEN ($1 || '/' || f.key) ELSE NULL END as file_url,
-      f.size as file_size,
-      f.mimetype as file_mimetype,
-      f._status as file_status,
-      f.created_at as file_created_at,
-      
-      u.first_name,
-      u.last_name,
-      u.email,
-      
-      CASE WHEN pf.id IS NOT NULL THEN ($1 || '/' || pf.key) ELSE NULL END as user_profile_image_url
-      
-    FROM user_posts up
-    INNER JOIN files f ON f.id = up.file_id
-    INNER JOIN users u ON u.id = up.user_id
-    LEFT JOIN files pf ON pf.id = u.profile_image_id
-    WHERE up.id = $2
-    `,
-    [Env.fileStorageEndpoint, post_id]
-  );
-  return post;
-}
 
-export async function DeletePost(
-  db: DatabaseClient,
-  post_id: string,
-  user_id: string
-) {
-  const post = await db.queryOne(
-    `
-    SELECT up.id, up.user_id, up.file_id, f.key as file_key
+      CASE WHEN f.id IS NOT NULL THEN
+        json_build_object(
+          'id', f.id,
+          'key', f.key,
+          'url', f.url,
+          'size', f.size,
+          'mimetype', f.mimetype,
+          'created_at', f.created_at
+        )
+      ELSE NULL END as file,
+
+      CASE WHEN u.id IS NOT NULL THEN
+        json_build_object(
+          'id', u.id,
+          'first_name', u.first_name,
+          'last_name', u.last_name,
+          'full_name', u.full_name,
+          'email', u.email,
+          'profile_image_url', CASE WHEN pf.id IS NOT NULL THEN pf.url ELSE NULL END
+        )
+      ELSE NULL END as user,
+      
     FROM user_posts up
-    INNER JOIN files f ON f.id = up.file_id
+    LEFT JOIN files f ON f.id = up.file_id
+    LEFT JOIN users u ON u.id = up.user_id
+    LEFT JOIN files pf ON pf.id = u.profile_image_id
     WHERE up.id = $1
+    ORDER BY f.created_at DESC
     `,
     [post_id]
   );
-
-  if (!post) return null;
-  if (post.user_id !== user_id) return null;
-
   return post;
 }
+
 
 export async function ListUserPosts(db: DatabaseClient, user_id: string) {
   const posts = await db.queryAll(
@@ -82,21 +74,36 @@ export async function ListUserPosts(db: DatabaseClient, user_id: string) {
       up.id,
       up.user_id,
       up.title,
-      up.file_id,
-      up.meta_data,
-      
-      CASE WHEN f.id IS NOT NULL THEN ($1 || '/' || f.key) ELSE NULL END as file_url,
-      f.size as file_size,
-      f.mimetype as file_mimetype,
-      f._status as file_status,
-      f.created_at as created_at
+      CASE WHEN f.id IS NOT NULL THEN
+        json_build_object(
+          'id', f.id,
+          'key', f.key,
+          'url', f.url,
+          'size', f.size,
+          'mimetype', f.mimetype,
+          'created_at', f.created_at
+        )
+      ELSE NULL END as file_meta_data,
+
+      CASE WHEN u.id IS NOT NULL THEN
+        json_build_object(
+          'id', u.id,
+          'first_name', u.first_name,
+          'last_name', u.last_name,
+          'full_name', u.full_name,
+          'email', u.email,
+          'profile_image_url', CASE WHEN pf.id IS NOT NULL THEN pf.url ELSE NULL END
+        )
+      ELSE NULL END as user_meta_data,
       
     FROM user_posts up
-    INNER JOIN files f ON f.id = up.file_id
-    WHERE up.user_id = $2
+    LEFT JOIN files f ON f.id = up.file_id
+    LEFT JOIN users u ON u.id = up.user_id
+    LEFT JOIN files pf ON pf.id = u.profile_image_id
+    WHERE up.user_id = $1
     ORDER BY f.created_at DESC
     `,
-    [Env.fileStorageEndpoint, user_id]
+    [user_id]
   );
   return posts;
 }

@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
-import Env from '@/config/env.js';
 
 export async function Controller(req: Request, res: Response, next: NextFunction, db: DatabaseClient) {
   const user_id = req.user.id;
@@ -20,7 +19,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
       u.bio,
       u.interested_activity,
       
-      CASE WHEN f.id IS NOT NULL THEN ($1 || '/' || f.key) ELSE NULL END as profile_image_url,
+      CASE WHEN f.id IS NOT NULL THEN f.url ELSE NULL END as profile_image_url,
       
       CASE WHEN c.id IS NOT NULL THEN
         json_build_object(
@@ -35,9 +34,9 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     INNER JOIN users u ON u.id = fm.sender_id
     LEFT JOIN files f ON f.id = u.profile_image_id
     LEFT JOIN countries c ON c.id = u.country_id
-    WHERE fm.receiver_id = $2 AND fm.status = 'pending'
+    WHERE fm.receiver_id = $1 AND fm.status = 'pending'
     ORDER BY fm.created_at DESC
-  `, [Env.fileStorageEndpoint, user_id]);
+  `, [ user_id]);
 
   return res.status(200).json(incomingRequests);
 }

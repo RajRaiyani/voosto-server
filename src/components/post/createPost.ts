@@ -4,10 +4,11 @@ import { z } from 'zod';
 import ConfigValidationSchema from '@/config/validationSchema.js';
 import { CreatePost } from './post.service.js';
 import Env from '@/config/env.js';
+import { SaveFile } from '@/components/file/file.service.js';
 
 export const ValidationSchema = {
   body: z.object({
-    title: z.string().trim().min(1, 'Title is required').max(255, 'Title must be less than 255 characters'),
+    title: z.string().trim().max(255, 'Title must be less than 255 characters').optional(),
     file_id: ConfigValidationSchema.uuid(),
   }),
 };
@@ -20,15 +21,6 @@ export async function Controller(
 ) {
   const { title, file_id } = req.body as z.infer<typeof ValidationSchema.body>;
   const user_id = req.user.id;
-
-  const file = await db.queryOne(
-    'SELECT id, _status FROM files WHERE id = $1',
-    [file_id]
-  );
-
-  if (!file) {
-    return res.status(404).json({ message: 'File not found' });
-  }
 
   const existingPost = await db.queryOne(
     'SELECT id FROM user_posts WHERE file_id = $1',
@@ -43,12 +35,11 @@ export async function Controller(
     await db.query('BEGIN');
 
     const post = await CreatePost(db, { user_id, title, file_id });
-
-    await db.query('UPDATE files SET _status = $1 WHERE id = $2', ['saved', file_id]);
+    await SaveFile(db, file_id);
 
     await db.query('COMMIT');
 
-    const completePost = await db.queryOne(
+    const createdPost = await db.queryOne(
       `
       SELECT 
         up.id,
@@ -70,7 +61,7 @@ export async function Controller(
       [Env.fileStorageEndpoint, post.id]
     );
 
-    return res.status(201).json(completePost);
+    return res.status(200).json(createdPost);
   } catch (error) {
     await db.query('ROLLBACK');
     throw error;

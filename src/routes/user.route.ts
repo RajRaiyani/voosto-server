@@ -49,15 +49,16 @@ router.route('/profile')
 router.route('/complete-profile')
   .put(isUserLoggedIn, validate(CompleteUserProfileValidationSchema), withDatabase(CompleteUserProfileController));
 
-router.route('/friend-requests/send')
+
+router.route('/friends')
+  .get(isUserLoggedIn, withDatabase(ListFriendsController));
+  
+router.route('/friend-requests')
+  .get(isUserLoggedIn, withDatabase(ListIncomingRequestsController))
   .post(isUserLoggedIn, validate(SendFriendRequestValidationSchema), withDatabase(SendFriendRequestController));
 
 router.route('/friend-requests/accept')
   .post(isUserLoggedIn, validate(AcceptFriendRequestValidationSchema), withDatabase(AcceptFriendRequestController));
 
-router.route('/friend-requests/incoming')
-  .get(isUserLoggedIn, withDatabase(ListIncomingRequestsController));
 
-router.route('/friends')
-  .get(isUserLoggedIn, withDatabase(ListFriendsController));
 export default router;
