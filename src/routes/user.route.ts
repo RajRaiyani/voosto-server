@@ -17,6 +17,7 @@ import { ValidationSchema as SendFriendRequestValidationSchema, Controller as Se
 import { ValidationSchema as AcceptFriendRequestValidationSchema, Controller as AcceptFriendRequestController } from '@/components/user/acceptFriendRequest.js';
 import { Controller as ListIncomingRequestsController } from '@/components/user/listIncomingRequests.js';
 import { Controller as ListFriendsController } from '@/components/user/listFriends.js';
+import { ValidationSchema as UpdateUserLocationValidationSchema, Controller as UpdateUserLocationController } from '@/components/user/updateUserLocation.js';
 
   
 const router = express.Router();
@@ -60,5 +61,7 @@ router.route('/friend-requests')
 router.route('/friend-requests/accept')
   .post(isUserLoggedIn, validate(AcceptFriendRequestValidationSchema), withDatabase(AcceptFriendRequestController));
 
+router.route('/location')
+  .put(isUserLoggedIn, validate(UpdateUserLocationValidationSchema), UpdateUserLocationController);
 
 export default router;

@@ -4,8 +4,11 @@ import cors from 'cors';
 import Logger from './service/logger/index.js';
 import errorHandler from './middleware/errorHandler.js';
 import appRoute from './routes/app.route.js';
+import redisClient from './service/redis/index.js';
+import SocketService from './service/socket/index.js';
 
 import env from './config/env.js';
+
 
 const app = express();
 
@@ -42,5 +45,7 @@ app.use('/files', express.static(env.fileStoragePath));
 
 // Error handler
 app.use(errorHandler);
+
+redisClient.connect();
 
 export default app;

@@ -41,6 +41,26 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- Name: activities; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.activities (
+    id uuid DEFAULT uuidv7() NOT NULL,
+    description text NOT NULL,
+    category character varying(100),
+    latitude double precision,
+    longitude double precision,
+    date date,
+    "time" time without time zone,
+    is_private boolean DEFAULT false NOT NULL,
+    is_womans_only boolean DEFAULT false NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    created_by uuid NOT NULL,
+    updated_at timestamp with time zone
+);
+
+
+--
 -- Name: countries; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -141,6 +161,14 @@ CREATE TABLE public.users (
 
 
 --
+-- Name: activities pk_activities_id; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.activities
+    ADD CONSTRAINT pk_activities_id PRIMARY KEY (id);
+
+
+--
 -- Name: countries pk_countries_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -229,6 +257,14 @@ ALTER TABLE ONLY public.users
 
 
 --
+-- Name: activities fk_activities_created_by; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.activities
+    ADD CONSTRAINT fk_activities_created_by FOREIGN KEY (created_by) REFERENCES public.users(id);
+
+
+--
 -- Name: friend_mappings fk_friend_mappings_receiver_id; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -295,4 +331,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20260204045620'),
     ('20260204055056'),
     ('20260204055738'),
-    ('20260209083741');
+    ('20260209083741'),
+    ('20260210065048');

@@ -9,11 +9,20 @@ services:
     volumes:
       - postgres_18_voosto_data:/var/lib/postgresql
 
+  redis:
+    image: redis:latest
+    container_name: voosto-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
   voosto-server:
     image: rajraiyani/voosto-server:latest
     pull_policy: always
     depends_on:
       - postgres-18
+      - redis
     container_name: voosto-server
     ports:
       - "3007:3007"
@@ -27,4 +36,6 @@ services:
 
 volumes:
   postgres_18_voosto_data:
+    driver: local
+  redis_data:
     driver: local

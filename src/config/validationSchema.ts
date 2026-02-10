@@ -104,4 +104,16 @@ export default {
           message: 'Sort orders must be unique by field',
         }
       ),
+
+  location: () => z.object({
+    latitude: z
+      .number()
+      .min(-90, 'Latitude must be >= -90')
+      .max(90, 'Latitude must be <= 90'),
+  
+    longitude: z
+      .number()
+      .min(-180, 'Longitude must be >= -180')
+      .max(180, 'Longitude must be <= 180')
+  })
 };

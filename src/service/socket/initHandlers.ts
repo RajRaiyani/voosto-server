@@ -1,6 +1,6 @@
-import { Server, Socket } from 'socket.io';
+import {  Socket, Namespace } from 'socket.io';
 
-export default (io: Server, socket: Socket) => {
+export default (namespace: Namespace, socket: Socket) => {
   socket.on('ping', () => {
     socket.emit('pong', { message: 'pong' });
   });

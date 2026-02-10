@@ -44,7 +44,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"email\": \"yashchauhan1775@gmail.com\",\n    \"password\": \"yash@123\"\n}",
+              "raw": "{\n    \"email\": \"rraiyani62@gmail.com\",\n    \"password\": \"Admin@123\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -204,6 +204,25 @@
               "path": [
                 "users",
                 "profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update location",
+          "id": "2009df96-0ae6-4fb0-9cd5-83fb8724b2e3",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/users/location",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "users",
+                "location"
               ]
             }
           },
@@ -606,7 +625,7 @@
   ],
   "variable": [
     {
-      "id": "3f5e2c0e-6f88-4a73-9141-cfed563ddf6d",
+      "id": "634bc010-47ea-4e49-b5b7-5066addda83b",
       "key": "token",
       "value": ""
     }
