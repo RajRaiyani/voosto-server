@@ -28,7 +28,6 @@ export async function Controller(
     await db.begin();
 
     await db.query('DELETE FROM user_posts WHERE id = $1', [post_id]);
-
     await DeleteFile(db, post.file.id);
 
     await db.commit();

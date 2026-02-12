@@ -28,10 +28,10 @@ export async function GetPostById(db: DatabaseClient, post_id: string): Promise<
 } | null> {
   const post = await db.queryOne(
     `
-    SELECT
+    SELECT 
       up.id,
+      up.user_id,
       up.title,
-
       CASE WHEN f.id IS NOT NULL THEN
         json_build_object(
           'id', f.id,
@@ -52,14 +52,13 @@ export async function GetPostById(db: DatabaseClient, post_id: string): Promise<
           'email', u.email,
           'profile_image_url', CASE WHEN pf.id IS NOT NULL THEN pf.url ELSE NULL END
         )
-      ELSE NULL END as user,
+      ELSE NULL END as user
       
     FROM user_posts up
     LEFT JOIN files f ON f.id = up.file_id
     LEFT JOIN users u ON u.id = up.user_id
     LEFT JOIN files pf ON pf.id = u.profile_image_id
     WHERE up.id = $1
-    ORDER BY f.created_at DESC
     `,
     [post_id]
   );

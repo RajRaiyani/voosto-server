@@ -380,22 +380,15 @@
           "id": "f92b3a17-2911-4512-a7ab-5db812dae7c5",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidXNlcl9hdXRoX3Rva2VuIiwidXNlcl9pZCI6IjAxOWMyZTRiLTE1NDctN2VkMi04Y2ZkLTYzZTQ2OGEwOGI4NSIsImlhdCI6MTc3MDM3OTg3NiwiZXhwIjoxNzcwNDY2Mjc2fQ.ibDbOOtHm8Cxz8Oa7mo0fz2YbTgdo2f9zeibsX7gCH0",
-                "type": "text",
-                "uuid": "d186dc96-a63c-404c-a574-e28654992435"
-              }
-            ],
+            "header": [],
             "url": {
-              "raw": "{{host}}/posts/019c32e1-0fd3-76c5-a6bd-9314a10a7c89",
+              "raw": "{{host}}/posts/019c52e6-a151-7c33-aeb0-d29153990cd0",
               "host": [
                 "{{host}}"
               ],
               "path": [
                 "posts",
-                "019c32e1-0fd3-76c5-a6bd-9314a10a7c89"
+                "019c52e6-a151-7c33-aeb0-d29153990cd0"
               ]
             }
           },
@@ -415,13 +408,13 @@
               }
             ],
             "url": {
-              "raw": "{{host}}/posts/019c32e1-0fd3-76c5-a6bd-9314a10a7c89",
+              "raw": "{{host}}/posts/019c52ec-3637-7585-b29a-043ab969f1ac",
               "host": [
                 "{{host}}"
               ],
               "path": [
                 "posts",
-                "019c32e1-0fd3-76c5-a6bd-9314a10a7c89"
+                "019c52ec-3637-7585-b29a-043ab969f1ac"
               ]
             }
           },
