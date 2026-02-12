@@ -28,7 +28,7 @@ services:
     ports:
       - "3007:3007"
     env_file:
-      - ./.env.dev
+      - ./.env
     volumes:
       # Persist file uploads
       - ./files:/app/files
