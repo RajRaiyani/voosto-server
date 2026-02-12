@@ -327,17 +327,11 @@
                 "value": "application/json",
                 "type": "text",
                 "uuid": "481a989c-3f34-4bff-a5ed-20943a4736ed"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidXNlcl9hdXRoX3Rva2VuIiwidXNlcl9pZCI6IjAxOWMyZTRiLTE1NDctN2VkMi04Y2ZkLTYzZTQ2OGEwOGI4NSIsImlhdCI6MTc3MDM3OTg3NiwiZXhwIjoxNzcwNDY2Mjc2fQ.ibDbOOtHm8Cxz8Oa7mo0fz2YbTgdo2f9zeibsX7gCH0",
-                "type": "text",
-                "uuid": "01bc91b9-36fe-4b39-aa46-c6661cf784e1"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"My second Post\",\n  \"file_id\": \"019c32e1-c7a8-7612-9f12-14fc01abefa8\"\n}",
+              "raw": "{\n  \"title\": \"My first Post\",\n  \"file_id\": \"019c52e6-34fa-77d5-bc19-426771e7723b\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -686,7 +680,7 @@
   ],
   "variable": [
     {
-      "id": "4de3116c-30fe-4db7-b78b-62d8c4ec0c5b",
+      "id": "27f8d574-e8f0-45c5-b8bc-e452d2d62b12",
       "key": "token",
       "value": ""
     }

@@ -22,15 +22,6 @@ export async function Controller(
   const { title, file_id } = req.body as z.infer<typeof ValidationSchema.body>;
   const user_id = req.user.id;
 
-  const existingPost = await db.queryOne(
-    'SELECT id FROM user_posts WHERE file_id = $1',
-    [file_id]
-  );
-
-  if (existingPost) {
-    return res.status(400).json({ message: 'File is already used in another post' });
-  }
-
   try {
     await db.begin();
 

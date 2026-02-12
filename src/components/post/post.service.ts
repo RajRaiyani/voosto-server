@@ -83,7 +83,7 @@ export async function ListUserPosts(db: DatabaseClient, user_id: string) {
           'mimetype', f.mimetype,
           'created_at', f.created_at
         )
-      ELSE NULL END as file_meta_data,
+      ELSE NULL END as file,
 
       CASE WHEN u.id IS NOT NULL THEN
         json_build_object(

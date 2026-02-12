@@ -108,7 +108,7 @@ CREATE TABLE public.files (
     _status character varying(100) DEFAULT 'pending'::character varying NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     mimetype character varying(200),
-    url text
+    url text GENERATED ALWAYS AS (('http://localhost:3007/files/'::text || key)) STORED NOT NULL
 );
 
 
@@ -438,4 +438,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20260210065048'),
     ('20260211060551'),
     ('20260211065012'),
-    ('20260211110548');
+    ('20260211110548'),
+    ('20260212173852');
