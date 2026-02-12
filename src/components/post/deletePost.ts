@@ -25,17 +25,17 @@ export async function Controller(
   if (post.user.id !== user_id) return res.status(403).json({ message: 'You are not allowed to delete this post' });
 
   try {
-    await db.query('BEGIN');
+    await db.begin();
 
     await db.query('DELETE FROM user_posts WHERE id = $1', [post_id]);
 
     await DeleteFile(db, post.file.id);
 
-    await db.query('COMMIT');
+    await db.commit();
 
     return res.status(204).send();
   } catch (error) {
-    await db.query('ROLLBACK');
+    await db.rollback();
     throw error;
   }
 }

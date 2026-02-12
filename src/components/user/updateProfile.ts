@@ -1,7 +1,9 @@
 import { z } from 'zod';
 import UserSchema from './user.validation.js';
 import ConfigValidationSchema from '../../config/validationSchema.js';
-import { deleteFile } from '@/service/file-storage/index.js';
+import { SaveFile, DeleteFile } from '@/components/file/file.service.js';
+import { DatabaseClient } from '@/service/database/index.js';
+import { Request, Response, NextFunction } from 'express';
 
 export const ValidationSchema = {
   body: z.object({
@@ -19,62 +21,28 @@ export const ValidationSchema = {
   }),
 };
 
-export async function Controller(req, res, next, db) {
-  const userId = req.user.id;
+export async function Controller(req: Request, res: Response, next: NextFunction, db: DatabaseClient) {
   const updateData = req.body;
 
-  // Check if user exists
-  const existingUser = await db.queryOne(
-    'SELECT id, profile_image_id FROM users WHERE id = $1',
-    [userId]
-  );
-
-  if (!existingUser) {
-    return res.status(404).json({ message: 'User not found' });
-  }
-
-  // If country_id is provided, verify it exists
-  if (updateData.country_id) {
-    const country = await db.queryOne(
-      'SELECT id FROM countries WHERE id = $1',
-      [updateData.country_id]
-    );
-
-    if (!country) {
-      return res.status(400).json({ message: 'Invalid country_id' });
-    }
-  }
-
-  // If profile_image_id is provided, verify it exists
-  if (updateData.profile_image_id) {
-    const file = await db.queryOne(
-      'SELECT id FROM files WHERE id = $1',
-      [updateData.profile_image_id]
-    );
-
-    if (!file) {
-      return res.status(400).json({ message: 'Invalid profile_image_id file_id' });
-    }
-  }
-
   try {
-    // Begin transaction
-    await db.query('BEGIN');
+
+    await db.begin();
+
+    if (updateData.profile_image_id) await SaveFile(db, updateData.profile_image_id);
 
     // Build dynamic update query
     const fields = Object.keys(updateData);
     const setClause = fields
-      .map((field, index) => `${field} = $${index + 2}`)
+      .map((field) => ` ${field} = $${field} `)
       .join(', ');
-    const values = [userId, ...fields.map((field) => updateData[field])];
 
-    // Update user profile
-    const updatedUser = await db.queryOne(
+    const updatedUser = await db.namedQueryOne(
       `
       UPDATE users 
       SET ${setClause}, updated_at = NOW()
-      WHERE id = $1
+      WHERE id = $id
       RETURNING 
+        old.profile_image_id as old_profile_image_id,
         id, 
         first_name, 
         last_name, 
@@ -91,48 +59,21 @@ export async function Controller(req, res, next, db) {
         created_at,
         updated_at
       `,
-      values
+      { ...updateData, id: req.user.id }
     );
 
     // Delete old profile image if it was changed
-    if (updateData.profile_image_id && existingUser.profile_image_id && 
-        existingUser.profile_image_id !== updateData.profile_image_id) {
-      try {
-        const oldFile = await db.queryOne(
-          'SELECT key FROM files WHERE id = $1',
-          [existingUser.profile_image_id]
-        );
-
-        if (oldFile) {
-          // Delete physical file
-          await deleteFile(oldFile.key);
-
-          // Delete file record
-          await db.query('DELETE FROM files WHERE id = $1', [
-            existingUser.profile_image_id,
-          ]);
-        }
-      } catch (error) {
-        // Log error but don't fail the request
-        console.error('Error deleting old profile image:', error);
-      }
-    }
-
-    // Mark new profile image as saved
-    if (updateData.profile_image_id) {
-      await db.query('UPDATE files SET _status = $1 WHERE id = $2', ['saved', updateData.profile_image_id]);
+    if (updatedUser.profile_image_id && updatedUser.old_profile_image_id && 
+      updatedUser.profile_image_id !== updatedUser.old_profile_image_id) {
+      DeleteFile(db, updatedUser.old_profile_image_id);
     }
 
     // Commit transaction
-    await db.query('COMMIT');
+    await db.commit();
 
-    return res.status(200).json({
-      message: 'Profile updated successfully',
-      user: updatedUser,
-    });
+    return res.status(204).send();
   } catch (error) {
-    // Rollback transaction on error
-    await db.query('ROLLBACK');
+    await db.rollback();
     throw error;
   }
 }

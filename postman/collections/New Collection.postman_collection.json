@@ -179,17 +179,10 @@
           "id": "4662db65-cc9d-43f4-92bb-f2e399d9300d",
           "request": {
             "method": "PUT",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidXNlcl9hdXRoX3Rva2VuIiwidXNlcl9pZCI6IjAxOWMwZGE1LTJhYzMtNzJlZi05MGM2LTljNDk2N2M5ZjI2ZiIsImlhdCI6MTc2OTc1NTQ5NCwiZXhwIjoxNzY5ODQxODk0fQ.XodwZZoOYMPQAGvaAownUuGmC_jyXKClzdaFdaCuJsI",
-                "type": "text",
-                "uuid": "9c0bf0f7-76d7-484c-b980-5568b82e741d"
-              }
-            ],
+            "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"first_name\": \"smitu\",\n  \"last_name\": \"chauhan\",\n  \"phone_number\": \"9876543210\",\n  \"gender\": \"male\",\n  \"date_of_birth\": \"1990-05-15\",\n  \"bio\": \"Software developer passionate about building scalable applications\",\n  \"profile_image_id\":\"019c0dac-eb76-75c1-87c9-3d85300abadb\",\n  \"interested_activity\": \"Food & Drinks\"\n}",
+              "raw": "{\n  \"first_name\": \"Raj\",\n  \"last_name\": \"Raiyani\",\n  \"phone_number\": \"9925913386\",\n  \"gender\": \"male\",\n  \"date_of_birth\": \"1990-05-15\",\n  \"bio\": \"Software developer passionate about building scalable applications\",\n  \"profile_image_id\": \"019c5076-6ab3-7ac0-b98d-942a052932f6\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -283,14 +276,7 @@
           "id": "bd4a2934-30d3-4c09-b045-638c667f5d90",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidXNlcl9hdXRoX3Rva2VuIiwidXNlcl9pZCI6IjAxOWMyZTRiLTE1NDctN2VkMi04Y2ZkLTYzZTQ2OGEwOGI4NSIsImlhdCI6MTc3MDM3OTg3NiwiZXhwIjoxNzcwNDY2Mjc2fQ.ibDbOOtHm8Cxz8Oa7mo0fz2YbTgdo2f9zeibsX7gCH0",
-                "type": "text",
-                "uuid": "2c146198-d9fd-4cc8-891b-f6c5ffc6e3d9"
-              }
-            ],
+            "header": [],
             "body": {
               "mode": "formdata",
               "formdata": [
@@ -299,7 +285,7 @@
                   "type": "file",
                   "uuid": "44060938-08f3-48c5-a2e0-eefead571e77",
                   "src": [
-                    "/Users/yashchauhan/Downloads/ChatGPT Image Jan 22, 2026, 08_02_26 PM.png"
+                    "/Users/r.p.raiyani/Documents/photo/8D37D8F7-29D7-4162-93C5-FFF9FBF96FCF.JPG"
                   ]
                 },
                 {
@@ -589,6 +575,81 @@
         }
       ],
       "id": "d173bcb1-f03d-4a24-afdf-90a7d2af89e6"
+    },
+    {
+      "name": "Activity",
+      "item": [
+        {
+          "name": "Create Activity",
+          "id": "3435dd4e-ba8e-4e8c-bcc9-c338ea405018",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"description\": \"Rajkot activity 2\",\n    \"category\": \"Shopping\",\n    \"date\":\"2027-02-10\",\n    \"time\": \"03:20\",\n    \"location\": {\n        \"latitude\": 23.018464, \n        \"longitude\":  72.558429\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/activities",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "activities"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "list activities",
+          "id": "d42770ad-62fc-46b3-8592-8aa89a5f7bfd",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/activities?location[latitude]=23.056595&location[longitude]=72.566686&radius=4",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "activities"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "3",
+                  "type": "text",
+                  "uuid": "538ba8b5-9528-4a5b-a3c2-07fe938392ad",
+                  "disabled": true
+                },
+                {
+                  "key": "location[latitude]",
+                  "value": "23.056595",
+                  "uuid": "b13ebd2f-878b-405a-b61d-8f73832665d8"
+                },
+                {
+                  "key": "location[longitude]",
+                  "value": "72.566686",
+                  "uuid": "144a30a0-866c-42a9-853d-18c2db94dadf"
+                },
+                {
+                  "key": "radius",
+                  "value": "4",
+                  "uuid": "8315ad58-7ff5-4cad-884b-3429544c4299"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "9a0e6c50-d33d-4939-b425-a9995dc0a780"
     }
   ],
   "event": [
@@ -625,7 +686,7 @@
   ],
   "variable": [
     {
-      "id": "634bc010-47ea-4e49-b5b7-5066addda83b",
+      "id": "4de3116c-30fe-4db7-b78b-62d8c4ec0c5b",
       "key": "token",
       "value": ""
     }

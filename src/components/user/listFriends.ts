@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
-import Env from '@/config/env.js';
 
 export async function Controller(req: Request, res: Response, next: NextFunction, db: DatabaseClient) {
   const user_id = req.user.id;
@@ -15,8 +14,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
       u.gender,
       u.bio,
       u.interested_activity,
-      
-      CASE WHEN f.id IS NOT NULL THEN f.url ELSE NULL END as profile_image_url,
+      f.url as profile_image_url,
       
       CASE WHEN c.id IS NOT NULL THEN
         json_build_object(
@@ -31,15 +29,15 @@ export async function Controller(req: Request, res: Response, next: NextFunction
       
     FROM friend_mappings fm
     INNER JOIN users u ON u.id = CASE 
-      WHEN fm.sender_id = $2 THEN fm.receiver_id
+      WHEN fm.sender_id = $1 THEN fm.receiver_id
       ELSE fm.sender_id
     END
     LEFT JOIN files f ON f.id = u.profile_image_id
     LEFT JOIN countries c ON c.id = u.country_id
-    WHERE (fm.sender_id = $2 OR fm.receiver_id = $2) 
+    WHERE (fm.sender_id = $1 OR fm.receiver_id = $1) 
       AND fm.status = 'accepted'
     ORDER BY fm.created_at DESC
-  `, [Env.fileStorageEndpoint, user_id]);
+  `, [user_id]);
 
   return res.status(200).json(friends);
 }

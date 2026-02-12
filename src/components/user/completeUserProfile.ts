@@ -26,7 +26,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
   if (user.is_profile_completed) return res.status(400).json({ message: 'User profile already completed' });
 
   try{
-    await db.query('BEGIN');
+    await db.begin();
 
     const updateQuery = Object.keys(req.body).filter(key => req.body[key] !== undefined).map(key => `${key} = $${key}`).join(', ');
 
@@ -48,11 +48,11 @@ export async function Controller(req: Request, res: Response, next: NextFunction
       isProfileCompleted = true;
     }
 
-    await db.query('COMMIT');
+    await db.commit();
 
     return res.status(200).send({ is_profile_completed: isProfileCompleted });
   } catch (error) {
-    await db.query('ROLLBACK');
+    await db.rollback();
     throw error;
   }
 }

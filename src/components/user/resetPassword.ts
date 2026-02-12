@@ -51,7 +51,7 @@ export async function Controller(
   const passwordHash = await bcrypt.hash(new_password, 10);
 
   try {
-    await db.query('BEGIN');
+    await db.begin();
 
     await db.query(
       `
@@ -70,9 +70,9 @@ export async function Controller(
       [token]
     );
 
-    await db.query('COMMIT');
+    await db.commit();
   } catch (err) {
-    await db.query('ROLLBACK');
+    await db.rollback();
     throw err;
   }
 

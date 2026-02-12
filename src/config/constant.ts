@@ -55,6 +55,41 @@ const userInterestedActivities = [
   },
 ];
 
+const activitiesCategories = [
+  {
+    activity: 'Food & Drinks',
+    icons: '🍽️',
+  },
+  {
+    activity: 'Nightlife',
+    icons: '🎉',
+  },
+  {
+    activity: 'Outdoor & Active',
+    icons: '🏕️',
+  },
+  {
+    activity: 'Sightseeing',
+    icons: '🗺️',
+  },
+  {
+    activity: 'Entertainment',
+    icons: '🎭',
+  },
+  {
+    activity: 'Shopping',
+    icons: '🛍️',
+  },
+  {
+    activity: 'Wellness',
+    icons: '🧘',
+  },
+  {
+    activity: 'Other',
+    icons: '🔍',
+  },
+];
+
 export default {
   temporaryFileStoragePath,
 
@@ -63,6 +98,10 @@ export default {
       expiryInSeconds: 86400,
     },
     interestedActivities: userInterestedActivities,
+  },
+
+  activities: {
+    categories: activitiesCategories,
   },
 
   errorCodes,

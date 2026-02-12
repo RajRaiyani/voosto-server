@@ -61,7 +61,7 @@ export async function Controller(
   });
 
   try {
-    await db.query('BEGIN');
+    await db.begin();
 
     await db.query('DELETE FROM tokens WHERE token = $1', [token]);
 
@@ -80,9 +80,9 @@ export async function Controller(
       ]
     );
 
-    await db.query('COMMIT');
+    await db.commit();
   } catch (err) {
-    await db.query('ROLLBACK');
+    await db.rollback();
     throw err;
   }
 

@@ -5,7 +5,7 @@ import Logger from './service/logger/index.js';
 import errorHandler from './middleware/errorHandler.js';
 import appRoute from './routes/app.route.js';
 import redisClient from './service/redis/index.js';
-import SocketService from './service/socket/index.js';
+import { LoadActivitiesToRedis } from './components/activity/activity.script.js';
 
 import env from './config/env.js';
 
@@ -46,6 +46,14 @@ app.use('/files', express.static(env.fileStoragePath));
 // Error handler
 app.use(errorHandler);
 
-redisClient.connect();
+
+
+setImmediate(async () => {
+  await redisClient.connect();
+  Logger.info('Redis connected successfully ✅');
+  await LoadActivitiesToRedis();
+  Logger.info('Database connected successfully ✅');
+  Logger.info('Activities loaded to Redis successfully ✅');
+});
 
 export default app;

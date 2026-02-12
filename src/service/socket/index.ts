@@ -33,6 +33,7 @@ async function validateHandshake(socket: Socket, next: (err?: Error) => void) {
     const token = socket.handshake.auth.token || socket.handshake.headers.authorization;
 
     const { user_id } = validateToken(token);
+    socket.data.userId = user_id;
     socket.join(user_id);
     next();
   } catch (error) {

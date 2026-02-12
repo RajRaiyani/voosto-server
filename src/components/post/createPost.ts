@@ -32,12 +32,12 @@ export async function Controller(
   }
 
   try {
-    await db.query('BEGIN');
+    await db.begin();
 
     const post = await CreatePost(db, { user_id, title, file_id });
     await SaveFile(db, file_id);
 
-    await db.query('COMMIT');
+    await db.commit();
 
     const createdPost = await db.queryOne(
       `
@@ -63,7 +63,7 @@ export async function Controller(
 
     return res.status(200).json(createdPost);
   } catch (error) {
-    await db.query('ROLLBACK');
+    await db.rollback();
     throw error;
   }
 }

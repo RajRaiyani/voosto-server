@@ -78,6 +78,7 @@ function convertStringLiteralToQuery(strings: string[], ...values: any[]) {
 
 async function getConnection() {
   const client = await pool.connect();
+  let is_in_transaction = false;
 
   async function queryAll<T = any>(sqlStmt: string, params?: any[]): Promise<T[]> {
     const res = await client.query(sqlStmt, params);
@@ -111,6 +112,24 @@ async function getConnection() {
     return res[0];
   }
 
+  async function begin(){
+    if (is_in_transaction) return;
+    await client.query('BEGIN');
+    is_in_transaction = true;
+  }
+
+  async function commit(){
+    if (!is_in_transaction) return;
+    await client.query('COMMIT');
+    is_in_transaction = false;
+  }
+
+  async function rollback(){
+    if (!is_in_transaction) return;
+    await client.query('ROLLBACK');
+    is_in_transaction = false;
+  }
+
   const obj = {
     client,
     query: (sqlStmt: string, params?: any[]) => client.query(sqlStmt, params),
@@ -121,6 +140,9 @@ async function getConnection() {
     queryOne,
     queryLiteralAll,
     queryLiteralOne,
+    begin,
+    commit,
+    rollback,
   };
 
   return obj;

@@ -81,10 +81,10 @@ export default {
 
   pagination: {
     offset: () =>
-      z.number().int().min(0, 'Offset must be greater than 0').default(0),
+      z.coerce.number().int().min(0, 'Offset must be greater than 0').default(0),
     limit: () =>
       z
-        .number()
+        .coerce.number()
         .int()
         .min(1, 'Limit must be greater than 0')
         .max(100, 'Limit must be less than 100')
@@ -106,12 +106,12 @@ export default {
       ),
 
   location: () => z.object({
-    latitude: z
+    latitude: z.coerce
       .number()
       .min(-90, 'Latitude must be >= -90')
       .max(90, 'Latitude must be <= 90'),
   
-    longitude: z
+    longitude: z.coerce
       .number()
       .min(-180, 'Longitude must be >= -180')
       .max(180, 'Longitude must be <= 180')

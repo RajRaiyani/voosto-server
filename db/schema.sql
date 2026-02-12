@@ -54,9 +54,34 @@ CREATE TABLE public.activities (
     "time" time without time zone,
     is_private boolean DEFAULT false NOT NULL,
     is_womans_only boolean DEFAULT false NOT NULL,
+    conversation_id uuid NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     created_by uuid NOT NULL,
     updated_at timestamp with time zone
+);
+
+
+--
+-- Name: conversation_participants; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.conversation_participants (
+    conversation_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    joined_at timestamp with time zone DEFAULT now() NOT NULL,
+    is_admin boolean DEFAULT false NOT NULL
+);
+
+
+--
+-- Name: conversations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.conversations (
+    id uuid DEFAULT uuidv7() NOT NULL,
+    name character varying(255),
+    is_group boolean DEFAULT false NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -96,6 +121,20 @@ CREATE TABLE public.friend_mappings (
     receiver_id uuid NOT NULL,
     status public.friend_mapping_status DEFAULT 'pending'::public.friend_mapping_status NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: messages; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.messages (
+    id uuid DEFAULT uuidv7() NOT NULL,
+    conversation_id uuid NOT NULL,
+    sender_id uuid NOT NULL,
+    content text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    seen_at timestamp with time zone
 );
 
 
@@ -169,6 +208,22 @@ ALTER TABLE ONLY public.activities
 
 
 --
+-- Name: conversation_participants pk_conversation_participants_conversation_id_user_id; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.conversation_participants
+    ADD CONSTRAINT pk_conversation_participants_conversation_id_user_id PRIMARY KEY (conversation_id, user_id);
+
+
+--
+-- Name: conversations pk_conversations_id; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.conversations
+    ADD CONSTRAINT pk_conversations_id PRIMARY KEY (id);
+
+
+--
 -- Name: countries pk_countries_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -182,6 +237,14 @@ ALTER TABLE ONLY public.countries
 
 ALTER TABLE ONLY public.files
     ADD CONSTRAINT pk_files_id PRIMARY KEY (id);
+
+
+--
+-- Name: messages pk_messages_id; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.messages
+    ADD CONSTRAINT pk_messages_id PRIMARY KEY (id);
 
 
 --
@@ -257,11 +320,35 @@ ALTER TABLE ONLY public.users
 
 
 --
+-- Name: activities fk_activities_conversation_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.activities
+    ADD CONSTRAINT fk_activities_conversation_id FOREIGN KEY (conversation_id) REFERENCES public.conversations(id);
+
+
+--
 -- Name: activities fk_activities_created_by; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.activities
     ADD CONSTRAINT fk_activities_created_by FOREIGN KEY (created_by) REFERENCES public.users(id);
+
+
+--
+-- Name: conversation_participants fk_conversation_participants_conversation_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.conversation_participants
+    ADD CONSTRAINT fk_conversation_participants_conversation_id FOREIGN KEY (conversation_id) REFERENCES public.conversations(id);
+
+
+--
+-- Name: conversation_participants fk_conversation_participants_user_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.conversation_participants
+    ADD CONSTRAINT fk_conversation_participants_user_id FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --
@@ -278,6 +365,22 @@ ALTER TABLE ONLY public.friend_mappings
 
 ALTER TABLE ONLY public.friend_mappings
     ADD CONSTRAINT fk_friend_mappings_sender_id FOREIGN KEY (sender_id) REFERENCES public.users(id);
+
+
+--
+-- Name: messages fk_messages_conversation_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.messages
+    ADD CONSTRAINT fk_messages_conversation_id FOREIGN KEY (conversation_id) REFERENCES public.conversations(id);
+
+
+--
+-- Name: messages fk_messages_sender_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.messages
+    ADD CONSTRAINT fk_messages_sender_id FOREIGN KEY (sender_id) REFERENCES public.users(id);
 
 
 --
@@ -332,4 +435,7 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20260204055056'),
     ('20260204055738'),
     ('20260209083741'),
-    ('20260210065048');
+    ('20260210065048'),
+    ('20260211060551'),
+    ('20260211065012'),
+    ('20260211110548');
