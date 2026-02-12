@@ -34,7 +34,6 @@ services:
       - ./files:/app/files
       - ./logs:/app/logs
       - ./tmp:/app/tmp
-    command: npx dbmate up && npm run start
 
 volumes:
   postgres_18_voosto_data:
