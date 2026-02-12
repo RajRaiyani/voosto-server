@@ -3,6 +3,7 @@ services:
     image: postgres:18
     container_name: postgres-18
     environment:
+      - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-1234567890}
     ports:
       - "5432:5432"
@@ -33,6 +34,7 @@ services:
       - ./files:/app/files
       - ./logs:/app/logs
       - ./tmp:/app/tmp
+    command: npx dbmate up && npm run start
 
 volumes:
   postgres_18_voosto_data:
