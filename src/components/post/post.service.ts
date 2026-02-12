@@ -94,7 +94,7 @@ export async function ListUserPosts(db: DatabaseClient, user_id: string) {
           'email', u.email,
           'profile_image_url', CASE WHEN pf.id IS NOT NULL THEN pf.url ELSE NULL END
         )
-      ELSE NULL END as user_meta_data
+      ELSE NULL END as user
       
     FROM user_posts up
     LEFT JOIN files f ON f.id = up.file_id

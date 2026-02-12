@@ -1,11 +1,9 @@
 import { DatabaseClient } from '@/service/database/index.js';
 import ServerError from '@/utils/serverError.js';
 import { convertToWebp, deleteFile } from '@/service/file-storage/index.js';
-import Env from '@/config/env.js';
 
 export async function CreateNewFile(db: DatabaseClient, { key, size, _status = 'pending', mimetype }: {key:string, size?: number | null, _status?: string, mimetype?: string | null}) {
-  const url = `${Env.fileStorageEndpoint}/${key}`;
-  const file = await db.queryOne('INSERT INTO files (key, size, _status, mimetype, url) VALUES ($1, $2, $3, $4, $5) RETURNING *', [key, size, _status, mimetype, url]);
+  const file = await db.queryOne('INSERT INTO files (key, size, _status, mimetype) VALUES ($1, $2, $3, $4) RETURNING *', [key, size, _status, mimetype]);
   return file;
 }
 
