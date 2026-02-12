@@ -28,12 +28,13 @@ services:
     ports:
       - "3007:3007"
     env_file:
-      - ./.env
+      - ./.env.dev
     volumes:
       # Persist file uploads
       - ./files:/app/files
       - ./logs:/app/logs
       - ./tmp:/app/tmp
+    command: sh -c "npx dbmate up && npm run start"
 
 volumes:
   postgres_18_voosto_data:
