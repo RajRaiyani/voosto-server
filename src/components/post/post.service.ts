@@ -30,7 +30,6 @@ export async function GetPostById(db: DatabaseClient, post_id: string): Promise<
     `
     SELECT 
       up.id,
-      up.user_id,
       up.title,
       CASE WHEN f.id IS NOT NULL THEN
         json_build_object(
@@ -43,16 +42,14 @@ export async function GetPostById(db: DatabaseClient, post_id: string): Promise<
         )
       ELSE NULL END as file,
 
-      CASE WHEN u.id IS NOT NULL THEN
-        json_build_object(
-          'id', u.id,
-          'first_name', u.first_name,
-          'last_name', u.last_name,
-          'full_name', u.full_name,
-          'email', u.email,
-          'profile_image_url', CASE WHEN pf.id IS NOT NULL THEN pf.url ELSE NULL END
-        )
-      ELSE NULL END as user
+      json_build_object(
+        'id', u.id,
+        'first_name', u.first_name,
+        'last_name', u.last_name,
+        'full_name', u.full_name,
+        'email', u.email,
+        'profile_image_url', CASE WHEN pf.id IS NOT NULL THEN pf.url ELSE NULL END
+      ) as user
       
     FROM user_posts up
     LEFT JOIN files f ON f.id = up.file_id
@@ -71,7 +68,6 @@ export async function ListUserPosts(db: DatabaseClient, user_id: string) {
     `
     SELECT 
       up.id,
-      up.user_id,
       up.title,
       CASE WHEN f.id IS NOT NULL THEN
         json_build_object(
@@ -84,16 +80,14 @@ export async function ListUserPosts(db: DatabaseClient, user_id: string) {
         )
       ELSE NULL END as file,
 
-      CASE WHEN u.id IS NOT NULL THEN
-        json_build_object(
-          'id', u.id,
-          'first_name', u.first_name,
-          'last_name', u.last_name,
-          'full_name', u.full_name,
-          'email', u.email,
-          'profile_image_url', CASE WHEN pf.id IS NOT NULL THEN pf.url ELSE NULL END
-        )
-      ELSE NULL END as user
+      json_build_object(
+        'id', u.id,
+        'first_name', u.first_name,
+        'last_name', u.last_name,
+        'full_name', u.full_name,
+        'email', u.email,
+        'profile_image_url', CASE WHEN pf.id IS NOT NULL THEN pf.url ELSE NULL END
+      ) as user
       
     FROM user_posts up
     LEFT JOIN files f ON f.id = up.file_id
