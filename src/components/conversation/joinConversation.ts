@@ -1,0 +1,43 @@
+import { Request, Response, NextFunction } from 'express';
+import { DatabaseClient } from '@/service/database/index.js';
+import { z } from 'zod';
+import Schema from '@/config/validationSchema.js';
+import { getConversationById, isMemberOfConversation, addMemberToConversation } from '@/components/conversation/conversation.service.js';
+
+export const ValidationSchema = {
+  params: z.object({
+    conversation_id: Schema.uuid(),
+  }),
+};
+
+export async function Controller(req: Request, res: Response, next: NextFunction, db: DatabaseClient) {
+
+  const { conversation_id } = req.params as z.infer<typeof ValidationSchema.params>;
+  const userId = req.user.id;
+
+  const user = await db.queryOne ('SELECT id, gender FROM users WHERE id = $1', [userId]);
+  if (!user) return res.status(404).json({ message: 'User not found' });
+
+  const isMan = user.gender === 'male' ? true : false;
+
+  const conversation = await getConversationById(db, conversation_id, userId);
+  if (!conversation) return res.status(404).json({ message: 'Conversation not found' });
+
+  const isMember = await isMemberOfConversation(db, conversation_id, userId);
+
+  if (isMember) {
+    return res.status(204).send();
+  }
+
+  if (conversation.is_womans_only && isMan) {
+    return res.status(400).json({ message: 'You cannot join a womans only conversation as a man' });
+  }
+
+  if (conversation.is_private ) {
+    return res.status(400).json({ message: 'You cannot join a private conversation' });
+  }
+
+  await addMemberToConversation(db, conversation_id, userId, false);
+
+  return res.status(204).send();
+}

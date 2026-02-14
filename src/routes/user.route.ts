@@ -10,7 +10,7 @@ import { ValidationSchema as ForgotPasswordValidationSchema, Controller as Forgo
 import { ValidationSchema as ResetPasswordValidationSchema, Controller as ResetPasswordController } from '@/components/user/resetPassword.js';
 import { ValidationSchema as ForgotPasswordOtpValidationSchema, Controller as ForgotPasswordOtpController } from '@/components/user/forgotPasswordOtp.js';
 import { ValidationSchema as VerifyForgotPasswordOtpValidationSchema, Controller as VerifyForgotPasswordOtpController } from '@/components/user/verifyForgotPasswordOtp.js';
-import { Controller as GetUserProfileController } from '@/components/user/getUserProfile.js';
+import { Controller as GetProfileController } from '@/components/user/getProfile.js';
 import { ValidationSchema as CompleteUserProfileValidationSchema, Controller as CompleteUserProfileController } from '@/components/user/completeUserProfile.js';
 import { ValidationSchema as UpdateProfileValidationSchema, Controller as UpdateProfileController } from '@/components/user/updateProfile.js';
 import { ValidationSchema as SendFriendRequestValidationSchema, Controller as SendFriendRequestController } from '@/components/user/sendFriendRequest.js';
@@ -18,7 +18,7 @@ import { ValidationSchema as AcceptFriendRequestValidationSchema, Controller as 
 import { Controller as ListIncomingRequestsController } from '@/components/user/listIncomingRequests.js';
 import { Controller as ListFriendsController } from '@/components/user/listFriends.js';
 import { ValidationSchema as UpdateUserLocationValidationSchema, Controller as UpdateUserLocationController } from '@/components/user/updateUserLocation.js';
-
+import { ValidationSchema as GetUserProfileValidationSchema, Controller as GetUserProfileController } from '@/components/user/getUserProfile.js';
   
 const router = express.Router();
 
@@ -44,7 +44,7 @@ router.route('/verify-forgot-password-otp')
   .post(validate(VerifyForgotPasswordOtpValidationSchema), withDatabase(VerifyForgotPasswordOtpController));
 
 router.route('/profile')
-  .get(isUserLoggedIn, withDatabase(GetUserProfileController))
+  .get(isUserLoggedIn, withDatabase(GetProfileController))
   .put(isUserLoggedIn, validate(UpdateProfileValidationSchema), withDatabase(UpdateProfileController));
 
 router.route('/complete-profile')
@@ -64,4 +64,7 @@ router.route('/friend-requests/accept')
 router.route('/location')
   .put(isUserLoggedIn, validate(UpdateUserLocationValidationSchema), UpdateUserLocationController);
 
+router.route('/:user_id')
+  .get(validate(GetUserProfileValidationSchema), withDatabase(GetUserProfileController));
+  
 export default router;

@@ -1,17 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
-import Schema from '@/config/validationSchema.js';
-import { z } from 'zod';
+import Env from '@/config/env.js';
 
-
-export const ValidationSchema = {
-  params: z.object({
-    user_id: Schema.uuid(),
-  }),
-};
 
 export async function Controller(req: Request, res: Response, next: NextFunction, db: DatabaseClient) {
-  const { user_id } = req.params as z.infer<typeof ValidationSchema.params>;
 
   const user = await db.queryOne(`--sql
     SELECT
@@ -19,7 +11,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
       u.phone_number, u.is_phone_number_verified,
       u.gender, u.date_of_birth, u.bio, u.interested_activity,
 
-      CASE WHEN f.id IS NOT NULL THEN f.url ELSE NULL END as profile_image_url,
+      CASE WHEN f.id IS NOT NULL THEN ($1 || '/' || f.key) ELSE NULL END as profile_image_url,
 
       CASE WHEN c.id IS NOT NULL THEN
         json_build_object(
@@ -45,8 +37,8 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     FROM users u
     LEFT JOIN files f ON f.id = u.profile_image_id
     LEFT JOIN countries c ON c.id = u.country_id
-    WHERE u.id = $1
-  `, [user_id]);
+    WHERE u.id = $2
+  `, [Env.fileStorageEndpoint, req.user.id]);
 
   if (!user) return res.status(404).json({ message: 'User not found' });
 

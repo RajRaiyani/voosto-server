@@ -1,9 +1,21 @@
 import { DatabaseClient } from '@/service/database/index.js';
 import ServerError from '@/utils/serverError.js';
 import { convertToWebp, deleteFile } from '@/service/file-storage/index.js';
+import { upload } from '@/service/file-storage/index.js';
 
-export async function CreateNewFile(db: DatabaseClient, { key, size, _status = 'pending', mimetype }: {key:string, size?: number | null, _status?: string, mimetype?: string | null}) {
-  const file = await db.queryOne('INSERT INTO files (key, size, _status, mimetype) VALUES ($1, $2, $3, $4) RETURNING *', [key, size, _status, mimetype]);
+interface CreateNewFileInput {
+  key: string;
+  _status?: string;
+}
+
+interface CreateNewFileOutput {
+  id: string;
+  key: string;
+  _status: string;
+}
+
+export async function CreateNewFile(db: DatabaseClient, { key, _status = 'pending' }: CreateNewFileInput): Promise<CreateNewFileOutput> {
+  const file = await db.queryOne<CreateNewFileOutput>('INSERT INTO files (key, _status) VALUES ($1, $2) RETURNING id, key, _status', [key, _status]);
   return file;
 }
 
@@ -33,10 +45,15 @@ export async function UpdateFileStatus(db: DatabaseClient, id: string, status: s
 }
 
 export async function SaveFile(db: DatabaseClient, id: string) {
-  await UpdateFileStatus(db, id, 'saved');
-  return await ConvertFileToWebp(db, id);
+  return await UpdateFileStatus(db, id, 'saved');
 }
 
 export async function DeleteFile(db: DatabaseClient, id: string) {
   return await UpdateFileStatus(db, id, 'deleted');
+}
+
+export async function RegisterFile(db: DatabaseClient, filePath: string, newFileKey: string = '') {
+  const fileKey = await upload(filePath, newFileKey);
+  const file = await CreateNewFile(db, { key: fileKey });
+  return file;
 }

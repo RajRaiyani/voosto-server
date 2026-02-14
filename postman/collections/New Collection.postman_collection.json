@@ -44,7 +44,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"email\": \"rraiyani62@gmail.com\",\n    \"password\": \"Admin@123\"\n}",
+              "raw": "{\n    \"email\": \"ajay@kamero.in\",\n    \"password\": \"Kamero@123\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -216,6 +216,25 @@
               "path": [
                 "users",
                 "location"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get User Profile",
+          "id": "18b8a527-4eda-4e86-8260-46569df07559",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/users/019c24cb-aee2-7a7e-8c9f-0313afc63ebe",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "users",
+                "019c24cb-aee2-7a7e-8c9f-0313afc63ebe"
               ]
             }
           },
@@ -600,7 +619,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{host}}/activities?location[latitude]=23.056595&location[longitude]=72.566686&radius=4",
+              "raw": "{{host}}/activities?location%5Blatitude%5D=22.3038933&location%5Blongitude%5D=70.8021583&radius=14.0",
               "host": [
                 "{{host}}"
               ],
@@ -617,19 +636,53 @@
                 },
                 {
                   "key": "location[latitude]",
-                  "value": "23.056595",
-                  "uuid": "b13ebd2f-878b-405a-b61d-8f73832665d8"
+                  "value": "22.305330",
+                  "uuid": "b13ebd2f-878b-405a-b61d-8f73832665d8",
+                  "disabled": true
                 },
                 {
                   "key": "location[longitude]",
-                  "value": "72.566686",
-                  "uuid": "144a30a0-866c-42a9-853d-18c2db94dadf"
+                  "value": "70.828308",
+                  "uuid": "144a30a0-866c-42a9-853d-18c2db94dadf",
+                  "disabled": true
                 },
                 {
                   "key": "radius",
-                  "value": "4",
-                  "uuid": "8315ad58-7ff5-4cad-884b-3429544c4299"
+                  "value": "20",
+                  "uuid": "8315ad58-7ff5-4cad-884b-3429544c4299",
+                  "disabled": true
+                },
+                {
+                  "key": "location%5Blatitude%5D",
+                  "value": "22.3038933"
+                },
+                {
+                  "key": "location%5Blongitude%5D",
+                  "value": "70.8021583"
+                },
+                {
+                  "key": "radius",
+                  "value": "14.0"
                 }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Activity",
+          "id": "5f93f796-3c90-4c1d-a1c7-0f3564d1dd55",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/activities/019c5b5e-31ed-7481-af98-f457e3d605ed",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "activities",
+                "019c5b5e-31ed-7481-af98-f457e3d605ed"
               ]
             }
           },
@@ -637,6 +690,69 @@
         }
       ],
       "id": "9a0e6c50-d33d-4939-b425-a9995dc0a780"
+    },
+    {
+      "name": "Chat",
+      "item": [
+        {
+          "name": "List conversations",
+          "id": "4f52d0c0-92b6-45f4-a73d-623cde9740ca",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/conversations",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "conversations"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Conversation",
+          "id": "e03e967d-5aa0-4fcc-b423-7e49a2afe730",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/conversations/019c5048-21bc-772e-b522-0c22454cccf3",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "conversations",
+                "019c5048-21bc-772e-b522-0c22454cccf3"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get persional conversation",
+          "id": "17dd3d7c-3bc8-4d49-9d0c-2357caf1cdf9",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/conversations/personal/019c24bb-2ec5-7994-aec3-9767305ac319",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "conversations",
+                "personal",
+                "019c24bb-2ec5-7994-aec3-9767305ac319"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "6019b41b-d922-4429-9dc4-8342ed516d3b"
     }
   ],
   "event": [
@@ -673,7 +789,7 @@
   ],
   "variable": [
     {
-      "id": "27f8d574-e8f0-45c5-b8bc-e452d2d62b12",
+      "id": "8bc5a1cb-a0bf-4d9b-9317-b82f5be02fae",
       "key": "token",
       "value": ""
     }

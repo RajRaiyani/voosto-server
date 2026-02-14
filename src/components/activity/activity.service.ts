@@ -7,7 +7,7 @@ export async function deleteActivity(db: DatabaseClient, id: string) {
   try{
     await db.begin();
     await db.query('DELETE FROM activities WHERE id = $1', [id]);
-    await db.query('DELETE FROM conversation_participants WHERE conversation_id = $1', [activity.conversation_id]);
+    await db.query('DELETE FROM conversation_members WHERE conversation_id = $1', [activity.conversation_id]);
     await db.query('DELETE FROM conversations WHERE id = $1', [activity.conversation_id]);
     await db.commit();
     return activity;

@@ -51,6 +51,9 @@ const pool = new Pool(dbConfig);
 // types.setTypeParser(1114, (dateStr) => new Date(`${dateStr} UTC`));
 types.setTypeParser(1700, (val) => parseFloat(val));
 
+// Type OID 1082 = DATE in PostgreSQL
+types.setTypeParser(1082, (value) => value); // returns 'YYYY-MM-DD' string as-is
+
 function convertNamedQueryToPositional(sqlStmt: string, params: object) {
   const values = [];
   const fields = [];

@@ -1,6 +1,6 @@
 import z from 'zod';
 
-const uuid = () => z.uuid({ version: 'v7' });
+const uuid = () => z.uuid({ version: 'v7', message: 'Invalid UUID' });
 
 export default {
   uuid,
@@ -87,7 +87,7 @@ export default {
         .coerce.number()
         .int()
         .min(1, 'Limit must be greater than 0')
-        .max(100, 'Limit must be less than 100')
+        .max(500, 'Limit must be less than 100')
         .default(30),
   },
   sort_orders: (...fields: string[]) =>

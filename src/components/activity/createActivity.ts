@@ -4,7 +4,7 @@ import ConfigValidationSchema from '@/config/validationSchema.js';
 import { DatabaseClient } from '@/service/database/index.js';
 import ActivityValidation from './activity.validation.js';
 import RedisClient from '@/service/redis/index.js';
-import { createNewGroupConversation } from '@/components/chat/chat.service.js';
+import { createConversation } from '@/components/conversation/conversation.service.js';
 
 const dateOnlyRegex = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -48,7 +48,13 @@ export async function Controller(
   try{
     await db.begin();
 
-    const conversation = await createNewGroupConversation(db, { name: description.slice(0, 200), adminId: req.user.id });
+    const conversation = await createConversation(db, {
+      name: description.slice(0, 200), 
+      is_group: true, 
+      is_private: is_private, 
+      is_womans_only: is_womans_only, 
+      members: [{ id: req.user.id, is_admin: true }] 
+    });
 
     const activity = await db.queryOne(
       `
@@ -59,12 +65,10 @@ export async function Controller(
           longitude,
           date,
           time,
-          is_private,
-          is_womans_only,
           created_by,
           conversation_id
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING *
       `,
       [
@@ -74,18 +78,16 @@ export async function Controller(
         location.longitude,
         date,
         time ?? null,
-        is_private ?? false,
-        is_womans_only ?? false,
         req.user.id,
         conversation.id,
       ]
     );
 
     if (activity && activity.latitude && activity.longitude) {
-      await RedisClient.geoAdd('activity:locations', {
+      await RedisClient.geoAdd('geo:activity', {
         longitude: activity.longitude,
         latitude: activity.latitude,
-        member: `activity:${activity.id}`,
+        member: activity.id,
       });
     }
 
