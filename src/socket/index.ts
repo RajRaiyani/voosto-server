@@ -4,7 +4,9 @@ import { Server as HttpServer } from 'http';
 import { createClient } from 'redis';
 import { createAdapter } from '@socket.io/redis-adapter';
 import env from '@/config/env.js';
-import validateUserSocketHandShake from '@/middleware/auth/validateUserSocketHandSahke.js';
+
+import validateUserSocketHandShake from '@/middleware/auth/validateUserSocketHandShake.js';
+import userIoHandler from './userIoHandler.js';
 
 const pubClient = createClient({
   url: env.redis.url,
@@ -32,6 +34,7 @@ export async function initSocket (server: HttpServer) {
   userSocketIo = io.of('/user');
 
   userSocketIo.use(validateUserSocketHandShake);
+  userIoHandler(userSocketIo);
 
   return io;
 }

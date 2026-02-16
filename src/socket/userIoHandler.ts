@@ -6,7 +6,10 @@ export default function userSocketHandler(io: Namespace) {
 
   io.on('connection', async (socket) => {
 
+    Logger.info(`User connected: ${socket.id}`);
+
     socket.on('ping', (message: string) => {
+      Logger.info(`User pinged: ${message}`);
       socket.emit('pong', message);
     });
 

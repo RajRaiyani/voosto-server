@@ -44,7 +44,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"email\": \"ajay@kamero.in\",\n    \"password\": \"Kamero@123\"\n}",
+              "raw": "{\n    \"email\": \"rraiyani62@gmail.com\",\n    \"password\": \"Admin@123\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -206,8 +206,17 @@
           "name": "Update location",
           "id": "2009df96-0ae6-4fb0-9cd5-83fb8724b2e3",
           "request": {
-            "method": "POST",
+            "method": "PUT",
             "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"location\": {\n        \"latitude\": 20.3,\n        \"longitude\": 32.3\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
               "raw": "{{host}}/users/location",
               "host": [
@@ -304,7 +313,7 @@
                   "type": "file",
                   "uuid": "44060938-08f3-48c5-a2e0-eefead571e77",
                   "src": [
-                    "/Users/r.p.raiyani/Documents/photo/8D37D8F7-29D7-4162-93C5-FFF9FBF96FCF.JPG"
+                    "/Users/r.p.raiyani/Documents/photo/IMG_0725.jpg"
                   ]
                 },
                 {
@@ -350,7 +359,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"My first Post\",\n  \"file_id\": \"019c52e6-34fa-77d5-bc19-426771e7723b\"\n}",
+              "raw": "{\n  \"title\": \"My second Post\",\n  \"file_id\": \"019c52eb-bf85-74b2-ada9-eb669a80153f\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -374,21 +383,21 @@
           "id": "2b9ed2c8-0841-47d4-a331-0b2179c32116",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidXNlcl9hdXRoX3Rva2VuIiwidXNlcl9pZCI6IjAxOWMyZTRiLTE1NDctN2VkMi04Y2ZkLTYzZTQ2OGEwOGI4NSIsImlhdCI6MTc3MDM3OTg3NiwiZXhwIjoxNzcwNDY2Mjc2fQ.ibDbOOtHm8Cxz8Oa7mo0fz2YbTgdo2f9zeibsX7gCH0",
-                "type": "text",
-                "uuid": "64ded498-bed8-4e7d-8c05-e59deb1a8806"
-              }
-            ],
+            "header": [],
             "url": {
-              "raw": "{{host}}/posts",
+              "raw": "{{host}}/posts?user_id=019bf9b5-dcf1-7be7-8b96-abdee5837090",
               "host": [
                 "{{host}}"
               ],
               "path": [
                 "posts"
+              ],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "019bf9b5-dcf1-7be7-8b96-abdee5837090",
+                  "uuid": "38c66472-45ee-4730-b28b-7c8a0f27839c"
+                }
               ]
             }
           },
@@ -418,14 +427,7 @@
           "id": "ceda54c2-ed0a-4d9c-bc03-696167f6813a",
           "request": {
             "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidXNlcl9hdXRoX3Rva2VuIiwidXNlcl9pZCI6IjAxOWMyZTRiLTE1NDctN2VkMi04Y2ZkLTYzZTQ2OGEwOGI4NSIsImlhdCI6MTc3MDM3OTg3NiwiZXhwIjoxNzcwNDY2Mjc2fQ.ibDbOOtHm8Cxz8Oa7mo0fz2YbTgdo2f9zeibsX7gCH0",
-                "type": "text",
-                "uuid": "65cc16d9-86a4-436b-9a84-a792e4786d81"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "{{host}}/posts/019c52ec-3637-7585-b29a-043ab969f1ac",
               "host": [
@@ -558,14 +560,7 @@
           "id": "825f82fb-83df-41b9-b269-bbc134f6307b",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidXNlcl9hdXRoX3Rva2VuIiwidXNlcl9pZCI6IjAxOWMyZTRlLWJhNjQtN2FjNS1iYzM0LWY5MjMwY2UxY2E2MyIsImlhdCI6MTc3MDM4MjA3OSwiZXhwIjoxNzcwNDY4NDc4fQ.JmEj3O2AZETRyFU1X7Uw1yxDcNMrCQDwgtygLDH0dJw",
-                "type": "text",
-                "uuid": "9ff75763-49de-4561-8069-c30c2220fbb1"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "{{host}}/users/friends",
               "host": [
@@ -593,7 +588,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"description\": \"Rajkot activity 2\",\n    \"category\": \"Shopping\",\n    \"date\":\"2027-02-10\",\n    \"time\": \"03:20\",\n    \"location\": {\n        \"latitude\": 23.018464, \n        \"longitude\":  72.558429\n    }\n}",
+              "raw": "{\n    \"description\": \"Ahemdabad activity 1\",\n    \"category\": \"Shopping\",\n    \"date\":\"2027-02-10\",\n    \"time\": \"03:20\",\n    \"location\": {\n        \"latitude\": 23.018464, \n        \"longitude\":  72.558429\n    }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -619,7 +614,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{host}}/activities?location%5Blatitude%5D=22.3038933&location%5Blongitude%5D=70.8021583&radius=14.0",
+              "raw": "{{host}}/activities?location%5Blatitude%5D=22.30604049786029&location%5Blongitude%5D=70.80085448920727&radius=30",
               "host": [
                 "{{host}}"
               ],
@@ -654,15 +649,18 @@
                 },
                 {
                   "key": "location%5Blatitude%5D",
-                  "value": "22.3038933"
+                  "value": "22.30604049786029",
+                  "uuid": "c2c6533c-11de-4cb8-a2b8-0b569c69eec8"
                 },
                 {
                   "key": "location%5Blongitude%5D",
-                  "value": "70.8021583"
+                  "value": "70.80085448920727",
+                  "uuid": "1c080716-3442-422c-899e-d5bf9fba1d2f"
                 },
                 {
                   "key": "radius",
-                  "value": "14.0"
+                  "value": "30",
+                  "uuid": "33fb7ab5-6841-48ce-9551-7b45c932e218"
                 }
               ]
             }
@@ -719,13 +717,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{host}}/conversations/019c5048-21bc-772e-b522-0c22454cccf3",
+              "raw": "{{host}}/conversations/019c5b72-8e82-7c29-a89a-65bb7cf3d69c",
               "host": [
                 "{{host}}"
               ],
               "path": [
                 "conversations",
-                "019c5048-21bc-772e-b522-0c22454cccf3"
+                "019c5b72-8e82-7c29-a89a-65bb7cf3d69c"
               ]
             }
           },
@@ -738,14 +736,14 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{host}}/conversations/personal/019c24bb-2ec5-7994-aec3-9767305ac319",
+              "raw": "{{host}}/conversations/personal/019c24cb-aee2-7a7e-8c9f-0313afc63ebe",
               "host": [
                 "{{host}}"
               ],
               "path": [
                 "conversations",
                 "personal",
-                "019c24bb-2ec5-7994-aec3-9767305ac319"
+                "019c24cb-aee2-7a7e-8c9f-0313afc63ebe"
               ]
             }
           },
@@ -789,7 +787,7 @@
   ],
   "variable": [
     {
-      "id": "8bc5a1cb-a0bf-4d9b-9317-b82f5be02fae",
+      "id": "ce9ae01a-48d5-46aa-9e8f-7249ee6091b2",
       "key": "token",
       "value": ""
     }
