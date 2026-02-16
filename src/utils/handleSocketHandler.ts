@@ -1,9 +1,30 @@
 import { Namespace, Socket } from 'socket.io';
 import { z } from 'zod';
-import { DatabaseClient } from '@/service/database/index.js';
-
+import { validateData } from '@/utils/validationHelper.js';
 import Database from '@/service/database/index.js';
 
+import {  SocketCallback, SocketEventHandler } from '@/socket/socket.type.js';
+
+type HandleSocketHandlerOptions = {
+  withDatabase?: boolean;
+};
+
+
+function sendError(
+  socket: Socket,
+  callback: SocketCallback,
+  code: string,
+  message: string,
+  details?: any
+): void {
+  const errorPayload = { success: false, code, message, details };
+
+  if (typeof callback === 'function') {
+    callback(errorPayload);
+  } else {
+    socket.emit('server_error', errorPayload);
+  }
+}
 
 export default function handleSocketHandler({
   io,
@@ -15,41 +36,36 @@ export default function handleSocketHandler({
   io: Namespace;
   socket: Socket;
   schema?: z.ZodSchema;
-  handler: (io: Namespace, socket: Socket, payload: z.infer<typeof schema>, callback: (response: any) => void, db?: DatabaseClient) => Promise<void>;
-  options?: {
-    withDatabase?: boolean;
-  };
+  handler: SocketEventHandler;
+  options?: HandleSocketHandlerOptions;
 }) {
 
-  return async (payload: any, callback: (response: any) => void) => {
+  return async (payload: any, callback: SocketCallback) => {
     
     let validatedData = payload;
 
     if (schema) {
-      const validationResult = schema.safeParse(payload);
-
-      if (!validationResult.success) {
-        return callback({ success: false, code: 'validation_error', message: validationResult.error.message });
+      try {
+        validatedData = validateData(schema, payload);
+      } catch (error) {
+        return sendError(socket, callback, 'validation_error', error.message, error.details);
       }
-
-      validatedData = validationResult.data;
     }
 
     try{
       if (options.withDatabase) {
         const db = await Database.getConnection();
-        
+
         try{
-          await handler(io, socket, validatedData, callback, db);
+          await handler({ io, socket, db }, validatedData, callback);
         } finally { db.release(); }
 
       } else {
-        await handler(io, socket, validatedData, callback);
+        await handler({ io, socket }, validatedData, callback);
       }
 
     } catch (error) {
-      socket.emit('error', { success: false, code: 'error', message: error.message });
-      return callback({ success: false, code: 'error', message: error.message });
+      return sendError(socket, callback, 'error', error.message, error.stack);
     }
 
   };

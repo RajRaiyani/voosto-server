@@ -160,7 +160,7 @@ export async function createMessage(
   try{
     await db.begin();
 
-    const message = await db.namedQueryOne(`
+    const message = await db.queryOne(`
     INSERT INTO messages (conversation_id, sender_id, content)
     VALUES ($1, $2, $3)
     RETURNING id, conversation_id, sender_id, content, created_at, seen_at

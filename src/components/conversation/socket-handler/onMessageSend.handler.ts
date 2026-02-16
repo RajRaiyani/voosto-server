@@ -1,16 +1,24 @@
-import { Socket, Namespace } from 'socket.io';
 import { z } from 'zod';
 import Schema from '@/config/validationSchema.js';
 import { createMessage } from '@/components/conversation/conversation.service.js';
-import { DatabaseClient } from '@/service/database/index.js';
+
+import { HandlerContext, SocketCallback } from '@/socket/socket.type.js';
 
 export const ValidationSchema = z.object({
   conversation_id: Schema.uuid(),
-  content: z.string().trim().max(10000, 'Message content must be less than 10000 characters'),
+  content: z
+    .string()
+    .trim()
+    .max(10000, 'Message content must be less than 10000 characters'),
   attachments: z.array(z.uuid()).default([]),
 });
 
-export async function Handler(io: Namespace, socket: Socket, payload: z.infer<typeof ValidationSchema>, callback: (response: any) => void, db: DatabaseClient) {
+export async function Handler(
+  ctx: HandlerContext,
+  payload: z.infer<typeof ValidationSchema>,
+  callback: SocketCallback,
+) {
+  const { socket, db } = ctx;
 
   const { conversation_id, content, attachments } = payload;
 
@@ -19,7 +27,7 @@ export async function Handler(io: Namespace, socket: Socket, payload: z.infer<ty
     senderId: socket.data.user.id,
     content: content.trim(),
     attachments,
-  }); 
+  });
 
   socket.to(conversation_id).emit('message:new', {
     conversation_id,
@@ -29,5 +37,4 @@ export async function Handler(io: Namespace, socket: Socket, payload: z.infer<ty
   });
 
   return callback({ success: true });
-
 }

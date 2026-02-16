@@ -248,6 +248,82 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "add friend",
+          "id": "3a2e0695-c77b-4bc9-b487-d7db74281599",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"receiver_id\": \"019bf9b5-dcf1-7be7-8b96-abdee5837090\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/users/friend-requests",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "users",
+                "friend-requests"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Friends",
+          "id": "ab7def70-1c17-404c-96e5-710208a18116",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"sender_id\": \"019bfb61-e061-7c46-96e1-2b6e1ca75900\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/users/friends",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "users",
+                "friends"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Ger user conversation",
+          "id": "5b831e1a-96f6-4ec5-ab86-a42d6254abe8",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/conversations/personal/019bfb61-e061-7c46-96e1-2b6e1ca75900",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "conversations",
+                "personal",
+                "019bfb61-e061-7c46-96e1-2b6e1ca75900"
+              ]
+            }
+          },
+          "response": []
         }
       ],
       "id": "66efc171-1ebf-4550-90c2-ed4bb1f246e7"
@@ -787,7 +863,7 @@
   ],
   "variable": [
     {
-      "id": "ce9ae01a-48d5-46aa-9e8f-7249ee6091b2",
+      "id": "8f8997b4-4b7a-4c08-a92a-c194df043971",
       "key": "token",
       "value": ""
     }

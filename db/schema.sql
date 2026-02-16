@@ -118,7 +118,7 @@ CREATE TABLE public.files (
     key text NOT NULL,
     _status character varying(100) DEFAULT 'pending'::character varying NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    url text GENERATED ALWAYS AS (('http://192.168.1.71:3007/files/'::text || key)) STORED NOT NULL
+    url text GENERATED ALWAYS AS (('http://localhost:3007/files/'::text || key)) STORED NOT NULL
 );
 
 
