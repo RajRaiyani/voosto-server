@@ -28,7 +28,7 @@ export default async function validateUserSocketHandShake(socket: Socket, next: 
           conversation_id as id 
         FROM conversation_members
         WHERE user_id = $1
-      `, [socket.data.userId]);
+      `, [payload.user_id]);
 
       conversations.forEach(conversation => {
         socket.join(conversation.id);

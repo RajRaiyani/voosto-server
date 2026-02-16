@@ -36,5 +36,7 @@ export async function Handler(
     attachments,
   });
 
-  return callback({ success: true });
+  if (typeof callback === 'function') {
+    callback({ success: true });
+  }
 }

@@ -98,7 +98,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"date_of_birth\": \"2003-02-03\",\n    \"gender\": \"male\",\n    \"country_id\": \"019bf86f-9e77-7961-a73a-9f68d6b7ed33\",\n    \"interested_activity\": \"Entertainment\",\n    \"profile_image_id\": \"019c0945-0dbf-7911-8a06-599fa40c880b\",\n    \"bio\": \"hellow world!\"\n}",
+              "raw": "{\n    \"date_of_birth\": \"2003-02-03\",\n    \"gender\": \"male\",\n    \"country_id\": \"019bf86f-9e77-7961-a73a-9f68d6b7ed33\",\n    \"interested_activity\": \"Entertainment\",\n    \"profile_image_id\": \"019c6532-7fc9-7a25-b608-95c0b454165c\",\n    \"bio\": \"hellow world!\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -389,7 +389,7 @@
                   "type": "file",
                   "uuid": "44060938-08f3-48c5-a2e0-eefead571e77",
                   "src": [
-                    "/Users/r.p.raiyani/Documents/photo/IMG_0725.jpg"
+                    "/Users/r.p.raiyani/Documents/photo/IMG_0531.heic"
                   ]
                 },
                 {
@@ -863,7 +863,7 @@
   ],
   "variable": [
     {
-      "id": "8f8997b4-4b7a-4c08-a92a-c194df043971",
+      "id": "a5ba90f5-6e37-4ee4-804e-baabf8440323",
       "key": "token",
       "value": ""
     }

@@ -126,16 +126,22 @@ export async function getMessageById(db: DatabaseClient, messageId: string): Pro
         'full_name', u.full_name
       ) AS sender,
 
-      COALESCE(array_agg(json_build_object(
-        'id', f.id,
-        'url', f.url
-      )) FILTER (WHERE f.id IS NOT NULL), '[]'::json[]) AS attachments
+      COALESCE(
+        json_agg(
+          json_build_object(
+            'id', f.id,
+            'url', f.url
+          )
+        ) FILTER (WHERE f.id IS NOT NULL),
+        '[]'::json
+      ) AS attachments
 
     FROM messages m
     LEFT JOIN users u ON u.id = m.sender_id
     LEFT JOIN message_attachments ma ON ma.message_id = m.id
     LEFT JOIN files f ON f.id = ma.file_id
-    WHERE m.id = $1
+    GROUP BY m.id, u.id
+    HAVING m.id = $1
   `, [messageId]);
 }
 
@@ -177,7 +183,7 @@ export async function createMessage(
 
     await db.commit();
 
-    return getMessageById(db, message.id);
+    return await getMessageById(db, message.id);
     
   } catch (error) {
     await db.rollback();
