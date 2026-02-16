@@ -116,11 +116,9 @@ CREATE TABLE public.countries (
 CREATE TABLE public.files (
     id uuid DEFAULT uuidv7() NOT NULL,
     key text NOT NULL,
-    size bigint NOT NULL,
     _status character varying(100) DEFAULT 'pending'::character varying NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    mimetype character varying(200),
-    url text GENERATED ALWAYS AS (('http://localhost:3007/files/'::text || key)) STORED NOT NULL
+    url text GENERATED ALWAYS AS (('http://192.168.1.71:3007/files/'::text || key)) STORED NOT NULL
 );
 
 
@@ -518,4 +516,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20260211065012'),
     ('20260211110548'),
     ('20260212173852'),
-    ('20260213070435');
+    ('20260213070435'),
+    ('20260215084528');

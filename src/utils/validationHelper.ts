@@ -29,7 +29,6 @@ const validate = (schema: { [key: string]: z.ZodObject<any, any> }) => (req: Req
     const result = key === 'query' ? schema[key].safeParse(parseQuery(req)) : schema[key].safeParse(req[key]);
 
 
-
     if (result.error) {
 
       const details = { [key]: {} };
@@ -52,5 +51,6 @@ const validate = (schema: { [key: string]: z.ZodObject<any, any> }) => (req: Req
   next();
 
 };
+
 
 export { validate, ValidationError, z };

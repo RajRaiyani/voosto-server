@@ -12,6 +12,7 @@ export const ValidationSchema = {
 
 export async function Controller(req: Request, res: Response, next: NextFunction, db: DatabaseClient) {
   const { user_id } = req.params as z.infer<typeof ValidationSchema.params>;
+  const currentUserId = req.user.id;
 
   const user = await db.queryOne(`--sql
     SELECT
@@ -40,13 +41,21 @@ export async function Controller(req: Request, res: Response, next: NextFunction
 
       (
         SELECT COUNT(*)::integer FROM user_posts up WHERE up.user_id = u.id
-      ) as post_count
+      ) as post_count,
+
+      (
+        SELECT CASE WHEN COUNT(*) > 0 THEN true ELSE false END FROM friend_mappings fm WHERE fm.status = 'accepted' AND ((fm.sender_id = $2 AND fm.receiver_id = u.id) OR (fm.sender_id = u.id AND fm.receiver_id = $2))
+      ) as is_friend,
+
+      (
+        SELECT CASE WHEN COUNT(*) > 0 THEN true ELSE false END FROM friend_mappings fm WHERE fm.status = 'pending' AND ((fm.sender_id = $2 AND fm.receiver_id = u.id) OR (fm.sender_id = u.id AND fm.receiver_id = $2))
+      ) as has_pending_friend_request
 
     FROM users u
     LEFT JOIN files f ON f.id = u.profile_image_id
     LEFT JOIN countries c ON c.id = u.country_id
     WHERE u.id = $1
-  `, [user_id]);
+  `, [user_id, currentUserId]);
 
   if (!user) return res.status(404).json({ message: 'User not found' });
 

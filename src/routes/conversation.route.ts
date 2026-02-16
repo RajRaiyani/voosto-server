@@ -8,11 +8,12 @@ import { ValidationSchema as ListMessagesSchema, Controller as ListMessagesContr
 import { ValidationSchema as SendMessageSchema, Controller as SendMessageController } from '@/components/conversation/sendMessage.js';
 import { ValidationSchema as GetPrivateConversationSchema, Controller as GetPrivateConversationController } from '@/components/conversation/getPersonalConversation.js';
 import { ValidationSchema as JoinConversationSchema, Controller as JoinConversationController } from '@/components/conversation/joinConversation.js';
-import { ValidationSchema as CreateJoiningRequestSchema, Controller as CreateJoiningRequestController } from '@/components/conversation/createJoiningRequest.js';
 import { ValidationSchema as AcceptJoiningRequestSchema, Controller as AcceptJoiningRequestController } from '@/components/conversation/acceptJoiningRequest.js';
 import { ValidationSchema as LeaveConversationSchema, Controller as LeaveConversationController } from '@/components/conversation/leaveConversations.js';
 import imageUpload from '@/middleware/multer/imageUpload.js';
-
+import { ValidationSchema as ListConversationJoiningRequestSchema, Controller as ListConversationJoiningRequestController } from '@/components/conversation/listConversationJoiningRequest.js';
+import { ValidationSchema as DeleteConversationJoiningRequestSchema, Controller as DeleteConversationJoiningRequestController } from '@/components/conversation/deleteConversationJoiningRequest.js';
+import { ValidationSchema as ListConversationMembersSchema, Controller as ListConversationMembersController } from '@/components/conversation/listConversationMemebers.js';
 
 const router = express.Router();
 
@@ -42,12 +43,19 @@ router
   .post(isUserLoggedIn, validate(LeaveConversationSchema), withDatabase(LeaveConversationController));
 
 router
-  .route('/:conversation_id/join-request')
-  .post(isUserLoggedIn, validate(CreateJoiningRequestSchema), withDatabase(CreateJoiningRequestController));
+  .route('/:conversation_id/join-requests')
+  .get(isUserLoggedIn, validate(ListConversationJoiningRequestSchema), withDatabase(ListConversationJoiningRequestController));
 
 router
   .route('/:conversation_id/join-request/:user_id/accept')
   .post(isUserLoggedIn, validate(AcceptJoiningRequestSchema), withDatabase(AcceptJoiningRequestController));
 
+router
+  .route('/:conversation_id/join-request/:user_id/delete')
+  .delete(isUserLoggedIn, validate(DeleteConversationJoiningRequestSchema), withDatabase(DeleteConversationJoiningRequestController));
+
+router
+  .route('/:conversation_id/members')
+  .get(isUserLoggedIn, validate(ListConversationMembersSchema), withDatabase(ListConversationMembersController));
 
 export default router;

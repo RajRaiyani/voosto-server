@@ -157,22 +157,32 @@ export async function createMessage(
 
   if (attachments.length && (!content || content.trim().length === 0)) throw new ServerError('ERROR', 'Message content is required');
 
-  const message = await db.namedQueryOne(`
+  try{
+    await db.begin();
+
+    const message = await db.namedQueryOne(`
     INSERT INTO messages (conversation_id, sender_id, content)
     VALUES ($1, $2, $3)
     RETURNING id, conversation_id, sender_id, content, created_at, seen_at
   `,
-  [conversationId, senderId, content?.trim()]
-  );
+    [conversationId, senderId, content?.trim()]
+    );
 
-  for (const attachment of attachments) {
-    await db.query(`
+    for (const attachment of attachments) {
+      await db.query(`
       INSERT INTO message_attachments (message_id, file_id)
       VALUES ($1, $2)
     `, [message.id, attachment]);
-  }
+    }
 
-  return getMessageById(db, message.id);
+    await db.commit();
+
+    return getMessageById(db, message.id);
+    
+  } catch (error) {
+    await db.rollback();
+    throw error;
+  }
 }
 
 
@@ -300,7 +310,7 @@ export async function addMemberToConversation(db: DatabaseClient, conversationId
   const member = await db.queryOne(`
       INSERT INTO conversation_members (conversation_id, user_id, is_admin)
       VALUES ($1, $2, $3)
-      RETURNING id
+      RETURNING conversation_id, user_id, is_admin
     `, [conversationId, userId, isAdmin]);
 
   return member;
@@ -311,7 +321,7 @@ export async function createJoiningRequest(db: DatabaseClient, conversationId: s
   const joiningRequest = await db.queryOne(`
     INSERT INTO conversation_joining_requests (conversation_id, user_id)
     VALUES ($1, $2)
-    RETURNING id
+    RETURNING conversation_id, user_id
   `, [conversationId, userId]);
 
   return joiningRequest;
@@ -330,8 +340,9 @@ export async function isAdminOfConversation(db: DatabaseClient, conversationId: 
 export async function removeMemberFromConversation(db: DatabaseClient, conversationId: string, userId: string): Promise<void> {
   const member = await db.queryOne(`
     DELETE FROM conversation_members WHERE conversation_id = $1 AND user_id = $2
-    RETURNING id
+    RETURNING conversation_id, user_id, is_admin
   `, [conversationId, userId]);
 
   return member;
 }
+

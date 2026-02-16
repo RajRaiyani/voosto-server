@@ -40,8 +40,6 @@ export async function Controller(
         up.meta_data,
         
         CASE WHEN f.id IS NOT NULL THEN ($1 || '/' || f.key) ELSE NULL END as file_url,
-        f.size as file_size,
-        f.mimetype as file_mimetype,
         f._status as file_status,
         f.created_at as created_at
         

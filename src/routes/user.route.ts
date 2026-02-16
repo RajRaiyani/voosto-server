@@ -65,6 +65,6 @@ router.route('/location')
   .put(isUserLoggedIn, validate(UpdateUserLocationValidationSchema), UpdateUserLocationController);
 
 router.route('/:user_id')
-  .get(validate(GetUserProfileValidationSchema), withDatabase(GetUserProfileController));
+  .get(isUserLoggedIn, validate(GetUserProfileValidationSchema), withDatabase(GetUserProfileController));
   
 export default router;

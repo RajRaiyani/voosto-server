@@ -36,8 +36,6 @@ export async function GetPostById(db: DatabaseClient, post_id: string): Promise<
           'id', f.id,
           'key', f.key,
           'url', f.url,
-          'size', f.size,
-          'mimetype', f.mimetype,
           'created_at', f.created_at
         )
       ELSE NULL END as file,
@@ -74,8 +72,6 @@ export async function ListUserPosts(db: DatabaseClient, user_id: string) {
           'id', f.id,
           'key', f.key,
           'url', f.url,
-          'size', f.size,
-          'mimetype', f.mimetype,
           'created_at', f.created_at
         )
       ELSE NULL END as file,

@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
 import { z } from 'zod';
 import Schema from '@/config/validationSchema.js';
-import { getConversationById, isMemberOfConversation, addMemberToConversation } from '@/components/conversation/conversation.service.js';
+import { getConversationById, isMemberOfConversation, addMemberToConversation, createJoiningRequest } from '@/components/conversation/conversation.service.js';
 
 export const ValidationSchema = {
   params: z.object({
@@ -34,7 +34,17 @@ export async function Controller(req: Request, res: Response, next: NextFunction
   }
 
   if (conversation.is_private ) {
-    return res.status(400).json({ message: 'You cannot join a private conversation' });
+    const pendingRequest = await db.queryOne(`
+    SELECT conversation_id, created_at FROM conversation_joining_requests WHERE conversation_id = $1 AND user_id = $2
+  `, [conversation_id, userId]);  
+
+    if (pendingRequest) {
+      return res.status(200).json(pendingRequest);
+    }
+
+    const joiningRequest = await createJoiningRequest(db, conversation_id, userId);
+  
+    return res.status(200).json(joiningRequest);
   }
 
   await addMemberToConversation(db, conversation_id, userId, false);
