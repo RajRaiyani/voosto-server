@@ -15,11 +15,12 @@ import { ValidationSchema as CompleteUserProfileValidationSchema, Controller as 
 import { ValidationSchema as UpdateProfileValidationSchema, Controller as UpdateProfileController } from '@/components/user/updateProfile.js';
 import { ValidationSchema as SendFriendRequestValidationSchema, Controller as SendFriendRequestController } from '@/components/user/sendFriendRequest.js';
 import { ValidationSchema as AcceptFriendRequestValidationSchema, Controller as AcceptFriendRequestController } from '@/components/user/acceptFriendRequest.js';
-import { Controller as ListIncomingRequestsController } from '@/components/user/listIncomingRequests.js';
+import { Controller as ListIncomingRequestsController } from '@/components/user/listFriendRequests.js';
 import { Controller as ListFriendsController } from '@/components/user/listFriends.js';
 import { ValidationSchema as UpdateUserLocationValidationSchema, Controller as UpdateUserLocationController } from '@/components/user/updateUserLocation.js';
 import { ValidationSchema as GetUserProfileValidationSchema, Controller as GetUserProfileController } from '@/components/user/getUserProfile.js';
-  
+import { ValidationSchema as UnFriendUserValidationSchema, Controller as UnFriendUserController } from '@/components/user/unFriendUser.js';
+
 const router = express.Router();
 
 router.route('/register')
@@ -66,5 +67,8 @@ router.route('/location')
 
 router.route('/:user_id')
   .get(isUserLoggedIn, validate(GetUserProfileValidationSchema), withDatabase(GetUserProfileController));
-  
+
+router.route('/:user_id/unfriend')
+  .delete(isUserLoggedIn, validate(UnFriendUserValidationSchema), withDatabase(UnFriendUserController));
+
 export default router;

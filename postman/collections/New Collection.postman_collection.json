@@ -564,14 +564,7 @@
           "id": "352c9fe8-a727-4928-b0ec-55a9a6184393",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidXNlcl9hdXRoX3Rva2VuIiwidXNlcl9pZCI6IjAxOWMyZTRlLWJhNjQtN2FjNS1iYzM0LWY5MjMwY2UxY2E2MyIsImlhdCI6MTc3MDM4MjA3OSwiZXhwIjoxNzcwNDY4NDc4fQ.JmEj3O2AZETRyFU1X7Uw1yxDcNMrCQDwgtygLDH0dJw",
-                "type": "text",
-                "uuid": "8bd8ccd7-b458-4c0f-86de-77debdbe5ad0"
-              }
-            ],
+            "header": [],
             "body": {
               "mode": "raw",
               "raw": "",
@@ -582,14 +575,13 @@
               }
             },
             "url": {
-              "raw": "{{host}}/users/friend-requests/incoming",
+              "raw": "{{host}}/users/friend-requests",
               "host": [
                 "{{host}}"
               ],
               "path": [
                 "users",
-                "friend-requests",
-                "incoming"
+                "friend-requests"
               ]
             }
           },
@@ -863,7 +855,7 @@
   ],
   "variable": [
     {
-      "id": "a5ba90f5-6e37-4ee4-804e-baabf8440323",
+      "id": "e8f3b638-4d7f-4848-9561-026728c62476",
       "key": "token",
       "value": ""
     }

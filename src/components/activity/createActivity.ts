@@ -6,24 +6,14 @@ import ActivityValidation from './activity.validation.js';
 import RedisClient from '@/service/redis/index.js';
 import { createConversation } from '@/components/conversation/conversation.service.js';
 
-const dateOnlyRegex = /^\d{4}-\d{2}-\d{2}$/;
 
 export const ValidationSchema = {
   body: z.object({
-    description: z.string().trim()
-      .min(10, 'Description must be at least 10 characters')
-      .max(500, 'Description must be less than 500 characters'),
+    description: ActivityValidation.description(),
     category: ActivityValidation.category(),
     location: ConfigValidationSchema.location(),
-    date: z.string().trim().regex(dateOnlyRegex, 'Date must be YYYY-MM-DD'),
-    time: z
-      .string()
-      .trim()
-      .regex(
-        /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/,
-        { message: 'Time must be in HH:MM or HH:MM:SS 24h format' }
-      )
-      .optional(),
+    date: ActivityValidation.date(),
+    time: ActivityValidation.time().nullish().optional(),
     is_private: z.boolean().default(false),
     is_womans_only: z.boolean().default(false),
   }),

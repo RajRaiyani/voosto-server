@@ -6,29 +6,23 @@ export async function Controller(req: Request, res: Response, next: NextFunction
 
   const incomingRequests = await db.queryAll(`
     SELECT 
-      fm.sender_id,
-      fm.receiver_id,
       fm.status,
       fm.created_at,
-      
-      u.id as user_id,
-      u.first_name,
-      u.last_name,
-      u.email,
-      u.gender,
-      u.bio,
-      u.interested_activity,
-      
-      CASE WHEN f.id IS NOT NULL THEN f.url ELSE NULL END as profile_image_url,
-      
-      CASE WHEN c.id IS NOT NULL THEN
-        json_build_object(
+
+      json_build_object(
+        'id', u.id,
+        'full_name', u.full_name,
+        'email', u.email,
+        'gender', u.gender,
+        'bio', u.bio,
+        'interested_activity', u.interested_activity,
+        'profile_image_url', f.url,
+        'country', json_build_object(
           'id', c.id,
-          'name', c.name, 
-          'code', c.code, 
-          'dial_code', c.dial_code
+          'name', c.name,
+          'code', c.code
         )
-      ELSE NULL END as country
+      ) as sender
       
     FROM friend_mappings fm
     INNER JOIN users u ON u.id = fm.sender_id
