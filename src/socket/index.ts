@@ -40,11 +40,17 @@ export async function initSocket (server: HttpServer) {
 }
 
 const SocketService = {
-
   get io() { return socketIo; },
   get userIo() { return userSocketIo; },
 
   listen: initSocket,
+
+  async isUserOnline(userId: string): Promise<boolean> {
+    if (!userSocketIo) return false;
+
+    const sockets = await userSocketIo.in(userId).fetchSockets();
+    return sockets.length > 0;
+  },
 };
 
 export default SocketService;

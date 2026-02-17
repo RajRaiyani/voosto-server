@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
 import Env from '@/config/env.js';
+import SocketService from '@/socket/index.js';
 
 
 export async function Controller(req: Request, res: Response, next: NextFunction, db: DatabaseClient) {
@@ -42,5 +43,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
 
   if (!user) return res.status(404).json({ message: 'User not found' });
 
-  return res.status(200).json(user);
+  const isOnline = await SocketService.isUserOnline(user.id);
+
+  return res.status(200).json({ ...user, is_online: isOnline });
 }

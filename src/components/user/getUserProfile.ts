@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
 import Schema from '@/config/validationSchema.js';
 import { z } from 'zod';
+import SocketService from '@/socket/index.js';
 
 
 export const ValidationSchema = {
@@ -59,5 +60,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
 
   if (!user) return res.status(404).json({ message: 'User not found' });
 
-  return res.status(200).json(user);
+  const isOnline = await SocketService.isUserOnline(user.id);
+
+  return res.status(200).json({ ...user, is_online: isOnline });
 }

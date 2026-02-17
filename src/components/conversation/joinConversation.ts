@@ -3,6 +3,7 @@ import { DatabaseClient } from '@/service/database/index.js';
 import { z } from 'zod';
 import Schema from '@/config/validationSchema.js';
 import { getConversationById, isMemberOfConversation, addMemberToConversation, createJoiningRequest } from '@/components/conversation/conversation.service.js';
+import SocketService from '@/socket/index.js';
 
 export const ValidationSchema = {
   params: z.object({
@@ -49,5 +50,20 @@ export async function Controller(req: Request, res: Response, next: NextFunction
 
   await addMemberToConversation(db, conversation_id, userId, false);
 
+  const userIo = SocketService.userIo;
+  if (userIo) {
+    const member = await db.queryOne<{ id: string; full_name: string; profile_image_url: string | null }>(`
+      SELECT u.id, u.full_name, f.url AS profile_image_url
+      FROM users u
+      LEFT JOIN files f ON f.id = u.profile_image_id
+      WHERE u.id = $1
+    `, [userId]);
+    const payload = {
+      conversation_id,
+      user: member ? { id: member.id, full_name: member.full_name, profile_image_url: member.profile_image_url } : { id: userId, full_name: '', profile_image_url: null },
+    };
+    userIo.to(conversation_id).emit('conversation:member_joined', payload);
+    userIo.in(userId).socketsJoin(conversation_id);
+  }
   return res.status(204).send();
 }
