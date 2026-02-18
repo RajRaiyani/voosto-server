@@ -226,13 +226,14 @@ export async function listConversationMessages(db: DatabaseClient, conversationI
       COALESCE(array_agg(json_build_object(
         'id', f.id,
         'url', f.url
-      )) FILTER (WHERE f.id IS NOT NULL), '[]'::json[]) AS attachments
+      )) FILTER (WHERE f.id IS NOT NULL), '{}'::json[]) AS attachments
 
     FROM messages m
     LEFT JOIN users u ON u.id = m.sender_id
     LEFT JOIN message_attachments ma ON ma.message_id = m.id
     LEFT JOIN files f ON f.id = ma.file_id
     WHERE ${whereClause}
+    GROUP BY m.id, u.id
     ORDER BY m.created_at DESC
     OFFSET $2 LIMIT $3
   `, values);

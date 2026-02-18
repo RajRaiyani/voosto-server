@@ -816,6 +816,18 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "list messages",
+          "id": "2e3bedff-a4a3-42f2-8870-f25a186ac9fe",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
         }
       ],
       "id": "6019b41b-d922-4429-9dc4-8342ed516d3b"
@@ -855,7 +867,7 @@
   ],
   "variable": [
     {
-      "id": "e8f3b638-4d7f-4848-9561-026728c62476",
+      "id": "9f8cd939-9f34-4602-928f-fe189afcff7e",
       "key": "token",
       "value": ""
     }

@@ -8,11 +8,11 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_18_voosto_data:/var/lib/postgresql
+      - postgres_18_data:/var/lib/postgresql
 
   redis:
     image: redis:latest
-    container_name: voosto-redis
+    container_name: redis
     ports:
       - "6379:6379"
     volumes:
@@ -37,7 +37,7 @@ services:
     command: sh -c "npx dbmate up && npm run start"
 
 volumes:
-  postgres_18_voosto_data:
+  postgres_18_data:
     driver: local
   redis_data:
     driver: local

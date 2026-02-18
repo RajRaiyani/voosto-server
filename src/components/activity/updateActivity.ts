@@ -38,12 +38,13 @@ export async function Controller(req: Request, res: Response, next: NextFunction
       SET 
         description = $1, 
         category = $2, 
-        location = $3, 
-        date = $4, 
-        time = $5
-      WHERE id = $6
+        latitude = $3,
+        longitude = $4,
+        date = $5, 
+        time = $6
+      WHERE id = $7
       RETURNING *
-      `, [description, category, location, date, time, activity_id]);
+      `, [description, category, location.latitude, location.longitude, date, time, activity_id]);
 
     await db.query(`
         UPDATE conversations
