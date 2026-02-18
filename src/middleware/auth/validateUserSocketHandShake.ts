@@ -42,7 +42,8 @@ export default async function validateUserSocketHandShake(socket: Socket, next: 
             f.url as profile_image_url
           FROM users u
           LEFT JOIN files f ON f.id = u.profile_image_id
-        `);
+          WHERE u.id = $1
+        `, [payload.user_id]);
 
       socket.data.user = user;
 
