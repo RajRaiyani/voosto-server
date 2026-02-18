@@ -12,14 +12,12 @@ export const ValidationSchema = {
 export async function Controller(req: Request, res: Response, next: NextFunction) {
   const { location } = req.body as z.infer<typeof ValidationSchema.body>;
 
-  const existingUser = await RedisClient.geoPos('user:locations', `user:${req.user.id}`);
-  console.log(existingUser);
 
-  await RedisClient.geoAdd('user:locations', 
+  await RedisClient.geoAdd('geo:user', 
     {
       longitude: location.longitude,
       latitude: location.latitude,
-      member: `user:${req.user.id}`,
+      member: req.user.id,
     }
   );
 

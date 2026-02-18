@@ -16,7 +16,7 @@ import { ValidationSchema as UpdateProfileValidationSchema, Controller as Update
 import { ValidationSchema as SendFriendRequestValidationSchema, Controller as SendFriendRequestController } from '@/components/user/sendFriendRequest.js';
 import { ValidationSchema as AcceptFriendRequestValidationSchema, Controller as AcceptFriendRequestController } from '@/components/user/acceptFriendRequest.js';
 import { Controller as ListIncomingRequestsController } from '@/components/user/listFriendRequests.js';
-import { Controller as ListFriendsController } from '@/components/user/listFriends.js';
+import { ValidationSchema as ListFriendsValidationSchema, Controller as ListFriendsController } from '@/components/user/listFriends.js';
 import { ValidationSchema as UpdateUserLocationValidationSchema, Controller as UpdateUserLocationController } from '@/components/user/updateUserLocation.js';
 import { ValidationSchema as GetUserProfileValidationSchema, Controller as GetUserProfileController } from '@/components/user/getUserProfile.js';
 import { ValidationSchema as UnFriendUserValidationSchema, Controller as UnFriendUserController } from '@/components/user/unFriendUser.js';
@@ -53,7 +53,7 @@ router.route('/complete-profile')
 
 
 router.route('/friends')
-  .get(isUserLoggedIn, withDatabase(ListFriendsController));
+  .get(isUserLoggedIn, validate(ListFriendsValidationSchema), withDatabase(ListFriendsController));
   
 router.route('/friend-requests')
   .get(isUserLoggedIn, withDatabase(ListIncomingRequestsController))
