@@ -16,12 +16,17 @@ import { ValidationSchema as UpdateProfileValidationSchema, Controller as Update
 import { ValidationSchema as SendFriendRequestValidationSchema, Controller as SendFriendRequestController } from '@/components/user/sendFriendRequest.js';
 import { ValidationSchema as AcceptFriendRequestValidationSchema, Controller as AcceptFriendRequestController } from '@/components/user/acceptFriendRequest.js';
 import { Controller as ListIncomingRequestsController } from '@/components/user/listFriendRequests.js';
-import { ValidationSchema as ListFriendsValidationSchema, Controller as ListFriendsController } from '@/components/user/listFriends.js';
+import { Controller as ListFriendsController } from '@/components/user/listFriends.js';
 import { ValidationSchema as UpdateUserLocationValidationSchema, Controller as UpdateUserLocationController } from '@/components/user/updateUserLocation.js';
 import { ValidationSchema as GetUserProfileValidationSchema, Controller as GetUserProfileController } from '@/components/user/getUserProfile.js';
 import { ValidationSchema as UnFriendUserValidationSchema, Controller as UnFriendUserController } from '@/components/user/unFriendUser.js';
+import { ValidationSchema as ListUsersValidationSchema, Controller as ListUsersController } from '@/components/user/listUsers.js';
 
 const router = express.Router();
+
+router.route('/')
+  .get(isUserLoggedIn, validate(ListUsersValidationSchema), withDatabase(ListUsersController));
+
 
 router.route('/register')
   .post(validate(RegisterNewUserValidationSchema), withDatabase(RegisterNewUserController));
@@ -51,9 +56,8 @@ router.route('/profile')
 router.route('/complete-profile')
   .put(isUserLoggedIn, validate(CompleteUserProfileValidationSchema), withDatabase(CompleteUserProfileController));
 
-
 router.route('/friends')
-  .get(isUserLoggedIn, validate(ListFriendsValidationSchema), withDatabase(ListFriendsController));
+  .get(isUserLoggedIn, withDatabase(ListFriendsController));
   
 router.route('/friend-requests')
   .get(isUserLoggedIn, withDatabase(ListIncomingRequestsController))
