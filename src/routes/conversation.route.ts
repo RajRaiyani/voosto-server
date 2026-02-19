@@ -4,6 +4,7 @@ import isUserLoggedIn from '@/middleware/auth/isUserLoggedIn.js';
 import { validate } from '@/utils/validationHelper.js';
 import { ValidationSchema as ListConversationsSchema, Controller as ListConversationsController } from '@/components/conversation/listConversations.js';
 import { ValidationSchema as GetConversationSchema, Controller as GetConversationController } from '@/components/conversation/getConversation.js';
+import { ValidationSchema as UpdateConversationSchema, Controller as UpdateConversationController } from '@/components/conversation/updateConversation.js';
 import { ValidationSchema as ListMessagesSchema, Controller as ListMessagesController } from '@/components/conversation/listMessages.js';
 import { ValidationSchema as SendMessageSchema, Controller as SendMessageController } from '@/components/conversation/sendMessage.js';
 import { ValidationSchema as GetPrivateConversationSchema, Controller as GetPrivateConversationController } from '@/components/conversation/getPersonalConversation.js';
@@ -27,7 +28,8 @@ router
 
 router
   .route('/:conversation_id')
-  .get(isUserLoggedIn, validate(GetConversationSchema), withDatabase(GetConversationController));
+  .get(isUserLoggedIn, validate(GetConversationSchema), withDatabase(GetConversationController))
+  .put(isUserLoggedIn, validate(UpdateConversationSchema), withDatabase(UpdateConversationController));
 
 router
   .route('/:conversation_id/messages')
