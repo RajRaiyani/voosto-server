@@ -180,6 +180,21 @@ CREATE TABLE public.tokens (
 
 
 --
+-- Name: trips; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.trips (
+    id uuid DEFAULT uuidv7() NOT NULL,
+    conversation_id uuid NOT NULL,
+    place character varying(255) NOT NULL,
+    date date,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    created_by uuid NOT NULL,
+    updated_at timestamp with time zone
+);
+
+
+--
 -- Name: user_posts; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -289,6 +304,14 @@ ALTER TABLE ONLY public.messages
 
 ALTER TABLE ONLY public.tokens
     ADD CONSTRAINT pk_tokens_token PRIMARY KEY (token);
+
+
+--
+-- Name: trips pk_trips_id; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.trips
+    ADD CONSTRAINT pk_trips_id PRIMARY KEY (id);
 
 
 --
@@ -460,6 +483,22 @@ ALTER TABLE ONLY public.messages
 
 
 --
+-- Name: trips fk_trips_conversation_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.trips
+    ADD CONSTRAINT fk_trips_conversation_id FOREIGN KEY (conversation_id) REFERENCES public.conversations(id);
+
+
+--
+-- Name: trips fk_trips_created_by; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.trips
+    ADD CONSTRAINT fk_trips_created_by FOREIGN KEY (created_by) REFERENCES public.users(id);
+
+
+--
 -- Name: user_posts fk_user_posts_file_id; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -517,4 +556,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20260211110548'),
     ('20260212173852'),
     ('20260213070435'),
-    ('20260215084528');
+    ('20260215084528'),
+    ('20260219105456');
