@@ -12,6 +12,6 @@ export type HandlerContext = {
 
 export type SocketEventHandler = (
   ctx: HandlerContext,
-  payload: any,
+  payload: any | undefined,
   callback: SocketCallback
 ) => Promise<void>;

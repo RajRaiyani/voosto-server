@@ -5,6 +5,7 @@ import { DatabaseClient } from '@/service/database/index.js';
 import ActivityValidation from './activity.validation.js';
 import RedisClient from '@/service/redis/index.js';
 import { createConversation } from '@/components/conversation/conversation.service.js';
+import ServerEvent from '@/service/event/index.js';
 
 
 export const ValidationSchema = {
@@ -82,8 +83,11 @@ export async function Controller(
     }
 
     await db.commit();
+    
+    res.status(200).json(activity);
 
-    return res.status(200).json(activity);
+    ServerEvent.emit('activity:created', activity.id);
+    
   } catch (error) {
     await db.rollback();
     throw error;

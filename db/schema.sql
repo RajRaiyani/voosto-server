@@ -159,6 +159,19 @@ CREATE TABLE public.messages (
 
 
 --
+-- Name: notifications; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.notifications (
+    id uuid DEFAULT uuidv7() NOT NULL,
+    type character varying(100) DEFAULT 'general'::character varying NOT NULL,
+    user_id uuid NOT NULL,
+    meta_data jsonb DEFAULT '{}'::jsonb NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
 -- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -296,6 +309,14 @@ ALTER TABLE ONLY public.message_attachments
 
 ALTER TABLE ONLY public.messages
     ADD CONSTRAINT pk_messages_id PRIMARY KEY (id);
+
+
+--
+-- Name: notifications pk_notifications_id; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.notifications
+    ADD CONSTRAINT pk_notifications_id PRIMARY KEY (id);
 
 
 --
@@ -483,6 +504,14 @@ ALTER TABLE ONLY public.messages
 
 
 --
+-- Name: notifications fk_notifications_user_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.notifications
+    ADD CONSTRAINT fk_notifications_user_id FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
 -- Name: trips fk_trips_conversation_id; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -557,4 +586,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20260212173852'),
     ('20260213070435'),
     ('20260215084528'),
-    ('20260219105456');
+    ('20260219105456'),
+    ('20260220084853');

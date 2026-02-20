@@ -151,10 +151,36 @@ async function getConnection() {
   return obj;
 }
 
+
+async function queryOne<T = any>(sqlStmt: string, params?: any[]): Promise<T | null> {
+  const res = await pool.query<T>(sqlStmt, params);
+  return res.rows[0];
+}
+
+async function queryAll<T = any>(sqlStmt: string, params?: any[]): Promise<T[]> {
+  const res = await pool.query<T>(sqlStmt, params);
+  return res.rows;
+}
+
+async function namedQueryAll<T = any>(sqlStmt: string, params?: object): Promise<T[]> {
+  const newQuery = convertNamedQueryToPositional(sqlStmt, params);
+  const res = await queryAll<T>(newQuery.sqlStmt, newQuery.params);
+  return res;
+}
+
+async function namedQueryOne<T = any>(sqlStmt: string, params?: object): Promise<T | null> {
+  const res = await namedQueryAll<T>(sqlStmt, params);
+  return res[0];
+}
+
 export type DatabaseClient = Awaited<ReturnType<typeof getConnection>>;
 
 export default {
   pool,
   getConnection,
   parameter: (): Parameter => new Parameter(),
+  queryOne,
+  queryAll,
+  namedQueryAll,
+  namedQueryOne
 };

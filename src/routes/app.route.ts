@@ -7,6 +7,7 @@ import postRoute from './post.route.js';
 import activityRoute from './activity.route.js';
 import conversationRoute from './conversation.route.js';
 import tripRoute from './trip.route.js';
+import notificationRoute from './notification.route.js';
 
 const router = express.Router();
 
@@ -17,5 +18,6 @@ router.use('/posts', postRoute);
 router.use('/activities', activityRoute);
 router.use('/conversations', conversationRoute);
 router.use('/trips', tripRoute);
+router.use('/notifications', notificationRoute);
 
 export default router;
