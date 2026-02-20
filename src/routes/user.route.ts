@@ -21,6 +21,8 @@ import { ValidationSchema as UpdateUserLocationValidationSchema, Controller as U
 import { ValidationSchema as GetUserProfileValidationSchema, Controller as GetUserProfileController } from '@/components/user/getUserProfile.js';
 import { ValidationSchema as UnFriendUserValidationSchema, Controller as UnFriendUserController } from '@/components/user/unFriendUser.js';
 import { ValidationSchema as ListUsersValidationSchema, Controller as ListUsersController } from '@/components/user/listUsers.js';
+import { ValidationSchema as AddVisitedCountryValidationSchema, Controller as AddVisitedCountryController } from '@/components/user/addVisitedCountry.js';
+import { ValidationSchema as DeleteVisitedCountryValidationSchema, Controller as DeleteVisitedCountryController } from '@/components/user/deleteVisitedCountry.js';
 
 const router = express.Router();
 
@@ -68,6 +70,10 @@ router.route('/friend-requests/accept')
 
 router.route('/location')
   .put(isUserLoggedIn, validate(UpdateUserLocationValidationSchema), UpdateUserLocationController);
+
+router.route('/visited-countries/:country_id')
+  .post(isUserLoggedIn, validate(AddVisitedCountryValidationSchema), withDatabase(AddVisitedCountryController))
+  .delete(isUserLoggedIn, validate(DeleteVisitedCountryValidationSchema), withDatabase(DeleteVisitedCountryController));
 
 router.route('/:user_id')
   .get(isUserLoggedIn, validate(GetUserProfileValidationSchema), withDatabase(GetUserProfileController));

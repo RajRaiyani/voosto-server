@@ -28,12 +28,34 @@ export async function Controller(req: Request, res: Response, next: NextFunction
       ) as activity_count,
 
       (
+        SELECT COUNT(*)::integer FROM trips t WHERE t.created_by = u.id
+      ) as trip_count,
+
+      (
         SELECT COUNT(*)::integer FROM friend_mappings fm WHERE fm.sender_id = u.id OR fm.receiver_id = u.id
       ) as friend_count,
 
       (
         SELECT COUNT(*)::integer FROM user_posts up WHERE up.user_id = u.id
-      ) as post_count
+      ) as post_count,
+
+      (
+        SELECT COUNT(*)::integer FROM visited_countries vc WHERE vc.user_id = u.id
+      ) as visited_countries_count,
+
+      (
+        SELECT array_agg(
+          json_build_object(
+            'id', c.id,
+            'name', c.name,
+            'code', c.code,
+          )
+        )
+        FROM visited_countries vc
+        LEFT JOIN countries c ON c.id = vc.country_id
+        WHERE vc.user_id = u.id
+      ) as visited_countries
+
 
     FROM users u
     LEFT JOIN files f ON f.id = u.profile_image_id

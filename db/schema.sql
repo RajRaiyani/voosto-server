@@ -248,6 +248,16 @@ CREATE TABLE public.users (
 
 
 --
+-- Name: visited_countries; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.visited_countries (
+    user_id uuid NOT NULL,
+    country_id uuid NOT NULL
+);
+
+
+--
 -- Name: activities pk_activities_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -349,6 +359,14 @@ ALTER TABLE ONLY public.user_posts
 
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT pk_users_id PRIMARY KEY (id);
+
+
+--
+-- Name: visited_countries pk_visited_countries_user_id_country_id; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.visited_countries
+    ADD CONSTRAINT pk_visited_countries_user_id_country_id PRIMARY KEY (user_id, country_id);
 
 
 --
@@ -560,6 +578,22 @@ ALTER TABLE ONLY public.users
 
 
 --
+-- Name: visited_countries fk_visited_countries_country_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.visited_countries
+    ADD CONSTRAINT fk_visited_countries_country_id FOREIGN KEY (country_id) REFERENCES public.countries(id);
+
+
+--
+-- Name: visited_countries fk_visited_countries_user_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.visited_countries
+    ADD CONSTRAINT fk_visited_countries_user_id FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
 -- PostgreSQL database dump complete
 --
 
@@ -587,4 +621,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20260213070435'),
     ('20260215084528'),
     ('20260219105456'),
-    ('20260220084853');
+    ('20260220084853'),
+    ('20260220123759');
