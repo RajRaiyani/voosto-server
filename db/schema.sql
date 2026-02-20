@@ -16,6 +16,17 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: friend_mapping_status; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.friend_mapping_status AS ENUM (
+    'pending',
+    'accepted',
+    'rejected'
+);
+
+
+--
 -- Name: gender; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -28,6 +39,63 @@ CREATE TYPE public.gender AS ENUM (
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
+
+--
+-- Name: activities; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.activities (
+    id uuid DEFAULT uuidv7() NOT NULL,
+    description text NOT NULL,
+    category character varying(100),
+    latitude double precision,
+    longitude double precision,
+    date date,
+    "time" time without time zone,
+    conversation_id uuid NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    created_by uuid NOT NULL,
+    updated_at timestamp with time zone
+);
+
+
+--
+-- Name: conversation_joining_requests; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.conversation_joining_requests (
+    conversation_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: conversation_members; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.conversation_members (
+    conversation_id uuid CONSTRAINT conversation_participants_conversation_id_not_null NOT NULL,
+    user_id uuid CONSTRAINT conversation_participants_user_id_not_null NOT NULL,
+    joined_at timestamp with time zone DEFAULT now() CONSTRAINT conversation_participants_joined_at_not_null NOT NULL,
+    is_admin boolean DEFAULT false CONSTRAINT conversation_participants_is_admin_not_null NOT NULL
+);
+
+
+--
+-- Name: conversations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.conversations (
+    id uuid DEFAULT uuidv7() NOT NULL,
+    name character varying(255),
+    is_group boolean DEFAULT false NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    is_private boolean DEFAULT false NOT NULL,
+    is_womans_only boolean DEFAULT false NOT NULL,
+    display_picture_id uuid
+);
+
 
 --
 -- Name: countries; Type: TABLE; Schema: public; Owner: -
@@ -48,8 +116,57 @@ CREATE TABLE public.countries (
 CREATE TABLE public.files (
     id uuid DEFAULT uuidv7() NOT NULL,
     key text NOT NULL,
-    size bigint NOT NULL,
     _status character varying(100) DEFAULT 'pending'::character varying NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    url text GENERATED ALWAYS AS (('http://localhost:3007/files/'::text || key)) STORED NOT NULL
+);
+
+
+--
+-- Name: friend_mappings; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.friend_mappings (
+    sender_id uuid NOT NULL,
+    receiver_id uuid NOT NULL,
+    status public.friend_mapping_status DEFAULT 'pending'::public.friend_mapping_status NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: message_attachments; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.message_attachments (
+    message_id uuid NOT NULL,
+    file_id uuid NOT NULL
+);
+
+
+--
+-- Name: messages; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.messages (
+    id uuid DEFAULT uuidv7() NOT NULL,
+    conversation_id uuid NOT NULL,
+    sender_id uuid NOT NULL,
+    content text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    seen_at timestamp with time zone
+);
+
+
+--
+-- Name: notifications; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.notifications (
+    id uuid DEFAULT uuidv7() NOT NULL,
+    type character varying(100) DEFAULT 'general'::character varying NOT NULL,
+    user_id uuid NOT NULL,
+    meta_data jsonb DEFAULT '{}'::jsonb NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
@@ -71,6 +188,34 @@ CREATE TABLE public.tokens (
     token text NOT NULL,
     expires_at timestamp with time zone NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
+    meta_data jsonb DEFAULT '{}'::jsonb NOT NULL
+);
+
+
+--
+-- Name: trips; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.trips (
+    id uuid DEFAULT uuidv7() NOT NULL,
+    conversation_id uuid NOT NULL,
+    place character varying(255) NOT NULL,
+    date date,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    created_by uuid NOT NULL,
+    updated_at timestamp with time zone
+);
+
+
+--
+-- Name: user_posts; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.user_posts (
+    id uuid DEFAULT uuidv7() NOT NULL,
+    user_id uuid NOT NULL,
+    title character varying(255) NOT NULL,
+    file_id uuid NOT NULL,
     meta_data jsonb DEFAULT '{}'::jsonb NOT NULL
 );
 
@@ -103,6 +248,38 @@ CREATE TABLE public.users (
 
 
 --
+-- Name: activities pk_activities_id; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.activities
+    ADD CONSTRAINT pk_activities_id PRIMARY KEY (id);
+
+
+--
+-- Name: conversation_joining_requests pk_c_joining_requests_conversation_id_user_id; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.conversation_joining_requests
+    ADD CONSTRAINT pk_c_joining_requests_conversation_id_user_id PRIMARY KEY (conversation_id, user_id);
+
+
+--
+-- Name: conversation_members pk_conversation_participants_conversation_id_user_id; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.conversation_members
+    ADD CONSTRAINT pk_conversation_participants_conversation_id_user_id PRIMARY KEY (conversation_id, user_id);
+
+
+--
+-- Name: conversations pk_conversations_id; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.conversations
+    ADD CONSTRAINT pk_conversations_id PRIMARY KEY (id);
+
+
+--
 -- Name: countries pk_countries_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -119,11 +296,51 @@ ALTER TABLE ONLY public.files
 
 
 --
+-- Name: message_attachments pk_message_attachments_message_id_file_id; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.message_attachments
+    ADD CONSTRAINT pk_message_attachments_message_id_file_id PRIMARY KEY (message_id, file_id);
+
+
+--
+-- Name: messages pk_messages_id; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.messages
+    ADD CONSTRAINT pk_messages_id PRIMARY KEY (id);
+
+
+--
+-- Name: notifications pk_notifications_id; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.notifications
+    ADD CONSTRAINT pk_notifications_id PRIMARY KEY (id);
+
+
+--
 -- Name: tokens pk_tokens_token; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.tokens
     ADD CONSTRAINT pk_tokens_token PRIMARY KEY (token);
+
+
+--
+-- Name: trips pk_trips_id; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.trips
+    ADD CONSTRAINT pk_trips_id PRIMARY KEY (id);
+
+
+--
+-- Name: user_posts pk_user_posts_id; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_posts
+    ADD CONSTRAINT pk_user_posts_id PRIMARY KEY (id);
 
 
 --
@@ -167,11 +384,163 @@ ALTER TABLE ONLY public.files
 
 
 --
+-- Name: user_posts uk_user_posts_file_id; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_posts
+    ADD CONSTRAINT uk_user_posts_file_id UNIQUE (file_id);
+
+
+--
 -- Name: users uk_users_email; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT uk_users_email UNIQUE (email);
+
+
+--
+-- Name: activities fk_activities_conversation_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.activities
+    ADD CONSTRAINT fk_activities_conversation_id FOREIGN KEY (conversation_id) REFERENCES public.conversations(id);
+
+
+--
+-- Name: activities fk_activities_created_by; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.activities
+    ADD CONSTRAINT fk_activities_created_by FOREIGN KEY (created_by) REFERENCES public.users(id);
+
+
+--
+-- Name: conversation_joining_requests fk_conversation_joining_requests_conversation_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.conversation_joining_requests
+    ADD CONSTRAINT fk_conversation_joining_requests_conversation_id FOREIGN KEY (conversation_id) REFERENCES public.conversations(id) ON DELETE CASCADE;
+
+
+--
+-- Name: conversation_joining_requests fk_conversation_joining_requests_user_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.conversation_joining_requests
+    ADD CONSTRAINT fk_conversation_joining_requests_user_id FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: conversation_members fk_conversation_participants_conversation_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.conversation_members
+    ADD CONSTRAINT fk_conversation_participants_conversation_id FOREIGN KEY (conversation_id) REFERENCES public.conversations(id);
+
+
+--
+-- Name: conversation_members fk_conversation_participants_user_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.conversation_members
+    ADD CONSTRAINT fk_conversation_participants_user_id FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: conversations fk_conversations_display_picture_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.conversations
+    ADD CONSTRAINT fk_conversations_display_picture_id FOREIGN KEY (display_picture_id) REFERENCES public.files(id);
+
+
+--
+-- Name: friend_mappings fk_friend_mappings_receiver_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.friend_mappings
+    ADD CONSTRAINT fk_friend_mappings_receiver_id FOREIGN KEY (receiver_id) REFERENCES public.users(id);
+
+
+--
+-- Name: friend_mappings fk_friend_mappings_sender_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.friend_mappings
+    ADD CONSTRAINT fk_friend_mappings_sender_id FOREIGN KEY (sender_id) REFERENCES public.users(id);
+
+
+--
+-- Name: message_attachments fk_message_attachments_file_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.message_attachments
+    ADD CONSTRAINT fk_message_attachments_file_id FOREIGN KEY (file_id) REFERENCES public.files(id);
+
+
+--
+-- Name: message_attachments fk_message_attachments_message_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.message_attachments
+    ADD CONSTRAINT fk_message_attachments_message_id FOREIGN KEY (message_id) REFERENCES public.messages(id);
+
+
+--
+-- Name: messages fk_messages_conversation_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.messages
+    ADD CONSTRAINT fk_messages_conversation_id FOREIGN KEY (conversation_id) REFERENCES public.conversations(id);
+
+
+--
+-- Name: messages fk_messages_sender_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.messages
+    ADD CONSTRAINT fk_messages_sender_id FOREIGN KEY (sender_id) REFERENCES public.users(id);
+
+
+--
+-- Name: notifications fk_notifications_user_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.notifications
+    ADD CONSTRAINT fk_notifications_user_id FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: trips fk_trips_conversation_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.trips
+    ADD CONSTRAINT fk_trips_conversation_id FOREIGN KEY (conversation_id) REFERENCES public.conversations(id);
+
+
+--
+-- Name: trips fk_trips_created_by; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.trips
+    ADD CONSTRAINT fk_trips_created_by FOREIGN KEY (created_by) REFERENCES public.users(id);
+
+
+--
+-- Name: user_posts fk_user_posts_file_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_posts
+    ADD CONSTRAINT fk_user_posts_file_id FOREIGN KEY (file_id) REFERENCES public.files(id);
+
+
+--
+-- Name: user_posts fk_user_posts_user_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_posts
+    ADD CONSTRAINT fk_user_posts_user_id FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --
@@ -205,4 +574,17 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20260125090150'),
     ('20260125112430'),
     ('20260126083840'),
-    ('20260129093241');
+    ('20260129093241'),
+    ('20260204045620'),
+    ('20260204055056'),
+    ('20260204055738'),
+    ('20260209083741'),
+    ('20260210065048'),
+    ('20260211060551'),
+    ('20260211065012'),
+    ('20260211110548'),
+    ('20260212173852'),
+    ('20260213070435'),
+    ('20260215084528'),
+    ('20260219105456'),
+    ('20260220084853');

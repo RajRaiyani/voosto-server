@@ -2,15 +2,17 @@ import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
 import { z } from 'zod';
 import UserSchema from './user.validation.js';
+import Schema from '@/config/validationSchema.js';
 
 export const ValidationSchema = {
   body: z.object({
     gender: z.enum(['male', 'female']).optional(),
+    phone_number: z.string().trim().min(4).max(15, 'Phone number must be less than 15 characters').optional(),
     date_of_birth: z.coerce.date().optional(),
-    country_id: z.uuid({ version: 'v7', message: 'Invalid country id' }).optional(),
+    country_id: Schema.uuid().optional(),
     bio: z.string().trim().max(500, 'Bio must be less than 500 characters').optional(),
     interested_activity: UserSchema.interestedActivity().optional(),
-    profile_image_id: z.uuid({ version: 'v7', message: 'Invalid profile image id' }).optional(),
+    profile_image_id: Schema.uuid().optional(),
   }).refine(
     val => Object.keys(val).length > 0,
     { message: 'At least one key must be present in the request body.' }
@@ -26,7 +28,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
   if (user.is_profile_completed) return res.status(400).json({ message: 'User profile already completed' });
 
   try{
-    await db.query('BEGIN');
+    await db.begin();
 
     const updateQuery = Object.keys(req.body).filter(key => req.body[key] !== undefined).map(key => `${key} = $${key}`).join(', ');
 
@@ -48,11 +50,11 @@ export async function Controller(req: Request, res: Response, next: NextFunction
       isProfileCompleted = true;
     }
 
-    await db.query('COMMIT');
+    await db.commit();
 
     return res.status(200).send({ is_profile_completed: isProfileCompleted });
   } catch (error) {
-    await db.query('ROLLBACK');
+    await db.rollback();
     throw error;
   }
 }

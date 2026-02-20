@@ -2,7 +2,7 @@ import http from 'http';
 import env from './config/env.js';
 import app from './app.js';
 import Logger from './service/logger/index.js';
-import Socket from './service/socket/index.js';
+import Socket from '@/socket/index.js';
 
 const { port, env: envName } = env;
 

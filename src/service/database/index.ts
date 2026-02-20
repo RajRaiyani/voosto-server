@@ -51,6 +51,9 @@ const pool = new Pool(dbConfig);
 // types.setTypeParser(1114, (dateStr) => new Date(`${dateStr} UTC`));
 types.setTypeParser(1700, (val) => parseFloat(val));
 
+// Type OID 1082 = DATE in PostgreSQL
+types.setTypeParser(1082, (value) => value); // returns 'YYYY-MM-DD' string as-is
+
 function convertNamedQueryToPositional(sqlStmt: string, params: object) {
   const values = [];
   const fields = [];
@@ -78,6 +81,7 @@ function convertStringLiteralToQuery(strings: string[], ...values: any[]) {
 
 async function getConnection() {
   const client = await pool.connect();
+  let is_in_transaction = false;
 
   async function queryAll<T = any>(sqlStmt: string, params?: any[]): Promise<T[]> {
     const res = await client.query(sqlStmt, params);
@@ -111,6 +115,24 @@ async function getConnection() {
     return res[0];
   }
 
+  async function begin(){
+    if (is_in_transaction) return;
+    await client.query('BEGIN');
+    is_in_transaction = true;
+  }
+
+  async function commit(){
+    if (!is_in_transaction) return;
+    await client.query('COMMIT');
+    is_in_transaction = false;
+  }
+
+  async function rollback(){
+    if (!is_in_transaction) return;
+    await client.query('ROLLBACK');
+    is_in_transaction = false;
+  }
+
   const obj = {
     client,
     query: (sqlStmt: string, params?: any[]) => client.query(sqlStmt, params),
@@ -121,9 +143,34 @@ async function getConnection() {
     queryOne,
     queryLiteralAll,
     queryLiteralOne,
+    begin,
+    commit,
+    rollback,
   };
 
   return obj;
+}
+
+
+async function queryOne<T = any>(sqlStmt: string, params?: any[]): Promise<T | null> {
+  const res = await pool.query<T>(sqlStmt, params);
+  return res.rows[0];
+}
+
+async function queryAll<T = any>(sqlStmt: string, params?: any[]): Promise<T[]> {
+  const res = await pool.query<T>(sqlStmt, params);
+  return res.rows;
+}
+
+async function namedQueryAll<T = any>(sqlStmt: string, params?: object): Promise<T[]> {
+  const newQuery = convertNamedQueryToPositional(sqlStmt, params);
+  const res = await queryAll<T>(newQuery.sqlStmt, newQuery.params);
+  return res;
+}
+
+async function namedQueryOne<T = any>(sqlStmt: string, params?: object): Promise<T | null> {
+  const res = await namedQueryAll<T>(sqlStmt, params);
+  return res[0];
 }
 
 export type DatabaseClient = Awaited<ReturnType<typeof getConnection>>;
@@ -132,4 +179,8 @@ export default {
   pool,
   getConnection,
   parameter: (): Parameter => new Parameter(),
+  queryOne,
+  queryAll,
+  namedQueryAll,
+  namedQueryOne
 };

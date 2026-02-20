@@ -37,6 +37,7 @@ function parseDatabaseUrl(databaseUrl?: string) {
   
 }
 
+
 const env = {
   env: process.env.NODE_ENV || 'dev',
   port: process.env.SERVER_PORT || 3007,
@@ -47,6 +48,10 @@ const env = {
   fileStoragePath: process.env.FILE_STORAGE_PATH || path.join(__dirname, '../../files'),
 
   database: parseDatabaseUrl(process.env.DATABASE_URL),
+  
+  redis: {
+    url : process.env.REDIS_URL || 'redis://localhost:6379',
+  },
 
   logger : {
     consoleLogLevel: process.env.CONSOLE_LOG_LEVEL || 'info',

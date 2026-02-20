@@ -1,9 +1,19 @@
 import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
-import Env from '@/config/env.js';
+import Schema from '@/config/validationSchema.js';
+import { z } from 'zod';
+import SocketService from '@/socket/index.js';
 
+
+export const ValidationSchema = {
+  params: z.object({
+    user_id: Schema.uuid(),
+  }),
+};
 
 export async function Controller(req: Request, res: Response, next: NextFunction, db: DatabaseClient) {
+  const { user_id } = req.params as z.infer<typeof ValidationSchema.params>;
+  const currentUserId = req.user.id;
 
   const user = await db.queryOne(`--sql
     SELECT
@@ -11,7 +21,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
       u.phone_number, u.is_phone_number_verified,
       u.gender, u.date_of_birth, u.bio, u.interested_activity,
 
-      CASE WHEN f.id IS NOT NULL THEN ($1 || '/' || f.key) ELSE NULL END as profile_image_url,
+      CASE WHEN f.id IS NOT NULL THEN f.url ELSE NULL END as profile_image_url,
 
       CASE WHEN c.id IS NOT NULL THEN
         json_build_object(
@@ -20,15 +30,37 @@ export async function Controller(req: Request, res: Response, next: NextFunction
           'code', c.code, 
           'dial_code', c.dial_code
         )
-      ELSE NULL END as country
+      ELSE NULL END as country,
+
+      (
+        SELECT COUNT(*)::integer FROM activities a WHERE a.created_by = u.id
+      ) as activity_count,
+
+      (
+        SELECT COUNT(*)::integer FROM friend_mappings fm WHERE fm.sender_id = u.id OR fm.receiver_id = u.id
+      ) as friend_count,
+
+      (
+        SELECT COUNT(*)::integer FROM user_posts up WHERE up.user_id = u.id
+      ) as post_count,
+
+      (
+        SELECT CASE WHEN COUNT(*) > 0 THEN true ELSE false END FROM friend_mappings fm WHERE fm.status = 'accepted' AND ((fm.sender_id = $2 AND fm.receiver_id = u.id) OR (fm.sender_id = u.id AND fm.receiver_id = $2))
+      ) as is_friend,
+
+      (
+        SELECT CASE WHEN COUNT(*) > 0 THEN true ELSE false END FROM friend_mappings fm WHERE fm.status = 'pending' AND ((fm.sender_id = $2 AND fm.receiver_id = u.id) OR (fm.sender_id = u.id AND fm.receiver_id = $2))
+      ) as has_pending_friend_request
 
     FROM users u
     LEFT JOIN files f ON f.id = u.profile_image_id
     LEFT JOIN countries c ON c.id = u.country_id
-    WHERE u.id = $2
-  `, [Env.fileStorageEndpoint, req.user.id]);
+    WHERE u.id = $1
+  `, [user_id, currentUserId]);
 
   if (!user) return res.status(404).json({ message: 'User not found' });
 
-  return res.status(200).json(user);
+  const isOnline = await SocketService.isUserOnline(user.id);
+
+  return res.status(200).json({ ...user, is_online: isOnline });
 }

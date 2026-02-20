@@ -1,6 +1,6 @@
 import multer from 'multer';
 import fs from 'fs';
-import { v4 as uuidv4 } from 'uuid';
+import { v7 as uuidv7 } from 'uuid';
 import path from 'path';
 import constant from '@/config/constant.js';
 
@@ -17,7 +17,7 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const extension = path.extname(file.originalname).toLowerCase().slice(1);
-    const UUID = uuidv4();
+    const UUID = uuidv7();
     cb(null, `${UUID}.${extension}`);
   },
 });

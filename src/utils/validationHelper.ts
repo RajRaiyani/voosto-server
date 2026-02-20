@@ -3,7 +3,6 @@ import { Request, Response, NextFunction } from 'express';
 import qs from 'qs';
 
 class ValidationError extends Error {
-  isJoi: boolean;
 
   details: any;
 
@@ -11,7 +10,6 @@ class ValidationError extends Error {
     super('Validation Error');
     this.name = 'ValidationError';
     this.message = errorMessage || 'Validation Error';
-    this.isJoi = true;
     this.details = details;
   }
 }
@@ -27,7 +25,6 @@ const validate = (schema: { [key: string]: z.ZodObject<any, any> }) => (req: Req
   Object.keys(schema).forEach((key) => {
 
     const result = key === 'query' ? schema[key].safeParse(parseQuery(req)) : schema[key].safeParse(req[key]);
-
 
 
     if (result.error) {
@@ -52,5 +49,21 @@ const validate = (schema: { [key: string]: z.ZodObject<any, any> }) => (req: Req
   next();
 
 };
+
+export function validateData(schema: z.ZodSchema, data: any) {
+  const result = schema.safeParse(data);
+
+  if (!result.success) {
+    const details = {};
+    let errorMessage: string;
+    result.error.issues.forEach((issue) => {
+      details[issue.path[0]] = issue.message;
+      if (!errorMessage) errorMessage = issue.message;
+    });
+
+    throw new ValidationError(errorMessage, details);
+  }
+  return result.data;
+}
 
 export { validate, ValidationError, z };
