@@ -76,6 +76,12 @@ const env = {
     keyId: process.env.RAZORPAY_KEY_ID,
     keySecret: process.env.RAZORPAY_KEY_SECRET,
   },
+
+  google: {
+    androidClientId: process.env.GOOGLE_CLIENT_ID_ANDROID,
+    webClientId: process.env.GOOGLE_CLIENT_ID_WEB,
+    iosClientId: process.env.GOOGLE_CLIENT_ID_IOS,
+  }
 };
 
 export default env;

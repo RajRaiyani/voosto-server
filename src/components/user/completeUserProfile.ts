@@ -6,7 +6,9 @@ import Schema from '@/config/validationSchema.js';
 
 export const ValidationSchema = {
   body: z.object({
-    gender: z.enum(['male', 'female']).optional(),
+    gender: z.enum(['male', 'female', 'other']).optional(),
+    first_name: z.string().trim().min(1).max(50, 'First name must be less than 50 characters').optional(),
+    last_name: z.string().trim().min(1).max(50, 'Last name must be less than 50 characters').optional(),
     phone_number: z.string().trim().min(4).max(15, 'Phone number must be less than 15 characters').optional(),
     date_of_birth: z.coerce.date().optional(),
     country_id: Schema.uuid().optional(),
@@ -45,7 +47,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     }
 
     let isProfileCompleted = false;
-    if (updatedUser.gender && updatedUser.date_of_birth && updatedUser.country_id && updatedUser.bio && updatedUser.interested_activity) {
+    if (updatedUser.gender && updatedUser.date_of_birth && updatedUser.country_id && updatedUser.interested_activity && updatedUser.first_name && updatedUser.last_name) {
       await db.query('UPDATE users SET is_profile_completed = $1 WHERE id = $2', [true, req.user.id]);
       isProfileCompleted = true;
     }

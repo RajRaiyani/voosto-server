@@ -16,11 +16,11 @@ export async function Controller(req: Request, res: Response, next: NextFunction
   const user = await db.queryOne('SELECT id, gender FROM users WHERE id = $1', [req.user.id]);
   if (!user) return res.status(404).json({ message: 'User not found' });
 
-  const isMan = user.gender === 'male' ? true : false;
+  const notWoman = user.gender === 'male' || user.gender === 'other' ? true : false;
 
   let whereClause = ' a.id = $1 ';
 
-  if (isMan) whereClause += ' AND c.is_womans_only = FALSE ';
+  if (notWoman) whereClause += ' AND c.is_womans_only = FALSE ';
 
   const sqlQuery = `
     SELECT

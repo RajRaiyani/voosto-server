@@ -23,6 +23,7 @@ import { ValidationSchema as UnFriendUserValidationSchema, Controller as UnFrien
 import { ValidationSchema as ListUsersValidationSchema, Controller as ListUsersController } from '@/components/user/listUsers.js';
 import { ValidationSchema as AddVisitedCountryValidationSchema, Controller as AddVisitedCountryController } from '@/components/user/addVisitedCountry.js';
 import { ValidationSchema as DeleteVisitedCountryValidationSchema, Controller as DeleteVisitedCountryController } from '@/components/user/deleteVisitedCountry.js';
+import { ValidationSchema as LoginWithGoogleValidationSchema, Controller as LoginWithGoogleController } from '@/components/user/loginWithGoogle.js';
 
 const router = express.Router();
 
@@ -38,6 +39,9 @@ router.route('/verify-registration')
 
 router.route('/login')
   .post(validate(LoginUserValidationSchema), withDatabase(LoginUserController));
+
+router.route('/login-with-google')
+  .post(validate(LoginWithGoogleValidationSchema), withDatabase(LoginWithGoogleController));
 
 router.route('/forgot-password')
   .post(validate(ForgotPasswordValidationSchema), withDatabase(ForgotPasswordController));

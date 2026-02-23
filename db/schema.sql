@@ -32,7 +32,8 @@ CREATE TYPE public.friend_mapping_status AS ENUM (
 
 CREATE TYPE public.gender AS ENUM (
     'male',
-    'female'
+    'female',
+    'other'
 );
 
 
@@ -233,7 +234,7 @@ CREATE TABLE public.users (
     is_email_verified boolean DEFAULT false NOT NULL,
     phone_number character varying(100),
     is_phone_number_verified boolean DEFAULT false NOT NULL,
-    password_hash text NOT NULL,
+    password_hash text,
     profile_image_id uuid,
     gender public.gender DEFAULT 'male'::public.gender NOT NULL,
     date_of_birth date,
@@ -243,7 +244,8 @@ CREATE TABLE public.users (
     is_profile_completed boolean DEFAULT false NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    meta_data jsonb DEFAULT '{}'::jsonb NOT NULL
+    meta_data jsonb DEFAULT '{}'::jsonb NOT NULL,
+    login_method character varying(100) DEFAULT 'normal'::character varying NOT NULL
 );
 
 
@@ -622,4 +624,6 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20260215084528'),
     ('20260219105456'),
     ('20260220084853'),
-    ('20260220123759');
+    ('20260220123759'),
+    ('20260223092714'),
+    ('20260223093211');

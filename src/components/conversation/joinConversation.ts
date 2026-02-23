@@ -19,7 +19,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
   const user = await db.queryOne ('SELECT id, gender FROM users WHERE id = $1', [userId]);
   if (!user) return res.status(404).json({ message: 'User not found' });
 
-  const isMan = user.gender === 'male' ? true : false;
+  const notWoman = user.gender === 'male' || user.gender === 'other' ? true : false;
 
   const conversation = await getConversationById(db, conversation_id, userId);
   if (!conversation) return res.status(404).json({ message: 'Conversation not found' });
@@ -30,7 +30,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     return res.status(204).send();
   }
 
-  if (conversation.is_womans_only && isMan) {
+  if (conversation.is_womans_only && notWoman) {
     return res.status(400).json({ message: 'You cannot join a womans only conversation as a man' });
   }
 

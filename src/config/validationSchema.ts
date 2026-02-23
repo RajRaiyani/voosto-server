@@ -22,7 +22,7 @@ export default {
       decode: (value) => new Date(value),
     }),
 
-  gender: () => z.enum(['male', 'female']),
+  gender: () => z.enum(['male', 'female', 'other']),
 
   phoneNumber: () =>
     z

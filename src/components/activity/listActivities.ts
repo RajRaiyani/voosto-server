@@ -27,7 +27,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
   const user = await db.queryOne('SELECT id, gender FROM users WHERE id = $1', [req.user.id]);
   if (!user) return res.status(404).json({ message: 'User not found' });
 
-  const isMan = user.gender === 'male' ? true : false;
+  const notWoman = user.gender === 'male' || user.gender === 'other' ? true : false;
   
   let activity_ids: string[] = [];
   if (location) {
@@ -54,7 +54,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
   if (search) whereClause += ' AND LOWER(a.description) LIKE LOWER($search) ';
   if (location) whereClause += ' AND a.id = ANY($activity_ids) ';
   if (date) whereClause += ' AND a.date = $date ';
-  if (isMan) whereClause += ' AND c.is_womans_only = FALSE ';
+  if (notWoman) whereClause += ' AND c.is_womans_only = FALSE ';
 
   const sqlQuery = `
     SELECT
