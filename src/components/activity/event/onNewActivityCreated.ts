@@ -1,6 +1,7 @@
 import ServerEvent, { EventContext, EventContextProvider } from '@/service/event/index.js';
-import { createNotification } from '@/components/notification/notification.service.js';
+import { createNotifications } from '@/components/notification/notification.service.js';
 import RedisClient from '@/service/redis/index.js';
+import { NotificationType } from '@/service/notification/index.js';
 
 
 async function onNewActivityCreatedHandler({ db }: EventContext, activityId: string) : Promise<void> {
@@ -12,6 +13,7 @@ async function onNewActivityCreatedHandler({ db }: EventContext, activityId: str
       a.category,
       a.latitude,
       a.longitude,
+      a.conversation_id,
       json_build_object(
         'id', u.id,
         'full_name', u.full_name,
@@ -31,24 +33,31 @@ async function onNewActivityCreatedHandler({ db }: EventContext, activityId: str
     longitude: activity.longitude,
     latitude: activity.latitude,
   }, {
-    radius: 25,
+    radius: 30,
     unit: 'km',
   }) as string[];
 
-  for (const userId of nearestUsers) {
-    await createNotification(db, {
-      user_id: userId,
-      type: 'new_activity_created',
-      message: `New activity created near you by ${activity.created_by.full_name}.`,
-      meta_data: {
-        activity_id: activity.id,
-        description: activity.description,
-        category: activity.category,
-        created_by: activity.created_by,
-      },
-    });
-  }
+  const usersToNotify = await db.queryAll<{ id: string }>(`
+    SELECT id FROM users
+    WHERE 
+      id = ANY($1) AND
+      settings @> '{"notify_near_by_activities": true}'
 
+  `, [nearestUsers]);
+
+
+  await createNotifications(db, {
+    user_ids: usersToNotify.map(user => user.id),
+    type: NotificationType.NEW_ACTIVITY,
+    message: `New activity created near you by ${activity.created_by.full_name}.`,
+    meta_data: {
+      activity_id: activity.id,
+      description: activity.description,
+      category: activity.category,
+      created_by: activity.created_by,
+    },
+  });
+  
 }
 
 ServerEvent.on('activity:created', EventContextProvider(onNewActivityCreatedHandler, { withDatabase: true }));

@@ -17,6 +17,7 @@ export const ValidationSchema = {
     time: ActivityValidation.time().nullish().optional(),
     is_private: z.boolean().default(false),
     is_womans_only: z.boolean().default(false),
+    notification_enabled: z.boolean().default(true),
   }),
 };
 
@@ -34,6 +35,7 @@ export async function Controller(
     time,
     is_private,
     is_womans_only,
+    notification_enabled,
   } = req.body as z.infer<typeof ValidationSchema.body>;
 
   try{
@@ -44,7 +46,7 @@ export async function Controller(
       is_group: true, 
       is_private: is_private, 
       is_womans_only: is_womans_only, 
-      members: [{ id: req.user.id, is_admin: true }] 
+      members: [{ id: req.user.id, is_admin: true, notification_enabled: notification_enabled ?? true }] 
     });
 
     const activity = await db.queryOne(

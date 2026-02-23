@@ -25,6 +25,31 @@ export async function createNotification(
   return notification;
 }
 
+export async function createNotifications(
+  db: DatabaseClient,
+  {
+    user_ids,
+    message,
+    type = 'general',
+    meta_data = {},
+  }: { user_ids: string[]; message?: string; type?: string; meta_data?: object },
+) {
+  if (user_ids.length === 0) return [];
+
+  const notifications = await db.queryAll(
+    `
+    INSERT INTO notifications (user_id, message, type, meta_data)
+    SELECT unnest($1::uuid[]), $2, $3, $4
+    RETURNING id, user_id, message, type, meta_data, created_at
+  `,
+    [user_ids, message, type, meta_data],
+  );
+
+  Socket.userIo.to(user_ids).emit('notification:new', notifications);
+
+  return notifications;
+}
+
 
 export async function deleteNotification(db: DatabaseClient, { id }: { id: string }) {
   await db.query(`
@@ -52,3 +77,4 @@ export async function clearUserNotifications(db: DatabaseClient, userId: string)
     DELETE FROM notifications WHERE user_id = $1
   `, [userId]);
 }
+

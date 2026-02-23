@@ -15,7 +15,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
   const { user_id } = req.params as z.infer<typeof ValidationSchema.params>;
   const currentUserId = req.user.id;
 
-  const user = await db.queryOne(`--sql
+  const user = await db.queryOne(`
     SELECT
       u.id, u.first_name, u.last_name, u.email, u.is_email_verified, u.is_profile_completed, u.created_at,
       u.phone_number, u.is_phone_number_verified,
@@ -65,13 +65,30 @@ export async function Controller(req: Request, res: Response, next: NextFunction
           json_build_object(
             'id', c.id,
             'name', c.name,
-            'code', c.code,
+            'code', c.code
           )
         )
         FROM visited_countries vc
         LEFT JOIN countries c ON c.id = vc.country_id
         WHERE vc.user_id = u.id
-      ) as visited_countries
+      ) as visited_countries,
+
+      (
+        SELECT array_agg(
+          json_build_object(
+            'id', id,
+            'name', place,
+            'date', date
+          )
+        )
+        FROM (
+          SELECT t.id, t.place, t.date, t.created_at
+          FROM trips t
+          WHERE t.created_by = u.id AND (t.date IS NULL OR t.date > NOW())
+          ORDER BY t.date DESC
+          LIMIT 5
+        )
+      ) as recent_trips
 
     FROM users u
     LEFT JOIN files f ON f.id = u.profile_image_id

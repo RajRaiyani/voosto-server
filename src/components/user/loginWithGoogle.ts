@@ -30,11 +30,21 @@ export async function Controller(req: Request, res: Response, next: NextFunction
   
   console.log(payload);
 
-  const user = await db.queryOne(`
-    INSERT INTO users (first_name, last_name, email, password_hash, is_email_verified, login_method)
-    VALUES ($1, $2, $3, $4, true, 'google_auth')
-    RETURNING *
-  `, [payload.given_name, payload.family_name, payload.email]);
+
+
+  let user = await db.queryOne(`
+    SELECT id, first_name, last_name, email, is_email_verified, created_at, is_profile_completed
+    FROM users
+    WHERE email = $1
+  `, [payload.email]);
+
+  if (!user) {
+    user = await db.queryOne(`
+      INSERT INTO users (first_name, last_name, email, is_email_verified, login_method)
+      VALUES ($1, $2, $3, true, 'google_auth')
+      RETURNING *
+    `, [payload.given_name, payload.family_name, payload.email]);
+  }
 
   const tokenExpiresAt = new Date(Date.now() + 24 * 3600000);
 

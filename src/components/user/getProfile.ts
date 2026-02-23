@@ -2,11 +2,12 @@ import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
 import Env from '@/config/env.js';
 import SocketService from '@/socket/index.js';
+import Constant from '@/config/constant.js';
 
 
 export async function Controller(req: Request, res: Response, next: NextFunction, db: DatabaseClient) {
 
-  const user = await db.queryOne(`--sql
+  const user = await db.queryOne(`
     SELECT
       u.id, u.first_name, u.last_name, u.email, u.is_email_verified, u.is_profile_completed, u.created_at,
       u.phone_number, u.is_phone_number_verified,
@@ -48,13 +49,30 @@ export async function Controller(req: Request, res: Response, next: NextFunction
           json_build_object(
             'id', c.id,
             'name', c.name,
-            'code', c.code,
+            'code', c.code
           )
         )
         FROM visited_countries vc
         LEFT JOIN countries c ON c.id = vc.country_id
         WHERE vc.user_id = u.id
-      ) as visited_countries
+      ) as visited_countries,
+
+      (
+        SELECT array_agg(
+          json_build_object(
+            'id', id,
+            'name', place,
+            'date', date
+          )
+        )
+        FROM (
+          SELECT t.id, t.place, t.date, t.created_at
+          FROM trips t
+          WHERE t.created_by = u.id AND (t.date IS NULL OR t.date > NOW())
+          ORDER BY t.date DESC
+          LIMIT 5
+        )
+      ) as recent_trips
 
 
     FROM users u
@@ -67,5 +85,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
 
   const isOnline = await SocketService.isUserOnline(user.id);
 
+  user.interested_activity_icon = Constant.user.interestedActivities.find(activity => activity.activity === user.interested_activity)?.icon;
+  
   return res.status(200).json({ ...user, is_online: isOnline });
 }

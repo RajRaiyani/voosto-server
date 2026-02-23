@@ -3,18 +3,26 @@ import ServerError from '@/utils/serverError.js';
 
 
 
+export async function getConversationMembership(
+  db: DatabaseClient,
+  conversationId: string,
+  userId: string
+): Promise<{ user_id: string, is_admin: boolean, notification_enabled: boolean }> {
+  return await db.queryOne(`
+    SELECT user_id, is_admin, notification_enabled FROM conversation_members
+    WHERE conversation_id = $1 AND user_id = $2
+  `, [conversationId, userId]);
+}
+
 export async function isMemberOfConversation(
   db: DatabaseClient,
   conversationId: string,
   userId: string
 ): Promise<boolean> {
 
-  const members = await db.queryOne<{ user_id: string }>(`
-    SELECT user_id, is_admin FROM conversation_members
-    WHERE conversation_id = $1 AND user_id = $2
-  `, [conversationId, userId]);
+  const memberShip = await getConversationMembership(db, conversationId, userId);
 
-  return members ? true : false;
+  return memberShip ? true : false;
 }
 
 /**
@@ -55,7 +63,9 @@ export async function getConversationById(
 
   if (!existingConversation) return null;
 
-  const isMember = await isMemberOfConversation(db, conversationId, requestUserId);
+  const memberShip = await getConversationMembership(db, conversationId, requestUserId);
+
+  const isMember = memberShip ? true : false;
 
   if (existingConversation.is_group) {
     const sqlQuery = `
@@ -67,12 +77,13 @@ export async function getConversationById(
         c.is_womans_only,
         c.created_at,
         $2 AS is_member,
+        $3 AS notification_enabled,
         CASE WHEN f.id IS NOT NULL THEN f.url ELSE NULL END AS display_picture_url
       FROM conversations c
       LEFT JOIN files f ON f.id = c.display_picture_id
       WHERE c.id = $1
     `;
-    return await db.queryOne(sqlQuery, [conversationId, isMember]);
+    return await db.queryOne(sqlQuery, [conversationId, isMember, memberShip.notification_enabled]);
   } else {
     const sqlQuery = `
       SELECT 
@@ -83,6 +94,7 @@ export async function getConversationById(
         c.is_womans_only,
         c.created_at,
         $3 AS is_member,
+        $4 AS notification_enabled,
         CASE WHEN f.id IS NOT NULL THEN f.url ELSE NULL END AS display_picture_url
       FROM conversations c
       LEFT JOIN conversation_members cm ON cm.conversation_id = c.id AND cm.user_id != $2
@@ -90,7 +102,7 @@ export async function getConversationById(
       LEFT JOIN files f ON f.id = u.profile_image_id
       WHERE c.id = $1
     `;
-    return await db.queryOne(sqlQuery, [conversationId, requestUserId, isMember]);
+    return await db.queryOne(sqlQuery, [conversationId, requestUserId, isMember, memberShip.notification_enabled]);
   }
 
 }
@@ -266,6 +278,7 @@ interface CreateConversationInput {
   members: {
     id: string;
     is_admin: boolean;
+    notification_enabled: boolean;
   }[];
 }
 
@@ -297,9 +310,9 @@ export async function createConversation(db: DatabaseClient,
 
     for (const participant of members) {
       await db.query(`
-        INSERT INTO conversation_members (conversation_id, user_id, is_admin)
-        VALUES ($1, $2, $3)
-      `, [conversation.id, participant.id, participant.is_admin]);
+        INSERT INTO conversation_members (conversation_id, user_id, is_admin, notification_enabled)
+        VALUES ($1, $2, $3, $4)
+      `, [conversation.id, participant.id, participant.is_admin, participant.notification_enabled ?? true]);
     }
 
     await db.commit();

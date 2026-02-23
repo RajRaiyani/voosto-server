@@ -5,11 +5,6 @@ import Schema from '@/config/validationSchema.js';
 
 export const ValidationSchema = {
   query: z.object({
-    search: z
-      .string()
-      .trim()
-      .max(200, 'Search must be less than 100 characters')
-      .optional(),
     offset: Schema.pagination.offset(),
     limit: Schema.pagination.limit(),
   }),
@@ -21,11 +16,6 @@ export async function Controller(
   next: NextFunction,
   db: DatabaseClient
 ) {
-  const { search, offset, limit } = req.validatedQuery as z.infer<typeof ValidationSchema.query>;
-
-  let whereClause = ' TRUE ';
-
-  if (search) whereClause += ' AND LOWER(t.place) LIKE LOWER($search) ';
 
   const sqlQuery = `
     SELECT
@@ -46,16 +36,11 @@ export async function Controller(
     FROM trips t
     LEFT JOIN users u ON t.created_by = u.id
     LEFT JOIN files f ON f.id = u.profile_image_id
-    WHERE ${whereClause}
+    WHERE t.created_by = $1
     ORDER BY t.created_at DESC
-    LIMIT $limit OFFSET $offset
   `;
 
-  const trips = await db.namedQueryAll(sqlQuery, {
-    search: search ? `%${search}%` : null,
-    limit,
-    offset,
-  });
+  const trips = await db.queryAll(sqlQuery, [req.user.id]);
 
   return res.status(200).json(trips);
 }

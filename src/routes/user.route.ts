@@ -24,6 +24,8 @@ import { ValidationSchema as ListUsersValidationSchema, Controller as ListUsersC
 import { ValidationSchema as AddVisitedCountryValidationSchema, Controller as AddVisitedCountryController } from '@/components/user/addVisitedCountry.js';
 import { ValidationSchema as DeleteVisitedCountryValidationSchema, Controller as DeleteVisitedCountryController } from '@/components/user/deleteVisitedCountry.js';
 import { ValidationSchema as LoginWithGoogleValidationSchema, Controller as LoginWithGoogleController } from '@/components/user/loginWithGoogle.js';
+import { ValidationSchema as UpsertUserNotificationTokenValidationSchema, Controller as UpsertUserNotificationTokenController } from '@/components/user/upsertUserNotificationToken.js';
+import { ValidationSchema as UpdateUserSettingValidationSchema, Controller as UpdateUserSettingController } from '@/components/user/updateUserSetting.js';
 
 const router = express.Router();
 
@@ -75,6 +77,12 @@ router.route('/friend-requests/accept')
 router.route('/location')
   .put(isUserLoggedIn, validate(UpdateUserLocationValidationSchema), UpdateUserLocationController);
 
+router.route('/notification-tokens')
+  .post(isUserLoggedIn, validate(UpsertUserNotificationTokenValidationSchema), withDatabase(UpsertUserNotificationTokenController));
+
+router.route('/settings')
+  .put(isUserLoggedIn, validate(UpdateUserSettingValidationSchema), withDatabase(UpdateUserSettingController));
+
 router.route('/visited-countries/:country_id')
   .post(isUserLoggedIn, validate(AddVisitedCountryValidationSchema), withDatabase(AddVisitedCountryController))
   .delete(isUserLoggedIn, validate(DeleteVisitedCountryValidationSchema), withDatabase(DeleteVisitedCountryController));
@@ -84,5 +92,6 @@ router.route('/:user_id')
 
 router.route('/:user_id/unfriend')
   .delete(isUserLoggedIn, validate(UnFriendUserValidationSchema), withDatabase(UnFriendUserController));
+
 
 export default router;

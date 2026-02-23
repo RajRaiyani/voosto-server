@@ -17,12 +17,19 @@ export async function Controller(req: Request, res: Response, next: NextFunction
   const user = await db.queryOne(`
     SELECT 
       id, password_hash, first_name, last_name, 
-      email, is_profile_completed, created_at
+      email, is_profile_completed, created_at,
+      login_method
     FROM users 
     WHERE LOWER(email) = LOWER($1)
   `, [email]);
 
   if (!user) return res.status(400).json({ message: 'Invalid email or password' });
+
+  if (!user.password_hash) {
+    if (user.login_method === 'google_auth') {
+      return res.status(400).json({ message: 'use login with google option to login to your account' });
+    }
+  }
 
   const isPasswordValid = await bcrypt.compare(password, user.password_hash);
 

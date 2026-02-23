@@ -79,7 +79,8 @@ CREATE TABLE public.conversation_members (
     conversation_id uuid CONSTRAINT conversation_participants_conversation_id_not_null NOT NULL,
     user_id uuid CONSTRAINT conversation_participants_user_id_not_null NOT NULL,
     joined_at timestamp with time zone DEFAULT now() CONSTRAINT conversation_participants_joined_at_not_null NOT NULL,
-    is_admin boolean DEFAULT false CONSTRAINT conversation_participants_is_admin_not_null NOT NULL
+    is_admin boolean DEFAULT false CONSTRAINT conversation_participants_is_admin_not_null NOT NULL,
+    notification_enabled boolean DEFAULT true NOT NULL
 );
 
 
@@ -119,7 +120,7 @@ CREATE TABLE public.files (
     key text NOT NULL,
     _status character varying(100) DEFAULT 'pending'::character varying NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    url text GENERATED ALWAYS AS (('http://localhost:3007/files/'::text || key)) STORED NOT NULL
+    url text GENERATED ALWAYS AS (('http://172.20.10.4:3007/files/'::text || key)) STORED NOT NULL
 );
 
 
@@ -209,6 +210,17 @@ CREATE TABLE public.trips (
 
 
 --
+-- Name: user_notification_tokens; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.user_notification_tokens (
+    token text NOT NULL,
+    user_id uuid NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
 -- Name: user_posts; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -245,7 +257,8 @@ CREATE TABLE public.users (
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
     meta_data jsonb DEFAULT '{}'::jsonb NOT NULL,
-    login_method character varying(100) DEFAULT 'normal'::character varying NOT NULL
+    login_method character varying(100) DEFAULT 'normal'::character varying NOT NULL,
+    settings jsonb DEFAULT '{}'::jsonb NOT NULL
 );
 
 
@@ -345,6 +358,14 @@ ALTER TABLE ONLY public.tokens
 
 ALTER TABLE ONLY public.trips
     ADD CONSTRAINT pk_trips_id PRIMARY KEY (id);
+
+
+--
+-- Name: user_notification_tokens pk_user_notification_tokens_token; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_notification_tokens
+    ADD CONSTRAINT pk_user_notification_tokens_token PRIMARY KEY (token);
 
 
 --
@@ -548,6 +569,14 @@ ALTER TABLE ONLY public.trips
 
 
 --
+-- Name: user_notification_tokens fk_user_notification_tokens_user_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_notification_tokens
+    ADD CONSTRAINT fk_user_notification_tokens_user_id FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
 -- Name: user_posts fk_user_posts_file_id; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -626,4 +655,7 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20260220084853'),
     ('20260220123759'),
     ('20260223092714'),
-    ('20260223093211');
+    ('20260223093211'),
+    ('20260223161037'),
+    ('20260223163035'),
+    ('20260223171157');

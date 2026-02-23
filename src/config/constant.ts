@@ -19,74 +19,74 @@ const userInterestedActivities = [
   },
   {
     activity: 'Food & Drinks',
-    icons: '🍽️',
+    icon: '🍽️',
   },
   {
     activity: 'Nightlife',
-    icons: '🎉',
+    icon: '🎉',
   },
   {
     activity: 'Outdoor & Active',
-    icons: '🏕️',
+    icon: '🏕️',
   },
   {
     activity: 'Sightseeing',
-    icons: '🗺️',
+    icon: '🗺️',
   },
   {
     activity: 'Entertainment',
-    icons: '🎭',
+    icon: '🎭',
   },
   {
     activity: 'Shopping',
-    icons: '🛍️',
+    icon: '🛍️',
   },
   {
     activity: 'Wellness',
-    icons: '🧘',
+    icon: '🧘',
   },
   {
     activity: 'Rideshare',
-    icons: '🚗',
+    icon: '🚗',
   },
   {
     activity: 'Social',
-    icons: '💬',
+    icon: '💬',
   },
 ];
 
 const activitiesCategories = [
   {
     activity: 'Food & Drinks',
-    icons: '🍽️',
+    icon: '🍽️',
   },
   {
     activity: 'Nightlife',
-    icons: '🎉',
+    icon: '🎉',
   },
   {
     activity: 'Outdoor & Active',
-    icons: '🏕️',
+    icon: '🏕️',
   },
   {
     activity: 'Sightseeing',
-    icons: '🗺️',
+    icon: '🗺️',
   },
   {
     activity: 'Entertainment',
-    icons: '🎭',
+    icon: '🎭',
   },
   {
     activity: 'Shopping',
-    icons: '🛍️',
+    icon: '🛍️',
   },
   {
     activity: 'Wellness',
-    icons: '🧘',
+    icon: '🧘',
   },
   {
     activity: 'Other',
-    icons: '🔍',
+    icon: '🔍',
   },
 ];
 

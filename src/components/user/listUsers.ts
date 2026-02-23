@@ -57,7 +57,7 @@ export async function Controller(
     }
   }
 
-  let whereClause = ' u.id != $current_user_id ';
+  let whereClause = ' u.id != $current_user_id AND u.settings @> \'{"hide_from_near_by_users": false}\' ';
 
   if (search) {
     whereClause += ' AND LOWER(u.full_name) LIKE LOWER($search) ';

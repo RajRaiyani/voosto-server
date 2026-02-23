@@ -179,6 +179,7 @@ export default {
   pool,
   getConnection,
   parameter: (): Parameter => new Parameter(),
+  query: (sqlStmt: string, params?: any[]) => pool.query(sqlStmt, params),
   queryOne,
   queryAll,
   namedQueryAll,
