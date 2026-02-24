@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
 import { z } from 'zod';
 import Schema from '@/config/validationSchema.js';
-import { ensureMember } from './conversation.service.js';
+import { ensureMember } from '@/components/conversation/conversation.service.js';
 
 export const ValidationSchema = {
   params: z.object({

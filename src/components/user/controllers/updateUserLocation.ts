@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import ConfigValidationSchema from '../../config/validationSchema.js';
+import ConfigValidationSchema from '../../../config/validationSchema.js';
 import RedisClient from '@/service/redis/index.js';
 
 export const ValidationSchema = {

@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
 import { z } from 'zod';
 import Schema from '@/config/validationSchema.js';
-import { deleteTrip as deleteTripService } from './trip.service.js';
+import { deleteTrip as deleteTripService } from '../trip.service.js';
 
 export const ValidationSchema = {
   params: z.object({

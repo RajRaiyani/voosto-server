@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import UserSchema from './user.validation.js';
-import ConfigValidationSchema from '../../config/validationSchema.js';
+import UserSchema from '../user.validation.js';
+import ConfigValidationSchema from '../../../config/validationSchema.js';
 import { SaveFile, DeleteFile } from '@/components/file/file.service.js';
 import { DatabaseClient } from '@/service/database/index.js';
 import { Request, Response, NextFunction } from 'express';

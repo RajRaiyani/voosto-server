@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
 import { z } from 'zod';
 import Schema from '@/config/validationSchema.js';
-import TripValidation from './trip.validation.js';
+import TripValidation from '@/components/trip/trip.validation.js';
 
 export const ValidationSchema = {
   params: z.object({

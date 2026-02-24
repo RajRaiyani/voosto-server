@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
 import { z } from 'zod';
-import UserSchema from './user.validation.js';
+import UserSchema from '../user.validation.js';
 import Schema from '@/config/validationSchema.js';
 
 export const ValidationSchema = {

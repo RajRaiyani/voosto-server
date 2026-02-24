@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
 import { z } from 'zod';
 import Schema from '@/config/validationSchema.js';
-import { getPersonalConversation, createConversation, getConversationById } from './conversation.service.js';
+import { getPersonalConversation, createConversation, getConversationById } from '@/components/conversation/conversation.service.js';
 
 export const ValidationSchema = {
   params: z.object({
@@ -28,7 +28,7 @@ export async function Controller(
       is_group: false,
       is_private: false,
       is_womans_only: false,
-      members: [{ id: requestUserId, is_admin: false }, { id: user_id, is_admin: false }],
+      members: [{ id: requestUserId, is_admin: false, notification_enabled: true }, { id: user_id, is_admin: false, notification_enabled: true }],
     });
   }
 

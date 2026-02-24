@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
 import { z } from 'zod';
-import { ensureMember, createMessage } from './conversation.service.js';
+import { ensureMember, createMessage } from '@/components/conversation/conversation.service.js';
 import Schema from '@/config/validationSchema.js';
-import ChatValidationSchema from './conversation.validation.js';
+import ChatValidationSchema from '@/components/conversation/controllers/conversation.validation.js';
 import { RegisterFile } from '@/components/file/file.service.js';
 
 export const ValidationSchema = {

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
-import { deleteActivity } from './activity.service.js';
+import { deleteActivity } from '@/components/activity/activity.service.js';
 import { z } from 'zod';
 import ConfigValidationSchema from '@/config/validationSchema.js';
 

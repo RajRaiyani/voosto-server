@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
 import { z } from 'zod';
-import TripValidation from './trip.validation.js';
+import TripValidation from '../trip.validation.js';
 import { createConversation } from '@/components/conversation/conversation.service.js';
 
 export const ValidationSchema = {
@@ -30,7 +30,7 @@ export async function Controller(
       is_group: true,
       is_private: false,
       is_womans_only: false,
-      members: [{ id: req.user.id, is_admin: true }],
+      members: [{ id: req.user.id, is_admin: true, notification_enabled: true }],
     });
 
     const trip = await db.queryOne(
