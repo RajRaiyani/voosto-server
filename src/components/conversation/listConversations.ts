@@ -92,7 +92,7 @@ export async function Controller(
     private_conversations AS (
       SELECT 
         cfu.id,
-        cfu.name,
+        u.full_name,
         cfu.is_group,
         cfu.is_private,
         cfu.is_womans_only,

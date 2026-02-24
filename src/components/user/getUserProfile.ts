@@ -20,6 +20,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
       u.id, u.first_name, u.last_name, u.email, u.is_email_verified, u.is_profile_completed, u.created_at,
       u.phone_number, u.is_phone_number_verified,
       u.gender, u.date_of_birth, u.bio, u.interested_activity,
+      u.settings,
 
       CASE WHEN f.id IS NOT NULL THEN f.url ELSE NULL END as profile_image_url,
 

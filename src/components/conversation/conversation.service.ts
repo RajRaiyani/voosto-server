@@ -66,6 +66,7 @@ export async function getConversationById(
   const memberShip = await getConversationMembership(db, conversationId, requestUserId);
 
   const isMember = memberShip ? true : false;
+  const notificationEnabled = memberShip?.notification_enabled ?? true;
 
   if (existingConversation.is_group) {
     const sqlQuery = `
@@ -83,7 +84,7 @@ export async function getConversationById(
       LEFT JOIN files f ON f.id = c.display_picture_id
       WHERE c.id = $1
     `;
-    return await db.queryOne(sqlQuery, [conversationId, isMember, memberShip.notification_enabled]);
+    return await db.queryOne(sqlQuery, [conversationId, isMember, notificationEnabled]);
   } else {
     const sqlQuery = `
       SELECT 
@@ -102,7 +103,7 @@ export async function getConversationById(
       LEFT JOIN files f ON f.id = u.profile_image_id
       WHERE c.id = $1
     `;
-    return await db.queryOne(sqlQuery, [conversationId, requestUserId, isMember, memberShip.notification_enabled]);
+    return await db.queryOne(sqlQuery, [conversationId, requestUserId, isMember, notificationEnabled]);
   }
 
 }

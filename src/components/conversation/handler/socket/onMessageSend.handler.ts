@@ -9,7 +9,7 @@ export const ValidationSchema = z.object({
   content: z
     .string()
     .trim()
-    .max(10000, 'Message content must be less than 10000 characters'),
+    .max(10000, 'Message content must be less than 10000 characters').default(''),
   attachments: z.array(z.uuid()).default([]),
 });
 
