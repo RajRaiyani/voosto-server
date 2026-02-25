@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
 import { z } from 'zod';
 import ConfigValidationSchema from '@/config/validationSchema.js';
+import ServerEvent from '@/service/event/index.js';
 
 export const ValidationSchema = {
   body: z.object({
@@ -37,6 +38,8 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     WHERE sender_id = $1 AND receiver_id = $2
     RETURNING sender_id, receiver_id, status, created_at
   `, [sender_id, receiver_id]);
+
+  ServerEvent.emit('friend_request:accepted', { sender_id, receiver_id });
 
   return res.status(200).json(updatedMapping);
 }

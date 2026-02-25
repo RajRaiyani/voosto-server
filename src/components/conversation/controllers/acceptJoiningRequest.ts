@@ -3,6 +3,7 @@ import { DatabaseClient } from '@/service/database/index.js';
 import { z } from 'zod';
 import Schema from '@/config/validationSchema.js';
 import { addMemberToConversation, isAdminOfConversation } from '@/components/conversation/conversation.service.js';
+import ServerEvent from '@/service/event/index.js';
 
 export const ValidationSchema = {
   params: z.object({
@@ -24,6 +25,8 @@ export async function Controller(req: Request, res: Response, next: NextFunction
   await addMemberToConversation(db, conversation_id, user_id, false);
 
   await db.queryOne('DELETE FROM conversation_joining_requests WHERE conversation_id = $1 AND user_id = $2', [conversation_id, user_id]);
+
+  ServerEvent.emit('conversation_joining_request:accepted', { conversation_id, user_id });
 
   return res.status(204).send();
 }

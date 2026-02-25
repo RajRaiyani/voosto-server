@@ -4,6 +4,7 @@ import { z } from 'zod';
 import Schema from '@/config/validationSchema.js';
 import { getConversationById, isMemberOfConversation, addMemberToConversation, createJoiningRequest } from '@/components/conversation/conversation.service.js';
 import SocketService from '@/socket/index.js';
+import ServerEvent from '@/service/event/index.js';
 
 export const ValidationSchema = {
   params: z.object({
@@ -44,6 +45,8 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     }
 
     const joiningRequest = await createJoiningRequest(db, conversation_id, userId);
+
+    ServerEvent.emit('conversation_joining_request:created', { conversation_id, user_id: userId });
   
     return res.status(200).json(joiningRequest);
   }

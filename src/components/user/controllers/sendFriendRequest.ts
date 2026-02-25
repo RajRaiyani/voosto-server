@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
 import { z } from 'zod';
 import ConfigValidationSchema from '@/config/validationSchema.js';
+import ServerEvent from '@/service/event/index.js';
 
 export const ValidationSchema = {
   body: z.object({
@@ -41,6 +42,8 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     VALUES ($1, $2, 'pending')
     RETURNING sender_id, receiver_id, status, created_at
   `, [sender_id, receiver_id]);
+
+  ServerEvent.emit('friend_request:created', { sender_id, receiver_id });
 
   return res.status(201).json(friendMapping);
 }
