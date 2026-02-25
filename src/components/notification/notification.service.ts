@@ -1,52 +1,77 @@
 import { DatabaseClient } from '@/service/database/index.js';
 import Socket from '@/socket/index.js';
+import { Notification } from '@/service/notification/index.js';
+import { sendMulticastMessage } from '@/service/notification/sendMessage.js';
 
-export async function createNotification(
+const tokenValidationErrors = [
+  'messaging/registration-token-not-registered',
+  'messaging/invalid-registration-token',
+  'messaging/mismatched-credential',
+  'messaging/invalid-argument',
+];
+
+
+export async function sendNotifications(
   db: DatabaseClient,
-  {
-    user_id,
-    message,
-    type = 'general',
-    meta_data = {},
-  }: { user_id: string; message?: string; type?: string; meta_data?: object },
+  tokens: string[],
+  notification: Notification,
 ) {
 
-  const notification = await db.queryOne(
-    `
-    INSERT INTO notifications (user_id, message, type, meta_data)
-    VALUES ($1, $2, $3, $4)
-    RETURNING id, user_id, message, type, meta_data, created_at
-  `,
-    [user_id, message, type, meta_data],
-  );
 
-  Socket.userIo.to(user_id).emit('notification:new', notification);
+  const results = await sendMulticastMessage(tokens, notification);
+  const tokensToDelete = [];
 
-  return notification;
+  results.responses.forEach((result, index) => {
+    if (!result.success && tokenValidationErrors.includes(result.error?.code)) {
+      tokensToDelete.push(tokens[index]);
+    }
+  });
+
+  if (tokensToDelete.length > 0) {
+    await db.query(`
+      DELETE FROM user_notification_tokens
+      WHERE token = ANY($1)
+    `, [tokensToDelete]);
+  }
+  
 }
+
+
 
 export async function createNotifications(
   db: DatabaseClient,
-  {
-    user_ids,
-    message,
-    type = 'general',
-    meta_data = {},
-  }: { user_ids: string[]; message?: string; type?: string; meta_data?: object },
+  user_ids: string[],
+  notification: Notification,
 ) {
+
+  const { title, body, type, ...meta_data } = notification;
+
   if (user_ids.length === 0) return [];
 
   const notifications = await db.queryAll(
     `
-    INSERT INTO notifications (user_id, message, type, meta_data)
-    SELECT unnest($1::uuid[]), $2, $3, $4
-    RETURNING id, user_id, message, type, meta_data, created_at
+    INSERT INTO notifications (user_id, type, title, body, meta_data)
+    SELECT unnest($1::uuid[]), $2, $3, $4, $5
+    RETURNING id, user_id, title, body, type, meta_data, created_at
   `,
-    [user_ids, message, type, meta_data],
+    [user_ids, notification.type, notification.title, notification.body, notification.meta_data],
   );
 
   Socket.userIo.to(user_ids).emit('notification:new', notifications);
 
+  const tokenResponse = await db.queryAll(
+    'SELECT token FROM user_notification_tokens WHERE user_id = ANY($1)',
+    [user_ids],
+  );
+
+  const tokens = tokenResponse.map(token => token.token);
+
+  await sendNotifications(db, tokens, {
+    title: title,
+    body: body,
+    type: type,
+    ...meta_data,
+  });
   return notifications;
 }
 

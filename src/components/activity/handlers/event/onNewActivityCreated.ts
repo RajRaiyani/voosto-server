@@ -4,7 +4,7 @@ import RedisClient from '@/service/redis/index.js';
 import { NotificationType } from '@/service/notification/index.js';
 
 
-async function onNewActivityCreatedHandler({ db }: EventContext, activityId: string) : Promise<void> {
+async function onNewActivityCreatedHandler({ db }: EventContext, activityId: string) {
 
   const activity = await db.queryOne(`
     SELECT
@@ -42,20 +42,16 @@ async function onNewActivityCreatedHandler({ db }: EventContext, activityId: str
     WHERE 
       id = ANY($1) AND
       settings @> '{"notify_near_by_activities": true}'
-
   `, [nearestUsers]);
 
-
-  await createNotifications(db, {
-    user_ids: usersToNotify.map(user => user.id),
+  await createNotifications(db, usersToNotify.map(user => user.id), {
     type: NotificationType.NEW_ACTIVITY,
-    message: `New activity created near you by ${activity.created_by.full_name}.`,
-    meta_data: {
-      activity_id: activity.id,
-      description: activity.description,
-      category: activity.category,
-      created_by: activity.created_by,
-    },
+    title: 'New activity created near you.',
+    body: `New activity created near you by ${activity.created_by.full_name}.`,
+    activity_id: activity.id,
+    description: activity.description,
+    category: activity.category,
+    created_by: activity.created_by,
   });
   
 }

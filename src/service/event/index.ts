@@ -1,9 +1,20 @@
 import EventEmitter from 'events';
 import { DatabaseClient } from '@/service/database/index.js';
 import Database from '@/service/database/index.js';
+import { ServerEvent } from '@/types/serverEvent.type.js';
 
 
-const eventEmitter = new EventEmitter();
+type TypedEmitter<T extends Record<string, (...args: any[]) => void>> = {
+  on<K extends keyof T>(event: K, listener: T[K]): TypedEmitter<T>;
+  off<K extends keyof T>(event: K, listener: T[K]): TypedEmitter<T>;
+  once<K extends keyof T>(event: K, listener: T[K]): TypedEmitter<T>;
+  emit<K extends keyof T>(event: K, ...args: Parameters<T[K]>): boolean;
+  removeAllListeners<K extends keyof T>(event?: K): TypedEmitter<T>;
+};
+
+const eventEmitter: TypedEmitter<ServerEvent> = new EventEmitter();
+
+
 
 export type options = {
   withDatabase: boolean;
@@ -14,14 +25,21 @@ export type EventContext = {
   db?: DatabaseClient;
 };
 
-export type EventHandler = (ctx: EventContext, ...args: any[]) => Promise<void>;
+export type ServiceHandler<TArgs extends any[], TResult> = (
+  context: EventContext,
+  ...args: TArgs
+) => Promise<TResult>;
 
-export function EventContextProvider(handler: EventHandler, options: options = { withDatabase: false }) {
-  return async (...args: any[]) => {
+export function EventContextProvider<TArgs extends any[], TResult>(
+  handler: ServiceHandler<TArgs, TResult>,
+  options: options = { withDatabase: false }
+): (...args: TArgs) => void {
+  
+  return (async (...args: TArgs): Promise<TResult> => {
     if (options.withDatabase) {
       const db = await Database.getConnection();
       try {
-        await handler({ db }, ...args);
+        return await handler({ db }, ...args);
       } catch (error) {
         eventEmitter.emit('error', error);
       } finally {
@@ -29,13 +47,12 @@ export function EventContextProvider(handler: EventHandler, options: options = {
       }
     } else {
       try {
-        await handler({}, ...args);
+        return await handler({}, ...args);
       } catch (error) {
         eventEmitter.emit('error', error);
       }
     }
-  };
-  
+  });
 }
 
 export default eventEmitter;

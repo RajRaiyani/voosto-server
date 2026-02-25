@@ -13,7 +13,7 @@ export const ValidationSchema = {
     location: Schema.location().optional(),
     // in kilometers
     radius: z.coerce.number()
-      .min(1, 'Radius must be greater than 1 km')
+      .gt(0, 'Radius must be greater than 0 km')
       .max(5000, 'Radius must be less than 5000 km').optional(),
     offset: Schema.pagination.offset(),
     limit: Schema.pagination.limit(),

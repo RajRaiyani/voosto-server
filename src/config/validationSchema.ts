@@ -26,8 +26,7 @@ export default {
 
   phoneNumber: () =>
     z
-      .string()
-      .regex(/^[0-9]{10}$/, { message: 'Phone number must be 10 digits' }),
+      .string().trim().min(4, 'Phone number must be at least 4 characters').max(15, 'Phone number must be less than 15 characters'),
 
   email: () => z.email({ message: 'Invalid email address' }),
   address: () =>
