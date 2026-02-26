@@ -20,7 +20,9 @@ export async function Controller(req: Request, res: Response, next: NextFunction
         'country', json_build_object(
           'id', c.id,
           'name', c.name,
-          'code', c.code
+          'code', c.code,
+          'dial_code', c.dial_code,
+          'flag', c.flag
         )
       ) as sender
       

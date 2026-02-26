@@ -24,10 +24,39 @@ export async function Controller(
 
   if (!conversation) return res.status(404).json({ message: 'Conversation not found' });
 
-  const [memberCountResponse, activity, trip, pendingRequest] = await Promise.all([
+  const [memberCountResponse, members, activity, trip, pendingRequest] = await Promise.all([
     db.queryOne(`
       SELECT COUNT(*)::integer as member_count FROM conversation_members WHERE conversation_id = $1
     `, [conversation_id]),
+
+    db.queryAll(`
+      SELECT
+        u.id,
+        u.full_name,
+        u.email,
+        u.gender,
+        f.url as profile_image_url,
+        json_build_object(
+          'id', c.id,
+          'name', c.name,
+          'code', c.code,
+          'dial_code', c.dial_code,
+          'flag', c.flag
+        ) as country,
+        CASE WHEN fm.status IS NOT NULL THEN true ELSE false END AS is_friend
+      FROM conversation_members cm
+      INNER JOIN users u ON u.id = cm.user_id
+      LEFT JOIN files f ON f.id = u.profile_image_id
+      LEFT JOIN countries c ON c.id = u.country_id
+      LEFT JOIN friend_mappings fm ON 
+        fm.status = 'accepted' AND (
+          (fm.sender_id = $2 AND fm.receiver_id = u.id) OR
+          (fm.receiver_id = $2 AND fm.sender_id = u.id)
+        )
+      WHERE cm.conversation_id = $1
+      ORDER BY is_friend DESC, u.created_at DESC
+      LIMIT 10
+    `, [conversation_id, userId]),
 
     db.queryOne(`
       SELECT 
@@ -60,8 +89,8 @@ export async function Controller(
       FROM trips t
       LEFT JOIN users u ON t.created_by = u.id
       LEFT JOIN files f ON f.id = u.profile_image_id
-      WHERE t.conversation_id = $1
-    `, [conversation_id]),
+      WHERE t.conversation_id = $1 and t.created_by = $2
+    `, [conversation_id, userId]),
 
     db.queryOne(`
       SELECT conversation_id, created_at FROM conversation_joining_requests WHERE conversation_id = $1 AND user_id = $2
@@ -72,6 +101,7 @@ export async function Controller(
   const responseData: any = {
     ...conversation,
     member_count: memberCountResponse.member_count,
+    members,
     pending_joining_request: pendingRequest,
     activity: activity,
     trip: trip,

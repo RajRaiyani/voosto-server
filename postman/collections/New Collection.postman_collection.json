@@ -925,13 +925,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{host}}/trips/019c5b5e-31ed-7481-af98-f457e3d605ed",
+              "raw": "{{host}}/trips/019c75ca-1e0e-72f6-b309-0f796be2a889",
               "host": [
                 "{{host}}"
               ],
               "path": [
                 "trips",
-                "019c5b5e-31ed-7481-af98-f457e3d605ed"
+                "019c75ca-1e0e-72f6-b309-0f796be2a889"
               ]
             }
           },
@@ -972,13 +972,13 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{host}}/trips/019c5b5e-31ed-7481-af98-f457e3d605ed",
+              "raw": "{{host}}/trips/019c75ca-1e0e-72f6-b309-0f796be2a889",
               "host": [
                 "{{host}}"
               ],
               "path": [
                 "trips",
-                "019c5b5e-31ed-7481-af98-f457e3d605ed"
+                "019c75ca-1e0e-72f6-b309-0f796be2a889"
               ]
             }
           },
@@ -1099,7 +1099,7 @@
   ],
   "variable": [
     {
-      "id": "d176a6dd-4cdc-4915-addb-cd10b12ad5c8",
+      "id": "f76abfc4-2b7c-4764-9165-02e551e6b41b",
       "key": "token",
       "value": ""
     }

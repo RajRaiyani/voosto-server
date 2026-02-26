@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
-import { deleteActivity } from '@/components/activity/activity.service.js';
 import { z } from 'zod';
 import ConfigValidationSchema from '@/config/validationSchema.js';
 
@@ -18,6 +17,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
   if (!activity) return res.status(404).json({ message: 'Activity not found' });
   if (activity.created_by !== req.user.id) return res.status(403).json({ message: 'You are not allowed to delete this activity' });
 
-  await deleteActivity(db, activity_id);
+  await db.query('DELETE FROM activities WHERE id = $1', [activity_id]);
+
   return res.status(204).send();
 }

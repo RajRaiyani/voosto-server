@@ -107,7 +107,8 @@ CREATE TABLE public.countries (
     id uuid DEFAULT uuidv7() NOT NULL,
     name character varying(100) NOT NULL,
     code character varying(100) NOT NULL,
-    dial_code character varying(100) NOT NULL
+    dial_code character varying(100) NOT NULL,
+    flag character varying(5)
 );
 
 
@@ -120,7 +121,8 @@ CREATE TABLE public.files (
     key text NOT NULL,
     _status character varying(100) DEFAULT 'pending'::character varying NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    url text GENERATED ALWAYS AS (('http://172.20.10.4:3007/files/'::text || key)) STORED NOT NULL
+    endpoint text DEFAULT 'http://localhost:3007/files'::text NOT NULL,
+    url text GENERATED ALWAYS AS (((endpoint || '/'::text) || key)) STORED
 );
 
 
@@ -169,7 +171,9 @@ CREATE TABLE public.notifications (
     type character varying(100) DEFAULT 'general'::character varying NOT NULL,
     user_id uuid NOT NULL,
     meta_data jsonb DEFAULT '{}'::jsonb NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    body text DEFAULT ''::text NOT NULL,
+    title text DEFAULT ''::text NOT NULL
 );
 
 
@@ -658,4 +662,7 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20260223093211'),
     ('20260223161037'),
     ('20260223163035'),
-    ('20260223171157');
+    ('20260223171157'),
+    ('20260225051531'),
+    ('20260226140218'),
+    ('20260226143146');

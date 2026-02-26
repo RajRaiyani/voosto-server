@@ -29,7 +29,8 @@ export async function Controller(req: Request, res: Response, next: NextFunction
           'id', c.id,
           'name', c.name, 
           'code', c.code, 
-          'dial_code', c.dial_code
+          'dial_code', c.dial_code,
+          'flag', c.flag
         )
       ELSE NULL END as country,
 
@@ -66,7 +67,9 @@ export async function Controller(req: Request, res: Response, next: NextFunction
           json_build_object(
             'id', c.id,
             'name', c.name,
-            'code', c.code
+            'code', c.code,
+            'dial_code', c.dial_code,
+            'flag', c.flag
           )
         )
         FROM visited_countries vc

@@ -18,18 +18,25 @@ export const ValidationSchema = {
     offset: Schema.pagination.offset(),
     limit: Schema.pagination.limit(),
     date: z.string().trim().regex(dateOnlyRegex, 'Date must be YYYY-MM-DD').optional(),
+    my_activities: z.coerce.boolean().optional().default(false),
   }),
 };
 
 export async function Controller(req: Request, res: Response, next: NextFunction, db: DatabaseClient) {
-  const { search, location, radius, offset, limit, date } = req.validatedQuery as z.infer<typeof ValidationSchema.query>;
+  const { search, location, radius, offset, limit, date, my_activities } = req.validatedQuery as z.infer<typeof ValidationSchema.query>;
 
   const user = await db.queryOne('SELECT id, gender FROM users WHERE id = $1', [req.user.id]);
   if (!user) return res.status(404).json({ message: 'User not found' });
 
+
+  let whereClause = ' TRUE ';
+
+
   const notWoman = user.gender === 'male' || user.gender === 'other' ? true : false;
   
   let activity_ids: string[] = [];
+  
+  
   if (location) {
 
     activity_ids = await RedisClient.geoSearch(
@@ -46,15 +53,15 @@ export async function Controller(req: Request, res: Response, next: NextFunction
         SORT: 'ASC', // Sort by distance
       }
     ) as string[];
-    
+
+    whereClause += ' AND a.id = ANY($activity_ids) ';
   }
 
-  let whereClause = ' TRUE ';
 
   if (search) whereClause += ' AND LOWER(a.description) LIKE LOWER($search) ';
-  if (location) whereClause += ' AND a.id = ANY($activity_ids) ';
   if (date) whereClause += ' AND a.date = $date ';
   if (notWoman) whereClause += ' AND c.is_womans_only = FALSE ';
+  if (my_activities) whereClause += ' AND a.created_by = $user_id ';
 
   const sqlQuery = `
     SELECT
@@ -102,6 +109,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     date: date ?? null,
     limit,
     offset,
+    user_id: req.user.id,
   });
 
   return res.status(200).json(activities);

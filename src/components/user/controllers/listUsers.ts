@@ -84,9 +84,17 @@ export async function Controller(
       u.gender,
       u.bio,
       u.interested_activity,
-      f.url as profile_image_url
+      f.url as profile_image_url,
+      json_build_object(
+        'id', c.id,
+        'name', c.name,
+        'code', c.code,
+        'dial_code', c.dial_code,
+        'flag', c.flag
+      ) as country
     FROM users u
     LEFT JOIN files f ON f.id = u.profile_image_id
+    LEFT JOIN countries c ON c.id = u.country_id
     WHERE ${whereClause}
     ${orderClause}
     LIMIT $limit OFFSET $offset

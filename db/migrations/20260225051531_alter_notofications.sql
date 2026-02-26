@@ -2,9 +2,9 @@
 
 
 alter table notifications add column body text not null default '';
-alter table notifications rename column message to title;
+alter table notifications add column title text not null default '';
 
 -- migrate:down
 
 alter table notifications drop column body;
-alter table notifications rename column title to message;
+alter table notifications drop column title;
