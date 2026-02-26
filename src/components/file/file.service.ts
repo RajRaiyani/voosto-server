@@ -2,6 +2,7 @@ import { DatabaseClient } from '@/service/database/index.js';
 import ServerError from '@/utils/serverError.js';
 import { convertToWebp, deleteFile } from '@/service/file-storage/index.js';
 import { upload } from '@/service/file-storage/index.js';
+import env from '@/config/env.js';
 
 interface CreateNewFileInput {
   key: string;
@@ -15,7 +16,7 @@ interface CreateNewFileOutput {
 }
 
 export async function CreateNewFile(db: DatabaseClient, { key, _status = 'pending' }: CreateNewFileInput): Promise<CreateNewFileOutput> {
-  const file = await db.queryOne<CreateNewFileOutput>('INSERT INTO files (key, _status) VALUES ($1, $2) RETURNING id, key, _status', [key, _status]);
+  const file = await db.queryOne<CreateNewFileOutput>('INSERT INTO files (key, _status, endpoint) VALUES ($1, $2, $3) RETURNING id, key, _status', [key, _status, env.fileStorageEndpoint]);
   return file;
 }
 
