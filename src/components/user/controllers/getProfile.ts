@@ -35,7 +35,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
       ) as trip_count,
 
       (
-        SELECT COUNT(*)::integer FROM friend_mappings fm WHERE fm.sender_id = u.id OR fm.receiver_id = u.id
+        SELECT COUNT(*)::integer FROM friend_mappings fm WHERE (fm.sender_id = u.id OR fm.receiver_id = u.id) AND fm.status = 'accepted'
       ) as friend_count,
 
       (
@@ -65,12 +65,13 @@ export async function Controller(req: Request, res: Response, next: NextFunction
         SELECT array_agg(
           json_build_object(
             'id', id,
-            'name', place,
+            'name', place_name,
+            'place_id', place_id,
             'date', date
           )
         )
         FROM (
-          SELECT t.id, t.place, t.date, t.created_at
+          SELECT t.id, t.place_name, t.place_id, t.date, t.created_at
           FROM trips t
           WHERE t.created_by = u.id AND (t.date IS NULL OR t.date > NOW())
           ORDER BY t.date DESC

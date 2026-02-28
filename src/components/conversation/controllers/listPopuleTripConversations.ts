@@ -16,14 +16,13 @@ export async function Controller(
   next: NextFunction,
   db: DatabaseClient
 ) {
-
-  const {   offset, limit } = req.validatedQuery as z.infer<typeof ValidationSchema.query>;
-
-  const whereClause = ' t.created_by = $user_id ';
-  const orderBy = ' t.created_at DESC ';
+  const { offset, limit } = req.validatedQuery as z.infer<
+    typeof ValidationSchema.query
+  >;
 
   const sqlQuery = `
-    WITH conversations_with_members AS (
+    WITH
+    conversations_with_member_count AS (
       SELECT
         c.id,
         c.name,
@@ -32,11 +31,13 @@ export async function Controller(
         c.is_womans_only,
         c.place_id,
         c.place_name,
-        c.meta_data,
+        c.display_picture_id,
         c.created_at,
-        COUNT(cm.user_id) as member_count
+        c.meta_data,
+        COUNT(cm.user_id)::integer AS member_count
       FROM conversations c
       LEFT JOIN conversation_members cm ON cm.conversation_id = c.id
+      WHERE c.place_id IS NOT NULL
       GROUP BY c.id
     ),
 
@@ -72,50 +73,31 @@ export async function Controller(
     )
 
     SELECT
-      t.id,
-      t.conversation_id,
-      t.place_id,
-      t.place_name,
-      t.date,
-      t.created_at,
-      t.updated_at,
-      t.meta_data,
-      COALESCE(ffm.members, '[]'::json) AS members,
-      cwm.member_count::integer as member_count,
-
-      json_build_object(
-        'id', u.id,
-        'first_name', u.first_name,
-        'last_name', u.last_name,
-        'full_name', u.full_name,
-        'email', u.email,
-        'profile_image_url', f.url
-      ) as created_by,
-
-      CASE WHEN cwm.id IS NOT NULL THEN
-        json_build_object(
-          'id', cwm.id,
-          'name', cwm.name,
-          'place_name', cwm.place_name,
-          'place_id', cwm.place_id,
-          'is_group', cwm.is_group,
-          'is_private', cwm.is_private,
-          'is_womans_only', cwm.is_womans_only,
-          'member_count', cwm.member_count
-        )
-
-      ELSE NULL END as conversation
-    FROM trips t
-    LEFT JOIN users u ON t.created_by = u.id
-    LEFT JOIN files f ON f.id = u.profile_image_id
-    LEFT JOIN conversations_with_members cwm ON cwm.place_id = t.place_id
+      cwm.id,
+      cwm.name,
+      cwm.is_group,
+      cwm.is_private,
+      cwm.is_womans_only,
+      cwm.place_id,
+      cwm.place_name,
+      cwm.meta_data,
+      cwm.member_count,
+      cwm.created_at,
+      CASE WHEN f.id IS NOT NULL THEN
+        json_build_object('id', f.id, 'url', f.url)
+      ELSE NULL END AS display_picture,
+      COALESCE(ffm.members, '[]'::json) AS members
+    FROM conversations_with_member_count cwm
     LEFT JOIN first_five_members ffm ON ffm.conversation_id = cwm.id
-    WHERE ${whereClause}
-    ORDER BY ${orderBy}
-    OFFSET $offset LIMIT $limit
+    LEFT JOIN files f ON f.id = cwm.display_picture_id
+    ORDER BY cwm.member_count DESC, cwm.created_at DESC
+    OFFSET $1 LIMIT $2
   `;
 
-  const trips = await db.namedQueryAll(sqlQuery, { offset, limit, user_id: req.user.id });
+  const conversations = await db.queryAll(sqlQuery, [
+    offset,
+    limit,
+  ]);
 
-  return res.status(200).json(trips);
+  return res.status(200).json(conversations);
 }

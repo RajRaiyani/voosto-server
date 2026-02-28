@@ -54,7 +54,7 @@ export async function createNotifications(
     SELECT unnest($1::uuid[]), $2, $3, $4, $5
     RETURNING id, user_id, title, body, type, meta_data, created_at
   `,
-    [user_ids, notification.type, notification.title, notification.body, notification.meta_data],
+    [user_ids, notification.type, notification.title, notification.body, meta_data ?? {}],
   );
 
   Socket.userIo.to(user_ids).emit('notification:new', notifications);
@@ -66,12 +66,14 @@ export async function createNotifications(
 
   const tokens = tokenResponse.map(token => token.token);
 
-  await sendNotifications(db, tokens, {
-    title: title,
-    body: body,
-    type: type,
-    ...meta_data,
-  });
+  if (tokens.length > 0) {
+    await sendNotifications(db, tokens, {
+      title: title,
+      body: body,
+      type: type,
+      ...meta_data,
+    });
+  }
   return notifications;
 }
 

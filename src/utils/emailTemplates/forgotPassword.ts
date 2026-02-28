@@ -1,123 +1,159 @@
-function emailVerifyOtp(url: string) {
+function emailResetPassword(url: string) {
   return `
-  <html lang="en">
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OTP</title>
-
-  <style>
-    .flex {
-      display: flex;
-    }
-
-    .justify-center {
-      justify-content: center;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Voosto – Reset Your Password</title>
 </head>
 
-<body>
+<body style="margin:0; padding:0; background-color:#f0f1ff; font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;">
 
-  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f5f5f5; padding: 16px;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 16px;">
     <tr>
       <td align="center">
-        <!-- Main Wrapper -->
-        <table width="100%" cellpadding="0" cellspacing="0" border="0"
-          style="max-width: 600px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); overflow: hidden; border: 2px solid #000000;">
+
+        <!-- Card -->
+        <table width="100%" cellpadding="0" cellspacing="0"
+          style="max-width:500px; background:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 4px 32px rgba(64,80,255,0.10);">
+
+          <!-- Header Band -->
           <tr>
-            <td style="padding: 24px;">
-              <!-- Logo -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+            <td style="background:#4050ff; padding:32px 40px; text-align:center;">
+              <img
+                src="https://voosto.com/logo"
+                alt="Voosto"
+                width="120"
+                style="display:block; margin:0 auto; max-width:120px;"
+                onerror="this.style.display='none'; document.getElementById('voosto-wordmark').style.display='block';"
+              />
+              <span id="voosto-wordmark"
+                style="display:none; font-size:26px; font-weight:800; color:#ffffff; letter-spacing:-0.5px;">
+                Voosto
+              </span>
+            </td>
+          </tr>
+
+          <!-- Accent Line -->
+          <tr>
+            <td style="height:4px; background:linear-gradient(90deg, #4050ff 0%, #a0aaff 50%, #4050ff 100%);"></td>
+          </tr>
+
+          <!-- Content -->
+          <tr>
+            <td style="padding:40px 40px 32px; text-align:center;">
+
+              <!-- Icon Circle -->
+              <div style="
+                width:56px; height:56px;
+                background:#eef0ff;
+                border-radius:50%;
+                margin:0 auto 24px;
+                font-size:26px;
+                line-height:56px;
+                text-align:center;
+              ">&#128274;</div>
+
+              <h2 style="margin:0 0 10px; font-size:22px; font-weight:700; color:#0d0f1a; letter-spacing:-0.3px;">
+                Reset Your Password
+              </h2>
+              <p style="margin:0 0 32px; color:#6b7280; font-size:14px; line-height:1.6;">
+                We received a request to reset your password.<br/>
+                Click the button below to create a new one.
+              </p>
+
+              <!-- CTA Button -->
+              <a href="${url}"
+                style="
+                  display:inline-block;
+                  background:#4050ff;
+                  color:#ffffff;
+                  padding:14px 36px;
+                  font-size:15px;
+                  font-weight:700;
+                  border-radius:10px;
+                  text-decoration:none;
+                  letter-spacing:0.2px;
+                  margin-bottom:32px;
+                ">
+                Reset Password
+              </a>
+
+              <!-- Warning -->
+              <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
-                  <td align="center" style="margin-bottom: 32px; font-size: 2rem; font-weight: bold; color: #000000;">
-                    Firelynk
+                  <td style="
+                    background:#fff7ed;
+                    border:1px solid #fed7aa;
+                    border-radius:8px;
+                    padding:14px 18px;
+                    font-size:13px;
+                    color:#92400e;
+                    text-align:left;
+                    line-height:1.5;
+                  ">
+                    &#x26A0;&#xFE0F;&nbsp; <strong>This link expires in 10 minutes.</strong> If you didn't request a reset, you can safely ignore this email.
                   </td>
                 </tr>
               </table>
-              <br />
 
-              <!-- Content -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="text-align: center;">
-                <tr>
-                  <td style="font-size: 1.5rem; font-weight: 600; color: #000000; margin-bottom: 16px;">
-                    Reset Your Password
-                  </td>
-                </tr>
-                <tr>
-                  <td style="color: #374151; padding-bottom: 16px;">
-                    We received a request to reset your password. Click the button below to create a new password:
-                  </td>
-                </tr>
+            </td>
+          </tr>
 
-                <!-- Reset Button -->
-                <tr>
-                  <td style="padding: 32px 0;">
-                    <a href="${url}"
-                      style="display: inline-block; background-color: #f97316; color: #ffffff; padding: 12px 24px; font-size: 1rem; font-weight: 600; border-radius: 8px; text-decoration: none; border: 1px solid #000000;">
-                      Reset Password
-                    </a>
-                  </td>
-                </tr>
+          <!-- Divider -->
+          <tr>
+            <td style="padding:0 40px;">
+              <div style="height:1px; background:#e5e7ff;"></div>
+            </td>
+          </tr>
 
-                <!-- Security Notice -->
-                <tr>
-                  <td
-                    style="background-color: #f97316; border: 1px solid #000000; border-radius: 8px; padding: 16px; margin-top: 24px;">
-                    <p style="color: #ffffff; font-size: 0.875rem; margin: 0;">
-                      For security reasons, this password reset link will expire in 10 minutes. Please do not share this
-                      email with anyone.
-                    </p>
-                  </td>
-                </tr>
+          <!-- Fallback URL -->
+          <tr>
+            <td style="padding:24px 40px; text-align:center;">
+              <p style="margin:0 0 8px; font-size:12px; color:#9ca3af;">
+                Button not working? Copy and paste this link into your browser:
+              </p>
+              <p style="margin:0; font-size:12px; color:#4050ff; word-break:break-all; line-height:1.6;">
+                ${url}
+              </p>
+            </td>
+          </tr>
 
-                <!-- Additional Info -->
-                <tr>
-                  <td style="padding-top: 24px; color: #7f1d1d; font-size: 0.875rem; text-align: left;">
-                    <p style="margin: 0; text-align: center;">
-                      If you didn't request a password reset, please ignore this email or contact support if you have
-                      concerns.
-                    </p>
-                    <table width="100%" cellpadding="0" cellspacing="0" border="0"
-                      style="margin-top: 16px; border-top: 1px solid #000000; padding-top: 16px;">
-                      <tr>
-                        <td>
-                          <p style="margin: 0; color: #4b5563; text-align: center;">Button not working? Copy and paste
-                            this link into your
-                            browser:</p>
-                          <p style="margin: 8px 0 0; color: #000000; word-wrap: break-word;text-align: center;">
-                            ${url}
-                          </p>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-              </table>
+          <!-- Divider -->
+          <tr>
+            <td style="padding:0 40px;">
+              <div style="height:1px; background:#e5e7ff;"></div>
             </td>
           </tr>
 
           <!-- Footer -->
           <tr>
-            <td
-              style="padding: 16px; background-color: #000000; font-size: 0.75rem; color: #ffffff; text-align: center;">
-              <p style="margin: 0;">
-                This is an automated message, please do not reply to this email.
+            <td style="padding:20px 40px; text-align:center;">
+              <p style="margin:0; font-size:11px; color:#c4c9f0;">
+                © 2025 Voosto. This is an automated message — please do not reply.
               </p>
             </td>
           </tr>
+
+          <!-- Bottom Accent -->
+          <tr>
+            <td style="background:#4050ff; padding:10px; text-align:center;">
+              <p style="margin:0; font-size:11px; color:rgba(255,255,255,0.7); letter-spacing:0.5px;">
+                voosto.com
+              </p>
+            </td>
+          </tr>
+
         </table>
+
       </td>
     </tr>
   </table>
 
-
-
 </body>
-
 </html>
-  `;
+`;
 }
 
-export default emailVerifyOtp;
+export default emailResetPassword;

@@ -2,6 +2,7 @@ import EventEmitter from 'events';
 import { DatabaseClient } from '@/service/database/index.js';
 import Database from '@/service/database/index.js';
 import { ServerEvent } from '@/types/serverEvent.type.js';
+import Logger from '../logger/index.js';
 
 
 type TypedEmitter<T extends Record<string, (...args: any[]) => void>> = {
@@ -54,5 +55,9 @@ export function EventContextProvider<TArgs extends any[], TResult>(
     }
   });
 }
+
+eventEmitter.on('error', (error) => {
+  Logger.error(error.message, { stack: error.stack });
+});
 
 export default eventEmitter;

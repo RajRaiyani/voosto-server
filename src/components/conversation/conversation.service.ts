@@ -276,6 +276,9 @@ interface CreateConversationInput {
   is_group: boolean
   is_private: boolean
   is_womans_only: boolean
+  is_deletable?: boolean
+  place_id?: string
+  meta_data?: Record<string, any>
   members: {
     id: string;
     is_admin: boolean;
@@ -284,13 +287,15 @@ interface CreateConversationInput {
 }
 
 export async function createConversation(db: DatabaseClient,  
-  { name, is_group = false, is_private = false, is_womans_only = false, members =[] }:CreateConversationInput){
+  { name, is_group = false, is_private = false, is_womans_only = false, members =[], is_deletable = true, place_id, meta_data = {} }:CreateConversationInput){
   
   if (is_group) {
-    if (!name || name.trim().length === 0) throw new ServerError('ERROR', 'Group conversation must have a name');
-    if (members.length === 0) throw new ServerError('ERROR', 'Group conversation must have at least one participant');
-    if ([...new Set(members.map(p => p.id))].length !== members.length) throw new ServerError('ERROR', 'Duplicate participants');
-    if (!members.some(p => p.is_admin)) throw new ServerError('ERROR', 'At least one participant must be an admin');
+    if (is_deletable){
+      if (!name || name.trim().length === 0) throw new ServerError('ERROR', 'Group conversation must have a name');
+      if (members.length === 0) throw new ServerError('ERROR', 'Group conversation must have at least one participant');
+      if ([...new Set(members.map(p => p.id))].length !== members.length) throw new ServerError('ERROR', 'Duplicate participants');
+      if (!members.some(p => p.is_admin)) throw new ServerError('ERROR', 'At least one participant must be an admin');
+    }
   } else {
     if (members.length !== 2) throw new ServerError('ERROR', 'Direct conversation must have exactly two participants');
     if (members[0].id === members[1].id) throw new ServerError('ERROR', 'You cannot create a conversation with yourself');
@@ -304,9 +309,9 @@ export async function createConversation(db: DatabaseClient,
     await db.begin();
 
     const conversation = await db.queryOne(`
-      INSERT INTO conversations (name, is_group, is_private, is_womans_only) VALUES ($1, $2, $3, $4)
-      RETURNING id
-    `, [name, is_group, is_private, is_womans_only]);
+      INSERT INTO conversations (name, is_group, is_private, is_womans_only, is_deletable, place_id, meta_data) VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING id, name, meta_data
+    `, [name, is_group, is_private, is_womans_only, is_deletable, place_id, meta_data]);
 
 
     for (const participant of members) {

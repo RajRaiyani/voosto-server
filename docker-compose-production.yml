@@ -34,6 +34,7 @@ services:
       - ./files:/app/files
       - ./logs:/app/logs
       - ./tmp:/app/tmp
+      - ./FCM.json:/app/FCM.json
     command: sh -c "npx dbmate up && npm run start"
 
 volumes:

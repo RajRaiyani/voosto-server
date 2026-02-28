@@ -1,6 +1,6 @@
 \restrict dbmate
 
--- Dumped from database version 18.1 (Debian 18.1-1.pgdg13+2)
+-- Dumped from database version 18.3 (Debian 18.3-1.pgdg13+1)
 -- Dumped by pg_dump version 18.1
 
 SET statement_timeout = 0;
@@ -95,7 +95,11 @@ CREATE TABLE public.conversations (
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     is_private boolean DEFAULT false NOT NULL,
     is_womans_only boolean DEFAULT false NOT NULL,
-    display_picture_id uuid
+    display_picture_id uuid,
+    is_deletable boolean DEFAULT true NOT NULL,
+    meta_data jsonb DEFAULT '{}'::jsonb NOT NULL,
+    place_id character varying(255),
+    place_name character varying(255)
 );
 
 
@@ -204,12 +208,14 @@ CREATE TABLE public.tokens (
 
 CREATE TABLE public.trips (
     id uuid DEFAULT uuidv7() NOT NULL,
-    conversation_id uuid NOT NULL,
-    place character varying(255) NOT NULL,
+    conversation_id uuid,
     date date,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     created_by uuid NOT NULL,
-    updated_at timestamp with time zone
+    updated_at timestamp with time zone,
+    place_id character varying(255) NOT NULL,
+    place_name character varying(255) NOT NULL,
+    meta_data jsonb DEFAULT '{}'::jsonb NOT NULL
 );
 
 
@@ -365,11 +371,11 @@ ALTER TABLE ONLY public.trips
 
 
 --
--- Name: user_notification_tokens pk_user_notification_tokens_token; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: user_notification_tokens pk_user_notification_tokens_user_id_token; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.user_notification_tokens
-    ADD CONSTRAINT pk_user_notification_tokens_token PRIMARY KEY (token);
+    ADD CONSTRAINT pk_user_notification_tokens_user_id_token PRIMARY KEY (user_id, token);
 
 
 --
@@ -405,6 +411,14 @@ ALTER TABLE ONLY public.schema_migrations
 
 
 --
+-- Name: conversations uk_conversations_place_id; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.conversations
+    ADD CONSTRAINT uk_conversations_place_id UNIQUE (place_id);
+
+
+--
 -- Name: countries uk_countries_code; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -426,6 +440,14 @@ ALTER TABLE ONLY public.countries
 
 ALTER TABLE ONLY public.files
     ADD CONSTRAINT uk_files_key UNIQUE (key);
+
+
+--
+-- Name: trips uk_trips_created_by_place_id; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.trips
+    ADD CONSTRAINT uk_trips_created_by_place_id UNIQUE (created_by, place_id);
 
 
 --
@@ -665,4 +687,6 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20260223171157'),
     ('20260225051531'),
     ('20260226140218'),
-    ('20260226143146');
+    ('20260226143146'),
+    ('20260227133125'),
+    ('20260228124828');

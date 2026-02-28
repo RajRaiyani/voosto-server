@@ -15,7 +15,7 @@ export const Controller = async (req: Request, res: Response, next: NextFunction
   const notificationToken = await db.queryOne(`
     INSERT INTO user_notification_tokens (user_id, token)
     VALUES ($1, $2)
-    ON CONFLICT (token)
+    ON CONFLICT (user_id, token)
     DO NOTHING
     RETURNING *
   `, [user_id, token]);

@@ -15,12 +15,17 @@ import imageUpload from '@/middleware/multer/imageUpload.js';
 import { ValidationSchema as ListConversationJoiningRequestSchema, Controller as ListConversationJoiningRequestController } from '@/components/conversation/controllers/listConversationJoiningRequest.js';
 import { ValidationSchema as DeleteConversationJoiningRequestSchema, Controller as DeleteConversationJoiningRequestController } from '@/components/conversation/controllers/deleteConversationJoiningRequest.js';
 import { ValidationSchema as ListConversationMembersSchema, Controller as ListConversationMembersController } from '@/components/conversation/controllers/listConversationMemebers.js';
+import { ValidationSchema as ListPopularTripConversationsSchema, Controller as ListPopularTripConversationsController } from '@/components/conversation/controllers/listPopuleTripConversations.js';
 
 const router = express.Router();
 
 router
   .route('/')
   .get(isUserLoggedIn, validate(ListConversationsSchema), withDatabase(ListConversationsController));
+
+router
+  .route('/popular-trip-conversations')
+  .get(isUserLoggedIn, validate(ListPopularTripConversationsSchema), withDatabase(ListPopularTripConversationsController));
 
 router
   .route('/personal/:user_id')

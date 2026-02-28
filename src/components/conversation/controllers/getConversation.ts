@@ -76,10 +76,12 @@ export async function Controller(
     db.queryOne(`
       SELECT
         t.id,
-        t.place,
+        t.place_name,
+        t.place_id,
         t.date,
         t.created_at,
         t.updated_at,
+        t.meta_data,
         json_build_object(
           'id', u.id,
           'full_name', u.full_name,

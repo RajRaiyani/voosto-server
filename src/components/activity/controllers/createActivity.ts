@@ -38,6 +38,12 @@ export async function Controller(
     notification_enabled,
   } = req.body as z.infer<typeof ValidationSchema.body>;
 
+  const requestor = await db.queryOne('SELECT id, gender FROM users WHERE id = $1', [req.user.id]);
+
+  if((requestor.gender === 'male' || requestor.gender === 'other') && is_womans_only) {
+    return res.status(400).json({ message: 'You cannot create an activity for a womans only activity.' });
+  }
+
   try{
     await db.begin();
 

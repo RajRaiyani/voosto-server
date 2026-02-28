@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
 import { z } from 'zod';
 import Schema from '@/config/validationSchema.js';
-import { deleteTrip as deleteTripService } from '../trip.service.js';
 
 export const ValidationSchema = {
   params: z.object({
@@ -20,14 +19,12 @@ export async function Controller(
   const userId = req.user!.id;
 
   const trip = await db.queryOne(
-    'SELECT id, created_by FROM trips WHERE id = $1',
-    [trip_id]
+    'SELECT id, created_by FROM trips WHERE id = $1 and created_by = $2',
+    [trip_id, userId]
   );
   if (!trip) return res.status(404).json({ message: 'Trip not found' });
-  if (trip.created_by !== userId) {
-    return res.status(403).json({ message: 'You are not allowed to delete this trip' });
-  }
 
-  await deleteTripService(db, trip_id);
+  await db.query('DELETE FROM trips WHERE id = $1', [trip_id]);
+
   return res.status(204).send();
 }
