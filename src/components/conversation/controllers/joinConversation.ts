@@ -10,11 +10,17 @@ export const ValidationSchema = {
   params: z.object({
     conversation_id: Schema.uuid(),
   }),
+
+  query: z.object({
+    is_mute: z.boolean().default(false),
+  }),
 };
 
 export async function Controller(req: Request, res: Response, next: NextFunction, db: DatabaseClient) {
 
   const { conversation_id } = req.params as z.infer<typeof ValidationSchema.params>;
+  const { is_mute } = req.validatedQuery as z.infer<typeof ValidationSchema.query>;
+  
   const userId = req.user.id;
 
   const user = await db.queryOne ('SELECT id, gender FROM users WHERE id = $1', [userId]);
@@ -51,7 +57,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     return res.status(200).json(joiningRequest);
   }
 
-  await addMemberToConversation(db, conversation_id, userId, false);
+  await addMemberToConversation(db, conversation_id, userId, false, is_mute);
 
   const userIo = SocketService.userIo;
   if (userIo) {

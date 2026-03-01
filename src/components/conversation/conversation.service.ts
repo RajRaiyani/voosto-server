@@ -331,13 +331,13 @@ export async function createConversation(db: DatabaseClient,
 }
 
 
-export async function addMemberToConversation(db: DatabaseClient, conversationId: string, userId: string, isAdmin: boolean = false): Promise<void> {
+export async function addMemberToConversation(db: DatabaseClient, conversationId: string, userId: string, isAdmin: boolean = false, isMute: boolean = false): Promise<void> {
 
   const member = await db.queryOne(`
-      INSERT INTO conversation_members (conversation_id, user_id, is_admin)
-      VALUES ($1, $2, $3)
-      RETURNING conversation_id, user_id, is_admin
-    `, [conversationId, userId, isAdmin]);
+      INSERT INTO conversation_members (conversation_id, user_id, is_admin, notification_enabled)
+      VALUES ($1, $2, $3, $4)
+      RETURNING conversation_id, user_id, is_admin, notification_enabled
+    `, [conversationId, userId, isAdmin, isMute]);
 
   return member;
 }
