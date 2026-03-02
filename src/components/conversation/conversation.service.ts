@@ -248,7 +248,7 @@ export async function listConversationMessages(db: DatabaseClient, conversationI
     LEFT JOIN message_attachments ma ON ma.message_id = m.id
     LEFT JOIN files f ON f.id = ma.file_id
     WHERE ${whereClause}
-    GROUP BY m.id, u.id
+    GROUP BY m.id, u.id, uf.id
     ORDER BY m.created_at DESC
     OFFSET $2 LIMIT $3
   `, values);
