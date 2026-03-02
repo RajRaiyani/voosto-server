@@ -30,9 +30,7 @@ export async function Controller(
     isMember = await isMemberOfConversation(db, trip.conversation_id, userId);
   }
 
-  let conversation = null;
-  if (trip.conversation_id) {
-    conversation = await db.queryOne(`
+  const conversation = await db.queryOne(`
       SELECT 
         c.id,
         c.name,
@@ -46,12 +44,13 @@ export async function Controller(
         c.place_name,
         c.is_deletable,
         c.created_at,
+        $2 AS is_member,
         CASE WHEN f.id IS NOT NULL THEN f.url ELSE NULL END AS display_picture_url
       FROM conversations c
       LEFT JOIN files f ON f.id = c.display_picture_id
       WHERE c.id = $1
-    `, [trip.conversation_id]);
-  }
+    `, [trip.conversation_id, isMember]);
+
 
 
   return res.status(200).json({ ...trip, conversation, is_member: isMember });
