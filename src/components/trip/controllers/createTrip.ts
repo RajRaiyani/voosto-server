@@ -71,7 +71,7 @@ export async function Controller(
         meta_data: {
           country: country,
         },
-        members: [{ id: req.user.id, is_admin: false, notification_enabled: true }],
+        members: [],
       });
     }
 
