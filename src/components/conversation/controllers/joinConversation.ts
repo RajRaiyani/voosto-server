@@ -50,7 +50,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
       return res.status(200).json(pendingRequest);
     }
 
-    const joiningRequest = await createJoiningRequest(db, conversation_id, userId);
+    const joiningRequest = await createJoiningRequest(db, conversation_id, userId, is_mute);
 
     ServerEvent.emit('conversation_joining_request:created', { conversation_id, user_id: userId });
   

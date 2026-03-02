@@ -73,7 +73,7 @@ export async function Controller(
 
     SELECT
       t.id,
-      t.conversation_id,
+      cwm.id as conversation_id,
       t.place_id,
       t.place_name,
       t.date,

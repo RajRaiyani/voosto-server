@@ -67,7 +67,8 @@ CREATE TABLE public.activities (
 CREATE TABLE public.conversation_joining_requests (
     conversation_id uuid NOT NULL,
     user_id uuid NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    notification_enabled boolean DEFAULT true NOT NULL
 );
 
 
@@ -268,7 +269,8 @@ CREATE TABLE public.users (
     updated_at timestamp with time zone,
     meta_data jsonb DEFAULT '{}'::jsonb NOT NULL,
     login_method character varying(100) DEFAULT 'normal'::character varying NOT NULL,
-    settings jsonb DEFAULT '{}'::jsonb NOT NULL
+    settings jsonb DEFAULT '{}'::jsonb NOT NULL,
+    is_deleted boolean DEFAULT false NOT NULL
 );
 
 
@@ -689,4 +691,6 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20260226140218'),
     ('20260226143146'),
     ('20260227133125'),
-    ('20260228124828');
+    ('20260228124828'),
+    ('20260302130220'),
+    ('20260302131301');

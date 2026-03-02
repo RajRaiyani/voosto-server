@@ -26,6 +26,7 @@ import { ValidationSchema as DeleteVisitedCountryValidationSchema, Controller as
 import { ValidationSchema as LoginWithGoogleValidationSchema, Controller as LoginWithGoogleController } from '@/components/user/controllers/loginWithGoogle.js';
 import { ValidationSchema as UpsertUserNotificationTokenValidationSchema, Controller as UpsertUserNotificationTokenController } from '@/components/user/controllers/upsertUserNotificationToken.js';
 import { ValidationSchema as UpdateUserSettingValidationSchema, Controller as UpdateUserSettingController } from '@/components/user/controllers/updateUserSetting.js';
+import { Controller as DeleteAccountController } from '@/components/user/controllers/deleteAccount.js';
 
 const router = express.Router();
 
@@ -81,6 +82,9 @@ router.route('/notification-tokens')
 
 router.route('/settings')
   .put(isUserLoggedIn, validate(UpdateUserSettingValidationSchema), withDatabase(UpdateUserSettingController));
+
+router.route('/delete-account')
+  .delete(isUserLoggedIn, withDatabase(DeleteAccountController));
 
 router.route('/visited-countries/:country_id')
   .post(isUserLoggedIn, validate(AddVisitedCountryValidationSchema), withDatabase(AddVisitedCountryController))

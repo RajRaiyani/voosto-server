@@ -20,7 +20,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
       email, is_profile_completed, created_at,
       login_method
     FROM users 
-    WHERE LOWER(email) = LOWER($1)
+    WHERE LOWER(email) = LOWER($1) AND is_deleted = false
   `, [email]);
 
   if (!user) return res.status(400).json({ message: 'Invalid email or password' });

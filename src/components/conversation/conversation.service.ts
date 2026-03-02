@@ -233,7 +233,8 @@ export async function listConversationMessages(db: DatabaseClient, conversationI
 
       json_build_object(
         'id', u.id,
-        'full_name', u.full_name
+        'full_name', u.full_name,
+        'profile_image_url', uf.url
       ) AS sender,
 
       COALESCE(array_agg(json_build_object(
@@ -243,6 +244,7 @@ export async function listConversationMessages(db: DatabaseClient, conversationI
 
     FROM messages m
     LEFT JOIN users u ON u.id = m.sender_id
+    LEFT JOIN files uf ON uf.id = u.profile_image_id
     LEFT JOIN message_attachments ma ON ma.message_id = m.id
     LEFT JOIN files f ON f.id = ma.file_id
     WHERE ${whereClause}
@@ -337,18 +339,18 @@ export async function addMemberToConversation(db: DatabaseClient, conversationId
       INSERT INTO conversation_members (conversation_id, user_id, is_admin, notification_enabled)
       VALUES ($1, $2, $3, $4)
       RETURNING conversation_id, user_id, is_admin, notification_enabled
-    `, [conversationId, userId, isAdmin, isMute]);
+    `, [conversationId, userId, isAdmin, !isMute]);
 
   return member;
 }
 
 
-export async function createJoiningRequest(db: DatabaseClient, conversationId: string, userId: string): Promise<void> {
+export async function createJoiningRequest(db: DatabaseClient, conversationId: string, userId: string, isMute: boolean = false): Promise<void> {
   const joiningRequest = await db.queryOne(`
-    INSERT INTO conversation_joining_requests (conversation_id, user_id)
-    VALUES ($1, $2)
-    RETURNING conversation_id, user_id
-  `, [conversationId, userId]);
+    INSERT INTO conversation_joining_requests (conversation_id, user_id, notification_enabled)
+    VALUES ($1, $2, $3)
+    RETURNING conversation_id, user_id, notification_enabled
+  `, [conversationId, userId, !isMute]);
 
   return joiningRequest;
 }

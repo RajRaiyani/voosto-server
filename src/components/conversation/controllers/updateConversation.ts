@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import Schema from '@/config/validationSchema.js';
 import { DatabaseClient } from '@/service/database/index.js';
-import { isAdminOfConversation } from '@/components/conversation/conversation.service.js';
+import { isAdminOfConversation, ensureMember } from '@/components/conversation/conversation.service.js';
 
 export const ValidationSchema = {
   params: z.object({
@@ -40,25 +40,32 @@ export async function Controller(
     req.body as z.infer<typeof ValidationSchema.body>;
   const userId = req.user!.id;
 
-  const isAdmin = await isAdminOfConversation(db, conversation_id, userId);
-
-  if (!isAdmin) {
-    return res
-      .status(403)
-      .json({
-        message: 'Only conversation admins can update this conversation',
-      });
-  }
+  await ensureMember(db, conversation_id, userId);
 
   const setParts: string[] = [];
 
-  if (name !== undefined) {
-    setParts.push('name = $name');
+  
+
+  if (name !== undefined || display_picture_id !== undefined) {
+    const isAdmin = await isAdminOfConversation(db, conversation_id, userId);
+
+    if (!isAdmin) {
+      return res
+        .status(403)
+        .json({
+          message: 'Only conversation admins can update this conversation',
+        });
+    }
+
+    if (name !== undefined) {
+      setParts.push('name = $name');
+    }
+
+    if (display_picture_id !== undefined) {
+      setParts.push('display_picture_id = $display_picture_id');
+    }
   }
 
-  if (display_picture_id !== undefined) {
-    setParts.push('display_picture_id = $display_picture_id');
-  }
 
 
   if (notification_enabled !== undefined) {
