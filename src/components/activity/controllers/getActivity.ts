@@ -2,7 +2,13 @@ import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
 import { z } from 'zod';
 import Schema from '@/config/validationSchema.js';
+import Constants from '@/config/constant.js';
 
+
+const activityCategoriesIcons = Constants.activities.categories.reduce((acc, category) => {
+  acc[category.activity] = category.icon;
+  return acc;
+}, {});
 
 export const ValidationSchema = {
   params: z.object({
@@ -85,6 +91,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
 
   const activity = await db.queryOne(sqlQuery, [activity_id]);
 
+  activity.category_icon = activityCategoriesIcons[activity.category];
   
   return res.status(200).json(activity);
 }

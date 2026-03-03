@@ -3,6 +3,12 @@ import { DatabaseClient } from '@/service/database/index.js';
 import { z } from 'zod';
 import RedisClient from '@/service/redis/index.js';
 import Schema from '@/config/validationSchema.js';
+import Constants from '@/config/constant.js';
+
+const activityCategoriesIcons = Constants.activities.categories.reduce((acc, category) => {
+  acc[category.activity] = category.icon;
+  return acc;
+}, {});
 
 
 const dateOnlyRegex = /^\d{4}-\d{2}-\d{2}$/;
@@ -64,6 +70,36 @@ export async function Controller(req: Request, res: Response, next: NextFunction
   if (my_activities) whereClause += ' AND a.created_by = $user_id ';
 
   const sqlQuery = `
+    WITH ranked_members AS (
+      SELECT
+        cm.conversation_id,
+        cm.user_id,
+        cm.joined_at,
+        cm.is_admin,
+        ROW_NUMBER() OVER (PARTITION BY cm.conversation_id ORDER BY cm.joined_at) AS rn
+      FROM conversation_members cm
+    ),
+
+    first_five_members AS (
+      SELECT
+        rm.conversation_id,
+        json_agg(
+          json_build_object(
+            'id', u.id,
+            'full_name', u.full_name,
+            'email', u.email,
+            'profile_image_url', f.url,
+            'joined_at', rm.joined_at,
+            'is_admin', rm.is_admin
+          ) ORDER BY rm.joined_at
+        ) AS members
+      FROM ranked_members rm
+      INNER JOIN users u ON u.id = rm.user_id
+      LEFT JOIN files f ON f.id = u.profile_image_id
+      WHERE rm.rn <= 5
+      GROUP BY rm.conversation_id
+    )
+
     SELECT
       a.id,
       a.description,
@@ -83,6 +119,8 @@ export async function Controller(req: Request, res: Response, next: NextFunction
         'profile_image_url', f.url
       ) as created_by,
 
+      COALESCE(ffm.members, '[]'::json) AS members,
+
       json_build_object(
         'id', c.id,
         'name', c.name,
@@ -97,8 +135,9 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     LEFT JOIN files f ON f.id = u.profile_image_id
     LEFT JOIN conversations c ON c.id = a.conversation_id
     LEFT JOIN conversation_members cm ON cm.conversation_id = c.id
+    LEFT JOIN first_five_members ffm ON ffm.conversation_id = c.id
     WHERE ${whereClause}
-    GROUP BY a.id, c.id, u.id, f.id
+    GROUP BY a.id, c.id, u.id, f.id, ffm.members
     ORDER BY a.created_at DESC
     LIMIT $limit OFFSET $offset
   `;
@@ -110,6 +149,10 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     limit,
     offset,
     user_id: req.user.id,
+  });
+
+  activities.forEach(activity => {
+    activity.category_icon = activityCategoriesIcons[activity.category];
   });
 
   return res.status(200).json(activities);

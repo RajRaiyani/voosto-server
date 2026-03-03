@@ -84,7 +84,8 @@ export async function Controller(req: Request, res: Response, next: NextFunction
             'name', place_name,
             'place_id', place_id,
             'date', date,
-            'conversation_id', conversation_id
+            'conversation_id', conversation_id,
+            'meta_data', meta_data
           )
         )
         FROM (
@@ -94,7 +95,8 @@ export async function Controller(req: Request, res: Response, next: NextFunction
             t.place_id, 
             t.date, 
             t.created_at,
-            c.id as conversation_id
+            c.id as conversation_id,
+            meta_data
           FROM trips t
           LEFT JOIN conversations c ON c.place_id = t.place_id
           WHERE t.created_by = u.id AND (t.date IS NULL OR t.date > NOW())
