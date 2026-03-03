@@ -48,7 +48,29 @@ export async function Controller(req: Request, res: Response, next: NextFunction
         'is_group', c.is_group,
         'is_private', c.is_private,
         'is_womans_only', c.is_womans_only,
-        'member_count', COUNT(cm.user_id)
+        'member_count', COUNT(cm.user_id),
+        'members',
+          COALESCE(
+            (
+              SELECT json_agg(member_row ORDER BY member_row.joined_at ASC)
+              FROM (
+                SELECT
+                  u2.id,
+                  u2.full_name,
+                  u2.email,
+                  f2.url AS profile_image_url,
+                  cm2.joined_at,
+                  cm2.is_admin
+                FROM conversation_members cm2
+                LEFT JOIN users u2 ON u2.id = cm2.user_id
+                LEFT JOIN files f2 ON f2.id = u2.profile_image_id
+                WHERE cm2.conversation_id = c.id
+                ORDER BY cm2.joined_at ASC
+                LIMIT 10
+              ) AS member_row
+            ),
+            '[]'::json
+          )
       ) as conversation
 
     FROM activities a

@@ -53,5 +53,5 @@ export async function Controller(
 
 
 
-  return res.status(200).json({ ...trip, conversation, is_member: isMember });
+  return res.status(200).json({ ...trip, conversation, is_member: isMember, conversation_id: conversation?.id });
 }

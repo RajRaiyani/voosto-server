@@ -83,12 +83,20 @@ export async function Controller(req: Request, res: Response, next: NextFunction
             'id', id,
             'name', place_name,
             'place_id', place_id,
-            'date', date
+            'date', date,
+            'conversation_id', conversation_id
           )
         )
         FROM (
-          SELECT t.id, t.place_name, t.place_id, t.date, t.created_at
+          SELECT 
+            t.id, 
+            t.place_name, 
+            t.place_id, 
+            t.date, 
+            t.created_at,
+            c.id as conversation_id
           FROM trips t
+          LEFT JOIN conversations c ON c.place_id = t.place_id
           WHERE t.created_by = u.id AND (t.date IS NULL OR t.date > NOW())
           ORDER BY t.date DESC
           LIMIT 5
