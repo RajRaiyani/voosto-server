@@ -1,9 +1,9 @@
 import express from 'express';
 import WithDatabase from '@/utils/withDatabase.js';
 
-import { Controller as listCountriesController } from '@/components/meta/listCountries.js';
-import { Controller as listUserInterestedActivitiesController } from '@/components/meta/listUserInterestedActivities.js';
-import { Controller as listActivitiesCategoriesController } from '@/components/meta/listActivityCategories.js';
+import { Controller as listCountriesController } from '@/modules/meta/listCountries.js';
+import { Controller as listUserInterestedActivitiesController } from '@/modules/meta/listUserInterestedActivities.js';
+import { Controller as listActivitiesCategoriesController } from '@/modules/meta/listActivityCategories.js';
 
 const router = express.Router();
 

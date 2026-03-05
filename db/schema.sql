@@ -183,6 +183,20 @@ CREATE TABLE public.notifications (
 
 
 --
+-- Name: report_inquiries; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.report_inquiries (
+    id uuid DEFAULT uuidv7() NOT NULL,
+    created_by uuid NOT NULL,
+    type character varying(100) DEFAULT 'general'::character varying NOT NULL,
+    reference_id uuid,
+    body text,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
 -- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -217,6 +231,17 @@ CREATE TABLE public.trips (
     place_id character varying(255) NOT NULL,
     place_name character varying(255) NOT NULL,
     meta_data jsonb DEFAULT '{}'::jsonb NOT NULL
+);
+
+
+--
+-- Name: user_blocks; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.user_blocks (
+    blocker_id uuid NOT NULL,
+    blocked_id uuid NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -357,6 +382,14 @@ ALTER TABLE ONLY public.notifications
 
 
 --
+-- Name: report_inquiries pk_report_inquiries_id; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.report_inquiries
+    ADD CONSTRAINT pk_report_inquiries_id PRIMARY KEY (id);
+
+
+--
 -- Name: tokens pk_tokens_token; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -370,6 +403,14 @@ ALTER TABLE ONLY public.tokens
 
 ALTER TABLE ONLY public.trips
     ADD CONSTRAINT pk_trips_id PRIMARY KEY (id);
+
+
+--
+-- Name: user_blocks pk_user_blocks_blocker_id_blocked_id; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_blocks
+    ADD CONSTRAINT pk_user_blocks_blocker_id_blocked_id PRIMARY KEY (blocker_id, blocked_id);
 
 
 --
@@ -581,6 +622,14 @@ ALTER TABLE ONLY public.notifications
 
 
 --
+-- Name: report_inquiries fk_report_inquiries_created_by; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.report_inquiries
+    ADD CONSTRAINT fk_report_inquiries_created_by FOREIGN KEY (created_by) REFERENCES public.users(id);
+
+
+--
 -- Name: trips fk_trips_conversation_id; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -594,6 +643,22 @@ ALTER TABLE ONLY public.trips
 
 ALTER TABLE ONLY public.trips
     ADD CONSTRAINT fk_trips_created_by FOREIGN KEY (created_by) REFERENCES public.users(id);
+
+
+--
+-- Name: user_blocks fk_user_blocks_blocked_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_blocks
+    ADD CONSTRAINT fk_user_blocks_blocked_id FOREIGN KEY (blocked_id) REFERENCES public.users(id);
+
+
+--
+-- Name: user_blocks fk_user_blocks_blocker_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_blocks
+    ADD CONSTRAINT fk_user_blocks_blocker_id FOREIGN KEY (blocker_id) REFERENCES public.users(id);
 
 
 --
@@ -693,4 +758,6 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20260227133125'),
     ('20260228124828'),
     ('20260302130220'),
-    ('20260302131301');
+    ('20260302131301'),
+    ('20260305075544'),
+    ('20260305082748');

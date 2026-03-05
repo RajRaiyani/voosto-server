@@ -2,8 +2,8 @@ import express from 'express';
 import WithDatabase from '@/utils/withDatabase.js';
 import isUserLoggedIn from '@/middleware/auth/isUserLoggedIn.js';
 import fileUpload from '@/middleware/multer/fileUpload.js';
-import { Controller as uploadFileController } from '@/components/file/uploadFile.js';
-import { Controller as uploadMultipleFilesController } from '@/components/file/uploadMultipleFiles.js';
+import { Controller as uploadFileController } from '@/modules/file/uploadFile.js';
+import { Controller as uploadMultipleFilesController } from '@/modules/file/uploadMultipleFiles.js';
 
 
 const router = express.Router();

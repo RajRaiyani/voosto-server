@@ -1,5 +1,5 @@
 import Database from '@/service/database/index.js';
-import { HardDeleteFile } from '@/components/file/file.service.js';
+import { HardDeleteFile } from '@/modules/file/file.service.js';
 import Logger from '@/service/logger/index.js';
 
 

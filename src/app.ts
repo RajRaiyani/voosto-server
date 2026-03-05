@@ -5,12 +5,12 @@ import Logger from './service/logger/index.js';
 import errorHandler from './middleware/errorHandler.js';
 import appRoute from './routes/app.route.js';
 import redisClient from './service/redis/index.js';
-import { LoadActivitiesToRedis } from './components/activity/activity.script.js';
-import '@/components/activity/handlers/event/onNewActivityCreated.js';
-import '@/components/user/handlers/event/onFriendRequestCreated.js';
-import '@/components/user/handlers/event/onFriendRequestAccepted.js';
-import '@/components/conversation/handlers/event/onConversationJoiningRequestCreated.js';
-import '@/components/conversation/handlers/event/onConversationJoiningRequestAccepted.js';
+import { LoadActivitiesToRedis } from './modules/activity/activity.script.js';
+import '@/modules/activity/handlers/event/onNewActivityCreated.js';
+import '@/modules/user/handlers/event/onFriendRequestCreated.js';
+import '@/modules/user/handlers/event/onFriendRequestAccepted.js';
+import '@/modules/conversation/handlers/event/onConversationJoiningRequestCreated.js';
+import '@/modules/conversation/handlers/event/onConversationJoiningRequestAccepted.js';
 
 import env from './config/env.js';
 

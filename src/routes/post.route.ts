@@ -6,22 +6,22 @@ import isUserLoggedIn from '@/middleware/auth/isUserLoggedIn.js';
 import { 
   ValidationSchema as CreatePostSchema, 
   Controller as CreatePostController 
-} from '@/components/post/createPost.js';
+} from '@/modules/post/createPost.js';
 
 import { 
   ValidationSchema as DeletePostSchema, 
   Controller as DeletePostController 
-} from '@/components/post/deletePost.js';
+} from '@/modules/post/deletePost.js';
 
 import { 
   ValidationSchema as ListPostsSchema, 
   Controller as ListPostsController 
-} from '@/components/post/listPosts.js';
+} from '@/modules/post/listPosts.js';
 
 import { 
   ValidationSchema as GetPostSchema, 
   Controller as GetPostController 
-} from '@/components/post/getPost.js';
+} from '@/modules/post/getPost.js';
 
 const router = express.Router();
 

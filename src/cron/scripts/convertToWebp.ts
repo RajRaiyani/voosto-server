@@ -1,5 +1,5 @@
 import Database from '@/service/database/index.js';
-import { ConvertFileToWebp } from '@/components/file/file.service.js';
+import { ConvertFileToWebp } from '@/modules/file/file.service.js';
 import Logger from '@/service/logger/index.js';
 
 export async function task() {
