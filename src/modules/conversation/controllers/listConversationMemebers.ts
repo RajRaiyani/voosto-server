@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
 import { z } from 'zod';
 import Schema from '@/config/validationSchema.js';
-import { ensureMember } from '@/modules/conversation/conversation.service.js';
 
 export const ValidationSchema = {
   params: z.object({
@@ -12,9 +11,6 @@ export const ValidationSchema = {
 
 export async function Controller(req: Request, res: Response, next: NextFunction, db: DatabaseClient) { 
   const { conversation_id } = req.params as z.infer<typeof ValidationSchema.params>;
-  const userId = req.user!.id;
-
-  await ensureMember(db, conversation_id, userId);
 
   const members = await db.queryAll(`
       SELECT

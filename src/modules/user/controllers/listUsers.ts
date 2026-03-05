@@ -59,11 +59,12 @@ export async function Controller(
 
   let whereClause = ` 
     u.id != $current_user_id AND 
-    COALESCE(u.settings->>'hide_from_near_by_users', 'false') = 'false' 
+    COALESCE(u.settings->>'hide_from_near_by_users', 'false') = 'false' AND
+    ub.blocked_id IS NULL
   `;
 
   if (search) {
-    whereClause += ' AND LOWER(u.full_name) LIKE LOWER($search) ';
+    whereClause += ' AND u.full_name ILIKE $search ';
   }
 
   if (location) {
@@ -95,6 +96,7 @@ export async function Controller(
     FROM users u
     LEFT JOIN files f ON f.id = u.profile_image_id
     LEFT JOIN countries c ON c.id = u.country_id
+    LEFT JOIN user_blocks ub ON ub.blocker_id = $current_user_id AND ub.blocked_id = u.id
     WHERE ${whereClause}
     ${orderClause}
     LIMIT $limit OFFSET $offset

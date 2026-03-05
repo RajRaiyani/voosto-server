@@ -38,6 +38,18 @@ export async function Controller(
       ORDER BY conversation_id, created_at DESC
     ),
 
+    blocked_users AS (
+      SELECT blocker_id AS other_user_id
+      FROM user_blocks
+      WHERE blocked_id = $1
+    ),
+
+    blocked_conversations AS (
+      SELECT DISTINCT cm.conversation_id
+      FROM conversation_members cm
+      JOIN blocked_users bu ON bu.other_user_id = cm.user_id
+    ),
+
     conversations_for_user_without_message AS (
       SELECT 
         c.id,
@@ -50,7 +62,9 @@ export async function Controller(
         c.created_at
       FROM conversation_members cm
       INNER JOIN conversations c ON c.id = cm.conversation_id
+      LEFT JOIN blocked_conversations bc ON bc.conversation_id = c.id
       WHERE cm.user_id = $1
+        AND bc.conversation_id IS NULL
     ),
 
     conversations_for_user AS (

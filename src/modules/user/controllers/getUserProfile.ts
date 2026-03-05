@@ -15,6 +15,19 @@ export async function Controller(req: Request, res: Response, next: NextFunction
   const { user_id } = req.params as z.infer<typeof ValidationSchema.params>;
   const currentUserId = req.user.id;
 
+  const isBlocked = await db.queryOne(
+    `
+    SELECT 1
+    FROM user_blocks ub
+    WHERE (ub.blocker_id = $2 AND ub.blocked_id = $1)
+  `,
+    [currentUserId, user_id]
+  );
+
+  if (isBlocked) {
+    return res.status(403).json({ message: 'You cannot view this profile' });
+  }
+
   const user = await db.queryOne(`
     SELECT
       u.id, u.first_name, u.last_name, u.email, u.is_email_verified, u.is_profile_completed, u.created_at,
