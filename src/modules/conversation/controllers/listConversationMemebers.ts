@@ -19,9 +19,17 @@ export async function Controller(req: Request, res: Response, next: NextFunction
         u.email,
         f.url as profile_image_url,
         cm.joined_at,
-        cm.is_admin
+        cm.is_admin,
+        json_build_object(
+          'id', c.id,
+          'name', c.name,
+          'code', c.code,
+          'dial_code', c.dial_code,
+          'flag', c.flag
+        ) as country
       FROM conversation_members cm
       LEFT JOIN users u ON u.id = cm.user_id
+      LEFT JOIN countries c ON c.id = u.country_id
       LEFT JOIN files f ON f.id = u.profile_image_id
       WHERE cm.conversation_id = $1
     `, [conversation_id]);

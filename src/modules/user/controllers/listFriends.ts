@@ -1,10 +1,17 @@
 import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
+import { z } from 'zod';
+import Schema from '@/config/validationSchema.js';
 
 
+export const ValidationSchema = {
+  params: z.object({
+    user_id: Schema.uuid(),
+  }),
+};
 
 export async function Controller(req: Request, res: Response, next: NextFunction, db: DatabaseClient) {
-  const user_id = req.user.id;
+  const { user_id } = req.params as z.infer<typeof ValidationSchema.params>;
 
   const friends = await db.queryAll(`
     SELECT 
@@ -15,7 +22,6 @@ export async function Controller(req: Request, res: Response, next: NextFunction
       u.email,
       u.gender,
       u.bio,
-      u.interested_activity,
       f.url as profile_image_url,
       
       CASE WHEN c.id IS NOT NULL THEN

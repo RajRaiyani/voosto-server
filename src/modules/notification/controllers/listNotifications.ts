@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
-import { listUserNotifications } from './notification.service.js';
+import { listUserNotifications } from '../notification.service.js';
 import { z } from 'zod';
 import Schema from '@/config/validationSchema.js';
 

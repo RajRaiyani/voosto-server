@@ -30,7 +30,7 @@ export async function Controller(
   const existingBlock = await db.queryOne(
     `
     SELECT blocker_id, blocked_id
-    FROM user_blocks
+    FROM blocked_users
     WHERE blocker_id = $1 AND blocked_id = $2
   `,
     [blocker_id, user_id]
@@ -42,7 +42,7 @@ export async function Controller(
 
   const block = await db.queryOne(
     `
-    INSERT INTO user_blocks (blocker_id, blocked_id)
+    INSERT INTO blocked_users (blocker_id, blocked_id)
     VALUES ($1, $2)
     RETURNING blocker_id, blocked_id, created_at
   `,

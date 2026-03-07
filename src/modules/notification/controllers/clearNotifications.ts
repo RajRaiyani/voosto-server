@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'; 
 import { DatabaseClient } from '@/service/database/index.js';
-import { clearUserNotifications } from './notification.service.js';
+import { clearUserNotifications } from '../notification.service.js';
 
 
 

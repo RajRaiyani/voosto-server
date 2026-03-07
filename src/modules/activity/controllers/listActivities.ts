@@ -24,12 +24,12 @@ export const ValidationSchema = {
     offset: Schema.pagination.offset(),
     limit: Schema.pagination.limit(),
     date: z.string().trim().regex(dateOnlyRegex, 'Date must be YYYY-MM-DD').optional(),
-    my_activities: z.coerce.boolean().optional().default(false),
+    user_id: Schema.uuid().optional(),
   }),
 };
 
 export async function Controller(req: Request, res: Response, next: NextFunction, db: DatabaseClient) {
-  const { search, location, radius, offset, limit, date, my_activities } = req.validatedQuery as z.infer<typeof ValidationSchema.query>;
+  const { search, location, radius, offset, limit, date, user_id } = req.validatedQuery as z.infer<typeof ValidationSchema.query>;
 
   const user = await db.queryOne('SELECT id, gender FROM users WHERE id = $1', [req.user.id]);
   if (!user) return res.status(404).json({ message: 'User not found' });
@@ -67,7 +67,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
   if (search) whereClause += ' AND LOWER(a.description) LIKE LOWER($search) ';
   if (date) whereClause += ' AND a.date = $date ';
   if (notWoman) whereClause += ' AND cwm.is_womans_only = FALSE ';
-  if (my_activities) whereClause += ' AND a.created_by = $user_id ';
+  if (user_id) whereClause += ' AND a.created_by = $user_id ';
 
   const sqlQuery = `
     WITH conversations_with_members AS (
@@ -116,12 +116,14 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     SELECT
       a.id,
       a.description,
-      a.category,
       a.latitude,
       a.longitude,
       a.date,
       a.time,
       a.created_at,
+      
+      a.category_id,
+      ac.name as category,
 
       json_build_object(
         'id', u.id,
@@ -146,6 +148,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
       ELSE NULL END as conversation
 
     FROM activities a
+    LEFT JOIN activity_categories ac ON ac.id = a.category_id
     LEFT JOIN users u ON a.created_by = u.id
     LEFT JOIN files f ON f.id = u.profile_image_id
     LEFT JOIN conversations_with_members cwm ON cwm.id = a.conversation_id
@@ -161,7 +164,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     date: date ?? null,
     limit,
     offset,
-    user_id: req.user.id,
+    user_id,
   });
 
   activities.forEach(activity => {

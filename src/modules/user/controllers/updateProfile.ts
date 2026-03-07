@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import UserSchema from '../user.validation.js';
-import ConfigValidationSchema from '../../../config/validationSchema.js';
+import UserSchema from '@/modules/user/user.validation.js';
+import Schema from '@/config/validationSchema.js';
 import { SaveFile, DeleteFile } from '@/modules/file/file.service.js';
 import { DatabaseClient } from '@/service/database/index.js';
 import { Request, Response, NextFunction } from 'express';
@@ -9,13 +9,13 @@ export const ValidationSchema = {
   body: z.object({
     first_name: UserSchema.firstName().optional(),
     last_name: UserSchema.lastName().optional(),
-    phone_number: ConfigValidationSchema.phoneNumber().optional(),
-    gender: ConfigValidationSchema.gender().optional(),
+    phone_number: Schema.phoneNumber().optional(),
+    gender: Schema.gender().optional(),
     date_of_birth: z.coerce.date().optional(),
-    country_id: ConfigValidationSchema.uuid().optional(),
+    country_id: Schema.uuid().optional(),
     bio: z.string().trim().max(500, 'Bio must be less than 500 characters').optional(),
-    interested_activity: UserSchema.interestedActivity().optional(),
-    profile_image_id: ConfigValidationSchema.uuid().optional(),
+    interested_activities: z.array(Schema.uuid()).min(1, 'At least one interested activity is required').optional(),
+    profile_image_id: Schema.uuid().optional(),
   }).refine((data) => Object.keys(data).length > 0, {
     message: 'At least one field must be provided for update',
   }),
@@ -31,15 +31,20 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     if (updateData.profile_image_id) await SaveFile(db, updateData.profile_image_id);
 
     // Build dynamic update query
-    const fields = Object.keys(updateData);
-    const setClause = fields
-      .map((field) => ` ${field} = $${field} `)
-      .join(', ');
+    const updateQueryArray = [];
+    if (updateData.first_name) updateQueryArray.push('first_name = $first_name');
+    if (updateData.last_name) updateQueryArray.push('last_name = $last_name');
+    if (updateData.phone_number) updateQueryArray.push('phone_number = $phone_number');
+    if (updateData.gender) updateQueryArray.push('gender = $gender');
+    if (updateData.date_of_birth) updateQueryArray.push('date_of_birth = $date_of_birth');
+    if (updateData.country_id) updateQueryArray.push('country_id = $country_id');
+    if (updateData.bio) updateQueryArray.push('bio = $bio');
+    if (updateData.profile_image_id) updateQueryArray.push('profile_image_id = $profile_image_id');
 
     const updatedUser = await db.namedQueryOne(
       `
       UPDATE users 
-      SET ${setClause}, updated_at = NOW()
+      SET ${updateQueryArray.join(', ')}, updated_at = NOW()
       WHERE id = $id
       RETURNING 
         old.profile_image_id as old_profile_image_id,
@@ -53,7 +58,6 @@ export async function Controller(req: Request, res: Response, next: NextFunction
         date_of_birth,
         country_id,
         bio,
-        interested_activity,
         profile_image_id,
         is_profile_completed,
         created_at,
@@ -61,6 +65,14 @@ export async function Controller(req: Request, res: Response, next: NextFunction
       `,
       { ...updateData, id: req.user.id }
     );
+
+    if (updateData.interested_activities) {
+      await db.query('DELETE FROM user_interested_activities WHERE user_id = $1', [req.user.id]);
+      await db.query(`
+        INSERT INTO user_interested_activities (user_id, activity_category_id) 
+        SELECT $1, id FROM activity_categories WHERE id = ANY($2)
+      `, [req.user.id, updateData.interested_activities]);
+    }
 
     // Delete old profile image if it was changed
     if (updatedUser.profile_image_id && updatedUser.old_profile_image_id && 

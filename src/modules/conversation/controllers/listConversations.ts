@@ -33,6 +33,7 @@ export async function Controller(
         conversation_id,
         content,
         created_at,
+        sender_id,
         seen_at
       FROM messages
       ORDER BY conversation_id, created_at DESC
@@ -40,14 +41,16 @@ export async function Controller(
 
     blocked_users AS (
       SELECT blocker_id AS other_user_id
-      FROM user_blocks
+      FROM blocked_users
       WHERE blocked_id = $1
     ),
 
     blocked_conversations AS (
       SELECT DISTINCT cm.conversation_id
       FROM conversation_members cm
+      LEFT JOIN conversations c ON c.id = cm.conversation_id
       JOIN blocked_users bu ON bu.other_user_id = cm.user_id
+      WHERE c.is_group = false
     ),
 
     conversations_for_user_without_message AS (
@@ -82,6 +85,7 @@ export async function Controller(
             'id', lm.id,
             'content', lm.content,
             'created_at', lm.created_at,
+            'sender_id', lm.sender_id,
             'seen_at', lm.seen_at
           )
         ELSE NULL END AS last_message
@@ -155,7 +159,7 @@ export async function Controller(
       json_build_object(
         'id', a.id,
         'description', a.description,
-        'category', a.category,
+        'category', ac.name,
         'latitude', a.latitude,
         'longitude', a.longitude,
         'date', a.date,
@@ -164,6 +168,7 @@ export async function Controller(
 
     FROM all_conversations c
     LEFT JOIN activities a ON a.conversation_id = c.id
+    LEFT JOIN activity_categories ac ON ac.id = a.category_id
     ORDER BY COALESCE((c.last_message->>'created_at')::timestamptz, c.created_at) DESC
     OFFSET $2 LIMIT $3
     `,

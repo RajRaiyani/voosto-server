@@ -60,7 +60,7 @@ export async function Controller(
 
     db.queryOne(`
       SELECT 
-        a.id, a.description, a.category, a.latitude, a.longitude, a.date, a.time,
+        a.id, a.description, ac.name as category, a.latitude, a.longitude, a.date, a.time,
         json_build_object(
           'id', u.id,
           'full_name', u.full_name,
@@ -68,6 +68,7 @@ export async function Controller(
           'profile_image_url', f.url
         ) as created_by
       FROM activities a
+      LEFT JOIN activity_categories ac ON ac.id = a.category_id
       LEFT JOIN users u ON a.created_by = u.id
       LEFT JOIN files f ON f.id = u.profile_image_id
       WHERE a.conversation_id = $1
@@ -91,7 +92,9 @@ export async function Controller(
       FROM trips t
       LEFT JOIN users u ON t.created_by = u.id
       LEFT JOIN files f ON f.id = u.profile_image_id
-      WHERE t.conversation_id = $1 and t.created_by = $2
+      WHERE t.created_by = $2 and t.place_id = (
+        SELECT place_id FROM conversations WHERE id = $1
+      )
     `, [conversation_id, userId]),
 
     db.queryOne(`

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import UserSchema from '../user.validation.js';
+import UserSchema from '../../user.validation.js';
 import { DatabaseClient } from '@/service/database/index.js';
 import { Request, Response, NextFunction } from 'express';
 import JwtToken from '@/utils/jwtToken.js';

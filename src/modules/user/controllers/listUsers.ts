@@ -76,6 +76,22 @@ export async function Controller(
     : ' ORDER BY u.created_at DESC ';
 
   const sqlQuery = `
+    WITH user_with_interested_activities AS (
+      SELECT
+        u.*,
+        array_agg(
+          json_build_object(
+            'id', ac.id,
+            'name', ac.name,
+            'icon', ac.icon
+          )
+        ) as interested_activities
+      FROM users u
+      LEFT JOIN user_interested_activities uia ON uia.user_id = u.id
+      LEFT JOIN activity_categories ac ON ac.id = uia.activity_category_id
+      GROUP BY u.id
+    )
+
     SELECT
       u.id,
       u.first_name,
@@ -84,7 +100,8 @@ export async function Controller(
       u.email,
       u.gender,
       u.bio,
-      u.interested_activity,
+      u.heard_about_us,
+      u.interested_activities,
       f.url as profile_image_url,
       json_build_object(
         'id', c.id,
@@ -93,10 +110,10 @@ export async function Controller(
         'dial_code', c.dial_code,
         'flag', c.flag
       ) as country
-    FROM users u
+    FROM user_with_interested_activities u
     LEFT JOIN files f ON f.id = u.profile_image_id
     LEFT JOIN countries c ON c.id = u.country_id
-    LEFT JOIN user_blocks ub ON ub.blocker_id = $current_user_id AND ub.blocked_id = u.id
+    LEFT JOIN blocked_users ub ON ub.blocker_id = $current_user_id AND ub.blocked_id = u.id
     WHERE ${whereClause}
     ${orderClause}
     LIMIT $limit OFFSET $offset

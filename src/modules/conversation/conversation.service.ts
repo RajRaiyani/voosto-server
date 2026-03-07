@@ -76,7 +76,9 @@ export async function getConversationById(
         c.is_group,
         c.is_private,
         c.is_womans_only,
+        c.place_id,
         c.created_at,
+        c.meta_data,
         $2 AS is_member,
         $3 AS notification_enabled,
         CASE WHEN f.id IS NOT NULL THEN f.url ELSE NULL END AS display_picture_url
@@ -93,7 +95,9 @@ export async function getConversationById(
         c.is_group,
         c.is_private,
         c.is_womans_only,
+        c.place_id,
         c.created_at,
+        c.meta_data,
         $3 AS is_member,
         $4 AS notification_enabled,
         CASE WHEN f.id IS NOT NULL THEN f.url ELSE NULL END AS display_picture_url

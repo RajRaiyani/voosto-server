@@ -48,7 +48,6 @@ SET default_table_access_method = heap;
 CREATE TABLE public.activities (
     id uuid DEFAULT uuidv7() NOT NULL,
     description text NOT NULL,
-    category character varying(100),
     latitude double precision,
     longitude double precision,
     date date,
@@ -56,7 +55,30 @@ CREATE TABLE public.activities (
     conversation_id uuid NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     created_by uuid NOT NULL,
-    updated_at timestamp with time zone
+    updated_at timestamp with time zone,
+    category_id uuid NOT NULL
+);
+
+
+--
+-- Name: activity_categories; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.activity_categories (
+    id uuid DEFAULT uuidv7() NOT NULL,
+    name character varying(100) NOT NULL,
+    icon character varying(5) NOT NULL
+);
+
+
+--
+-- Name: blocked_users; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.blocked_users (
+    blocker_id uuid CONSTRAINT user_blocks_blocker_id_not_null NOT NULL,
+    blocked_id uuid CONSTRAINT user_blocks_blocked_id_not_null NOT NULL,
+    created_at timestamp with time zone DEFAULT now() CONSTRAINT user_blocks_created_at_not_null NOT NULL
 );
 
 
@@ -223,7 +245,6 @@ CREATE TABLE public.tokens (
 
 CREATE TABLE public.trips (
     id uuid DEFAULT uuidv7() NOT NULL,
-    conversation_id uuid,
     date date,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     created_by uuid NOT NULL,
@@ -235,13 +256,12 @@ CREATE TABLE public.trips (
 
 
 --
--- Name: user_blocks; Type: TABLE; Schema: public; Owner: -
+-- Name: user_interested_activities; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.user_blocks (
-    blocker_id uuid NOT NULL,
-    blocked_id uuid NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL
+CREATE TABLE public.user_interested_activities (
+    user_id uuid NOT NULL,
+    activity_category_id uuid NOT NULL
 );
 
 
@@ -288,14 +308,14 @@ CREATE TABLE public.users (
     date_of_birth date,
     country_id uuid,
     bio text,
-    interested_activity character varying(200),
     is_profile_completed boolean DEFAULT false NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
     meta_data jsonb DEFAULT '{}'::jsonb NOT NULL,
     login_method character varying(100) DEFAULT 'normal'::character varying NOT NULL,
     settings jsonb DEFAULT '{}'::jsonb NOT NULL,
-    is_deleted boolean DEFAULT false NOT NULL
+    is_deleted boolean DEFAULT false NOT NULL,
+    heard_about_us character varying(150)
 );
 
 
@@ -315,6 +335,14 @@ CREATE TABLE public.visited_countries (
 
 ALTER TABLE ONLY public.activities
     ADD CONSTRAINT pk_activities_id PRIMARY KEY (id);
+
+
+--
+-- Name: activity_categories pk_activity_categories_id; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.activity_categories
+    ADD CONSTRAINT pk_activity_categories_id PRIMARY KEY (id);
 
 
 --
@@ -406,11 +434,19 @@ ALTER TABLE ONLY public.trips
 
 
 --
--- Name: user_blocks pk_user_blocks_blocker_id_blocked_id; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: blocked_users pk_user_blocks_blocker_id_blocked_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.user_blocks
+ALTER TABLE ONLY public.blocked_users
     ADD CONSTRAINT pk_user_blocks_blocker_id_blocked_id PRIMARY KEY (blocker_id, blocked_id);
+
+
+--
+-- Name: user_interested_activities pk_user_interested_activities_user_id_activity_category_id; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_interested_activities
+    ADD CONSTRAINT pk_user_interested_activities_user_id_activity_category_id PRIMARY KEY (user_id, activity_category_id);
 
 
 --
@@ -451,6 +487,14 @@ ALTER TABLE ONLY public.visited_countries
 
 ALTER TABLE ONLY public.schema_migrations
     ADD CONSTRAINT schema_migrations_pkey PRIMARY KEY (version);
+
+
+--
+-- Name: activity_categories uk_activity_categories_name; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.activity_categories
+    ADD CONSTRAINT uk_activity_categories_name UNIQUE (name);
 
 
 --
@@ -507,6 +551,14 @@ ALTER TABLE ONLY public.user_posts
 
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT uk_users_email UNIQUE (email);
+
+
+--
+-- Name: activities fk_activities_category_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.activities
+    ADD CONSTRAINT fk_activities_category_id FOREIGN KEY (category_id) REFERENCES public.activity_categories(id);
 
 
 --
@@ -630,14 +682,6 @@ ALTER TABLE ONLY public.report_inquiries
 
 
 --
--- Name: trips fk_trips_conversation_id; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.trips
-    ADD CONSTRAINT fk_trips_conversation_id FOREIGN KEY (conversation_id) REFERENCES public.conversations(id);
-
-
---
 -- Name: trips fk_trips_created_by; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -646,19 +690,35 @@ ALTER TABLE ONLY public.trips
 
 
 --
--- Name: user_blocks fk_user_blocks_blocked_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: blocked_users fk_user_blocks_blocked_id; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.user_blocks
+ALTER TABLE ONLY public.blocked_users
     ADD CONSTRAINT fk_user_blocks_blocked_id FOREIGN KEY (blocked_id) REFERENCES public.users(id);
 
 
 --
--- Name: user_blocks fk_user_blocks_blocker_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: blocked_users fk_user_blocks_blocker_id; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.user_blocks
+ALTER TABLE ONLY public.blocked_users
     ADD CONSTRAINT fk_user_blocks_blocker_id FOREIGN KEY (blocker_id) REFERENCES public.users(id);
+
+
+--
+-- Name: user_interested_activities fk_user_interested_activities_activity_category_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_interested_activities
+    ADD CONSTRAINT fk_user_interested_activities_activity_category_id FOREIGN KEY (activity_category_id) REFERENCES public.activity_categories(id);
+
+
+--
+-- Name: user_interested_activities fk_user_interested_activities_user_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_interested_activities
+    ADD CONSTRAINT fk_user_interested_activities_user_id FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --
@@ -760,4 +820,6 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20260302130220'),
     ('20260302131301'),
     ('20260305075544'),
-    ('20260305082748');
+    ('20260305082748'),
+    ('20260307084637'),
+    ('20260307103959');

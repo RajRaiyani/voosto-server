@@ -20,7 +20,7 @@ export async function Controller(
 
   await db.query(
     `
-    DELETE FROM user_blocks
+    DELETE FROM blocked_users
     WHERE blocker_id = $1 AND blocked_id = $2
   `,
     [blocker_id, user_id]

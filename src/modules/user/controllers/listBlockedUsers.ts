@@ -28,7 +28,6 @@ export async function Controller(
       u.email,
       u.gender,
       u.bio,
-      u.interested_activity,
       f.url AS profile_image_url,
       json_build_object(
         'id', c.id,
@@ -38,7 +37,7 @@ export async function Controller(
         'flag', c.flag
       ) AS country,
       ub.created_at AS blocked_at
-    FROM user_blocks ub
+    FROM blocked_users ub
     JOIN users u ON u.id = ub.blocked_id
     LEFT JOIN files f ON f.id = u.profile_image_id
     LEFT JOIN countries c ON c.id = u.country_id

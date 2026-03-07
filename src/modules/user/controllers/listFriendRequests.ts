@@ -15,7 +15,6 @@ export async function Controller(req: Request, res: Response, next: NextFunction
         'email', u.email,
         'gender', u.gender,
         'bio', u.bio,
-        'interested_activity', u.interested_activity,
         'profile_image_url', f.url,
         'country', json_build_object(
           'id', c.id,

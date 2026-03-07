@@ -11,8 +11,22 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     SELECT
       u.id, u.first_name, u.last_name, u.email, u.is_email_verified, u.is_profile_completed, u.created_at,
       u.phone_number, u.is_phone_number_verified,
-      u.gender, u.date_of_birth, u.bio, u.interested_activity,
+      u.gender, u.date_of_birth, u.bio,
       u.settings,
+
+      (
+        SELECT array_agg(
+          json_build_object(
+            'id', ac.id,
+            'name', ac.name,
+            'icon', ac.icon
+          )
+        ) as interested_activities
+      FROM user_interested_activities uia
+      LEFT JOIN activity_categories ac ON ac.id = uia.activity_category_id
+      WHERE uia.user_id = u.id
+      GROUP BY u.id
+      ) as interested_activities,
 
       CASE WHEN f.id IS NOT NULL THEN ($1 || '/' || f.key) ELSE NULL END as profile_image_url,
 
