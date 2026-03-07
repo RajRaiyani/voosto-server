@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import UserSchema from '@/modules/user/user.validation.js';
 import Schema from '@/config/validationSchema.js';
-import { SaveFile, DeleteFile } from '@/modules/file/file.service.js';
+import { saveFile, deleteFile } from '@/modules/file/file.service.js';
 import { DatabaseClient } from '@/service/database/index.js';
 import { Request, Response, NextFunction } from 'express';
 
@@ -28,7 +28,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
 
     await db.begin();
 
-    if (updateData.profile_image_id) await SaveFile(db, updateData.profile_image_id);
+    if (updateData.profile_image_id) await saveFile({ database:db }, { id: updateData.profile_image_id });
 
     // Build dynamic update query
     const updateQueryArray = [];
@@ -77,7 +77,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     // Delete old profile image if it was changed
     if (updatedUser.profile_image_id && updatedUser.old_profile_image_id && 
       updatedUser.profile_image_id !== updatedUser.old_profile_image_id) {
-      DeleteFile(db, updatedUser.old_profile_image_id);
+      deleteFile({ database:db }, { id: updatedUser.old_profile_image_id });
     }
 
     // Commit transaction

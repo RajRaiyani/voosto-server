@@ -7,12 +7,12 @@ export type Options = {
   withDatabase: boolean;
 } | undefined;
 
-export type EventContext = {
+export type Context = {
   database?: DatabaseClient;
 };
 
 export type Handler<TArgs extends any[], TResult> = (
-  context: EventContext,
+  context: Context,
   ...args: TArgs
 ) => Promise<TResult>;
 

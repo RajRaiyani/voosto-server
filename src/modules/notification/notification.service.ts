@@ -1,5 +1,5 @@
 import { DatabaseClient } from '@/service/database/index.js';
-import Socket from '@/socket/index.js';
+import Socket from '@/socket.js';
 import { Notification } from '@/service/notification/index.js';
 import { sendMulticastMessage } from '@/service/notification/sendMessage.js';
 
@@ -57,7 +57,7 @@ export async function createNotifications(
     [user_ids, notification.type, notification.title, notification.body, meta_data ?? {}],
   );
 
-  Socket.userIo.to(user_ids).emit('notification:new', notifications);
+  Socket.io.to(user_ids).emit('notification:new', notifications);
 
   const tokenResponse = await db.queryAll(
     'SELECT token FROM user_notification_tokens WHERE user_id = ANY($1)',

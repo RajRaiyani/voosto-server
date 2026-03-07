@@ -60,7 +60,8 @@ export async function Controller(
   let whereClause = ` 
     u.id != $current_user_id AND 
     COALESCE(u.settings->>'hide_from_near_by_users', 'false') = 'false' AND
-    ub.blocked_id IS NULL
+    ub.blocked_id IS NULL AND
+    ub_blocked_by_them.blocker_id IS NULL
   `;
 
   if (search) {
@@ -114,6 +115,7 @@ export async function Controller(
     LEFT JOIN files f ON f.id = u.profile_image_id
     LEFT JOIN countries c ON c.id = u.country_id
     LEFT JOIN blocked_users ub ON ub.blocker_id = $current_user_id AND ub.blocked_id = u.id
+    LEFT JOIN blocked_users ub_blocked_by_them ON ub_blocked_by_them.blocker_id = u.id AND ub_blocked_by_them.blocked_id = $current_user_id
     WHERE ${whereClause}
     ${orderClause}
     LIMIT $limit OFFSET $offset

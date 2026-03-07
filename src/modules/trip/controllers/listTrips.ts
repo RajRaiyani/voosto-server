@@ -101,7 +101,8 @@ export async function Controller(
           'is_group', cwm.is_group,
           'is_private', cwm.is_private,
           'is_womans_only', cwm.is_womans_only,
-          'member_count', cwm.member_count
+          'member_count', cwm.member_count,
+          'meta_data', cwm.meta_data
         )
 
       ELSE NULL END as conversation

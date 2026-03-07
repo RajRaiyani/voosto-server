@@ -1,4 +1,5 @@
-import ServerEvent, { EventContext, EventContextProvider } from '@/service/event/index.js';
+import ServerEvent from '@/service/event/index.js';
+import RegisterServerEventHandler, { Context } from '@/core/registerServerEventHandler.js';
 import { createNotifications } from '@/modules/notification/notification.service.js';
 import { NotificationType } from '@/service/notification/index.js';
 
@@ -8,7 +9,7 @@ type ConversationJoiningRequestPayload = {
 };
 
 async function onConversationJoiningRequestCreatedHandler(
-  { db }: EventContext,
+  { database:db }: Context,
   payload: ConversationJoiningRequestPayload,
 ): Promise<void> {
   const { conversation_id, user_id } = payload;
@@ -51,7 +52,7 @@ async function onConversationJoiningRequestCreatedHandler(
 }
 
 ServerEvent.on(
-  'conversation_joining_request:created',
-  EventContextProvider(onConversationJoiningRequestCreatedHandler, { withDatabase: true }),
+  'conversation:conversation_joining_request:created',
+  RegisterServerEventHandler(onConversationJoiningRequestCreatedHandler, { withDatabase: true }),
 );
 

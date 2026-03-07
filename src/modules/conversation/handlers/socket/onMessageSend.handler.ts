@@ -1,8 +1,9 @@
 import { z } from 'zod';
 import Schema from '@/config/validationSchema.js';
 import { createMessage } from '@/modules/conversation/conversation.service.js';
+import { saveFile } from '@/modules/file/file.service.js';
+import { Context, SocketCallback } from '@/core/registerSocketEventHandler.js';
 
-import { HandlerContext, SocketCallback } from '@/socket/socket.type.js';
 
 export const ValidationSchema = z.object({
   conversation_id: Schema.uuid(),
@@ -14,20 +15,33 @@ export const ValidationSchema = z.object({
 });
 
 export async function Handler(
-  ctx: HandlerContext,
+  ctx: Context,
   payload: z.infer<typeof ValidationSchema>,
   callback: SocketCallback,
 ) {
-  const { socket, db } = ctx;
+  const { socket, database: db } = ctx;
 
   const { conversation_id, content, attachments } = payload;
 
-  await createMessage(db, {
-    conversationId: conversation_id,
-    senderId: socket.data.user.id,
-    content: content.trim(),
-    attachments,
-  });
+  try{
+    await db.begin();
+
+    await Promise.all(attachments.map(async (attachment) => {
+      await saveFile({ database:db }, { id: attachment });
+    }));
+  
+    await createMessage(db, {
+      conversationId: conversation_id,
+      senderId: socket.data.user.id,
+      content: content.trim(),
+      attachments,
+    });
+
+    await db.commit();
+  }catch (error) {
+    await db.rollback();
+    throw error;
+  }
 
   socket.to(conversation_id).emit('message:new', {
     conversation_id,

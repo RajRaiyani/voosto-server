@@ -10,7 +10,7 @@ export const ValidationSchema = {
     place_id: z.string().trim().min(1, 'Place ID is required'),
     date: TripValidation.date(),
     meta_data: z.record(z.string(), z.any()).default({}),
-    country_code: z.string(),
+    country_code: z.string().optional(),
   }),
 };
 
@@ -32,7 +32,15 @@ export async function Controller(
   const existingTrip = await db.queryOne('SELECT id FROM trips WHERE created_by = $1 AND place_id = $2', [req.user.id, place_id]);
   if (existingTrip) return res.status(400).json({ message: 'Trip already exists' });
 
-  const country = await db.queryOne('SELECT id, name, code, dial_code, flag FROM countries WHERE code = $1', [country_code]);
+  let placeConversation = await db.queryOne('SELECT id, name, meta_data FROM conversations WHERE place_id = $1', [place_id]);
+  let country = null;
+
+  if (!placeConversation) {
+    if (!country_code) return res.status(400).json({ message: 'Country code is required' });
+    
+    country = await db.queryOne('SELECT id, name, code, dial_code, flag FROM countries WHERE code = $1', [country_code]);
+    if (!country) return res.status(400).json({ message: 'Country not found' });
+  }
 
   try {
     await db.begin();
@@ -59,8 +67,8 @@ export async function Controller(
     );
 
 
-    let placeConversation = await db.queryOne('SELECT id, name, meta_data FROM conversations WHERE place_id = $1', [place_id]);
     if (!placeConversation) {
+
       placeConversation = await createConversation(db, {
         name: place_name,
         place_id: place_id,

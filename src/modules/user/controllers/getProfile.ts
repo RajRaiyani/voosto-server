@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
 import Env from '@/config/env.js';
-import SocketService from '@/socket/index.js';
+import SocketService from '@/socket.js';
 import Constant from '@/config/constant.js';
 
 

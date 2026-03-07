@@ -3,7 +3,7 @@ import { DatabaseClient } from '@/service/database/index.js';
 import { z } from 'zod';
 import ConfigValidationSchema from '@/config/validationSchema.js';
 import { GetPostById } from './post.service.js';
-import { DeleteFile } from '@/modules/file/file.service.js';
+import { deleteFile } from '@/modules/file/file.service.js';
 
 export const ValidationSchema = {
   params: z.object({
@@ -28,7 +28,7 @@ export async function Controller(
     await db.begin();
 
     await db.query('DELETE FROM user_posts WHERE id = $1', [post_id]);
-    await DeleteFile(db, post.file.id);
+    await deleteFile({ database:db }, { id: post.file.id });
 
     await db.commit();
 

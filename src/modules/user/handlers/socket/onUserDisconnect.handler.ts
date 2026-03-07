@@ -1,7 +1,7 @@
 import Logger from '@/service/logger/index.js';
-import { HandlerContext } from '@/socket/socket.type.js';
+import { Context } from '@/core/registerSocketEventHandler.js';
 
-export default async function onUserDisconnectHandler({ io, socket }: HandlerContext){
+export async function Handler({ io, socket }: Context){
 
   const userId = socket.data.user!.id;
 

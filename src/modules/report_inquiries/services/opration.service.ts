@@ -1,6 +1,6 @@
-import type { EventContext } from '@/core/registerServerEventHandler.js';
+import type { Context } from '@/core/registerServerEventHandler.js';
 
-export async function createReportInquiry(ctx: EventContext, { created_by, type = 'general', reference_id, body }: { created_by: string; type?: string; reference_id?: string; body?: string }) {
+export async function createReportInquiry(ctx: Context, { created_by, type = 'general', reference_id, body }: { created_by: string; type?: string; reference_id?: string; body?: string }) {
 
   const reportInquiry = await ctx.database.queryOne(
     `

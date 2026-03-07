@@ -4,7 +4,7 @@ import { z } from 'zod';
 import ConfigValidationSchema from '@/config/validationSchema.js';
 import { CreatePost } from './post.service.js';
 import Env from '@/config/env.js';
-import { SaveFile } from '@/modules/file/file.service.js';
+import { saveFile } from '@/modules/file/file.service.js';
 
 export const ValidationSchema = {
   body: z.object({
@@ -26,7 +26,7 @@ export async function Controller(
     await db.begin();
 
     const post = await CreatePost(db, { user_id, title, file_id });
-    await SaveFile(db, file_id);
+    await saveFile({ database:db }, { id: file_id });
 
     await db.commit();
 

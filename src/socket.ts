@@ -1,12 +1,15 @@
-import { Server, Namespace } from 'socket.io';
+import { Server } from 'socket.io';
 import { Server as HttpServer } from 'http';
+import Logger from '@/service/logger/index.js';
+import Handler from '@/socket.events.js';
+
 
 import { createClient } from 'redis';
 import { createAdapter } from '@socket.io/redis-adapter';
 import env from '@/config/env.js';
 
 import validateUserSocketHandShake from '@/middleware/auth/validateUserSocketHandShake.js';
-import userIoHandler from './userIoHandler.js';
+
 
 const pubClient = createClient({
   url: env.redis.url,
@@ -15,8 +18,21 @@ const pubClient = createClient({
 const subClient = pubClient.duplicate();
 
 let socketIo: Server | null = null;
-let userSocketIo: Namespace | null = null;
 
+
+function initSocketHandler(io: Server) {
+
+  io.on('connection', (socket) => Handler({ io, socket }));
+
+  io.on('connect_error', (error) => {
+    Logger.error(`Socket connection error: ${error}`);
+  });
+
+  io.on('error', (error) => {
+    Logger.error(`Socket error: ${error}`);
+  });
+
+}
 
 export async function initSocket (server: HttpServer) {
 
@@ -31,24 +47,23 @@ export async function initSocket (server: HttpServer) {
   });
 
   socketIo = io;
-  userSocketIo = io.of('/user');
 
-  userSocketIo.use(validateUserSocketHandShake);
-  userIoHandler(userSocketIo);
+  io.use(validateUserSocketHandShake);
+
+  initSocketHandler(io);
 
   return io;
 }
 
 const SocketService = {
   get io() { return socketIo; },
-  get userIo() { return userSocketIo; },
 
   listen: initSocket,
 
   async isUserOnline(userId: string): Promise<boolean> {
-    if (!userSocketIo) return false;
+    if (!socketIo) return false;
 
-    const sockets = await userSocketIo.in(userId).fetchSockets();
+    const sockets = await socketIo.in(userId).fetchSockets();
     return sockets.length > 0;
   },
 };

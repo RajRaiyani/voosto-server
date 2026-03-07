@@ -1,10 +1,11 @@
-import ServerEvent, { EventContext, EventContextProvider } from '@/service/event/index.js';
+import ServerEvent from '@/service/event/index.js';
+import RegisterServerEventHandler, { Context } from '@/core/registerServerEventHandler.js';
 import { createNotifications } from '@/modules/notification/notification.service.js';
 import RedisClient from '@/service/redis/index.js';
 import { NotificationType } from '@/service/notification/index.js';
 
 
-async function onNewActivityCreatedHandler({ db }: EventContext, activityId: string) {
+async function onNewActivityCreatedHandler({ database:db }: Context, activityId: string) {
 
   const activity = await db.queryOne(`
     SELECT
@@ -56,4 +57,4 @@ async function onNewActivityCreatedHandler({ db }: EventContext, activityId: str
   
 }
 
-ServerEvent.on('activity:created', EventContextProvider(onNewActivityCreatedHandler, { withDatabase: true }));
+ServerEvent.on('activity:created', RegisterServerEventHandler(onNewActivityCreatedHandler, { withDatabase: true }));

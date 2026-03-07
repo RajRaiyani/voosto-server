@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
-import { RegisterFile } from '@/modules/file/file.service.js';
+import { registerNewFile } from '@/modules/file/file.service.js';
 
 
 export async function Controller(req: Request, res: Response, next: NextFunction, db: DatabaseClient) {
@@ -11,7 +11,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
   }
 
   const newFiles = await Promise.all(files.map((file) => {
-    return RegisterFile(db, file.path);
+    return registerNewFile({ database:db }, { filePath: file.path });
   }));
 
   return res.status(200).json(newFiles);

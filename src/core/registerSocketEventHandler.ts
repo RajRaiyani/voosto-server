@@ -1,9 +1,22 @@
 import { Server, Socket } from 'socket.io';
+import { DatabaseClient } from '@/service/database/index.js';
 import { z } from 'zod';
 import { validateData } from '@/utils/validationHelper.js';
 import Database from '@/service/database/index.js';
 
-import {  SocketCallback, SocketEventHandler } from '@/socket/socket.type.js';
+export type SocketCallback = ((response: unknown) => void) | undefined;
+
+export type Context = {
+  io: Server;
+  socket: Socket;
+  database?: DatabaseClient;
+};
+
+export type SocketEventHandler = (
+  ctx: Context,
+  payload: any | undefined,
+  callback: SocketCallback
+) => Promise<void>;
 
 type HandleSocketHandlerOptions = {
   withDatabase?: boolean;
@@ -26,7 +39,7 @@ function sendError(
   }
 }
 
-export default function handleSocketHandler({
+export default function registerSocketEventHandler({
   io,
   socket,
   schema,
@@ -41,7 +54,7 @@ export default function handleSocketHandler({
 }) {
 
   return async (payload: any, callback: SocketCallback) => {
-    
+
     let validatedData = payload;
 
     if (schema) {
@@ -57,11 +70,11 @@ export default function handleSocketHandler({
         const db = await Database.getConnection();
 
         try{
-          await handler({ io, socket, db }, validatedData, callback);
+          await handler({ io, socket, database: db }, validatedData, callback);
         } finally { db.release(); }
 
       } else {
-        await handler({ io, socket }, validatedData, callback);
+        await handler({ io, socket, database: null }, validatedData, callback);
       }
 
     } catch (error) {

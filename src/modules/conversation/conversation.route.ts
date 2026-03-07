@@ -6,12 +6,10 @@ import { ValidationSchema as ListConversationsSchema, Controller as ListConversa
 import { ValidationSchema as GetConversationSchema, Controller as GetConversationController } from '@/modules/conversation/controllers/getConversation.js';
 import { ValidationSchema as UpdateConversationSchema, Controller as UpdateConversationController } from '@/modules/conversation/controllers/updateConversation.js';
 import { ValidationSchema as ListMessagesSchema, Controller as ListMessagesController } from '@/modules/conversation/controllers/listMessages.js';
-import { ValidationSchema as SendMessageSchema, Controller as SendMessageController } from '@/modules/conversation/controllers/sendMessage.js';
 import { ValidationSchema as GetPrivateConversationSchema, Controller as GetPrivateConversationController } from '@/modules/conversation/controllers/getPersonalConversation.js';
 import { ValidationSchema as JoinConversationSchema, Controller as JoinConversationController } from '@/modules/conversation/controllers/joinConversation.js';
 import { ValidationSchema as AcceptJoiningRequestSchema, Controller as AcceptJoiningRequestController } from '@/modules/conversation/controllers/acceptJoiningRequest.js';
 import { ValidationSchema as LeaveConversationSchema, Controller as LeaveConversationController } from '@/modules/conversation/controllers/leaveConversations.js';
-import imageUpload from '@/middleware/multer/imageUpload.js';
 import { ValidationSchema as ListConversationJoiningRequestSchema, Controller as ListConversationJoiningRequestController } from '@/modules/conversation/controllers/listConversationJoiningRequest.js';
 import { ValidationSchema as DeleteConversationJoiningRequestSchema, Controller as DeleteConversationJoiningRequestController } from '@/modules/conversation/controllers/deleteConversationJoiningRequest.js';
 import { ValidationSchema as ListConversationMembersSchema, Controller as ListConversationMembersController } from '@/modules/conversation/controllers/listConversationMemebers.js';
@@ -38,8 +36,7 @@ router
 
 router
   .route('/:conversation_id/messages')
-  .get(isUserLoggedIn, validate(ListMessagesSchema), withDatabase(ListMessagesController))
-  .post(isUserLoggedIn, imageUpload.array('files', 10), validate(SendMessageSchema), withDatabase(SendMessageController));
+  .get(isUserLoggedIn, validate(ListMessagesSchema), withDatabase(ListMessagesController));
 
 router
   .route('/:conversation_id/join')

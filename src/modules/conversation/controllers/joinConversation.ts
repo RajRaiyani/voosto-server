@@ -3,7 +3,7 @@ import { DatabaseClient } from '@/service/database/index.js';
 import { z } from 'zod';
 import Schema from '@/config/validationSchema.js';
 import { getConversationById, isMemberOfConversation, addMemberToConversation, createJoiningRequest } from '@/modules/conversation/conversation.service.js';
-import SocketService from '@/socket/index.js';
+import SocketService from '@/socket.js';
 import ServerEvent from '@/service/event/index.js';
 
 export const ValidationSchema = {

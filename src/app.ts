@@ -3,7 +3,7 @@ import morgan from 'morgan';
 import cors from 'cors';
 import Logger from './service/logger/index.js';
 import errorHandler from './middleware/errorHandler.js';
-import appRoute from './app.route.js';
+import appRoute from './app.routes.js';
 import redisClient from './service/redis/index.js';
 import { LoadActivitiesToRedis } from './modules/activity/activity.script.js';
 import '@/modules/activity/handlers/event/onNewActivityCreated.js';

@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
 import Schema from '@/config/validationSchema.js';
 import { z } from 'zod';
-import SocketService from '@/socket/index.js';
+import SocketService from '@/socket.js';
 
 
 export const ValidationSchema = {
@@ -25,7 +25,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
   );
 
   if (isBlocked) {
-    return res.status(403).json({ message: 'You cannot view this profile' });
+    return res.status(403).json({ code: 'BLOCKED', message: 'You cannot view this profile' });
   }
 
   const user = await db.queryOne(`

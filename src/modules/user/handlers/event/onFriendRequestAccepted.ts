@@ -1,11 +1,12 @@
-import ServerEvent, { EventContext, EventContextProvider } from '@/service/event/index.js';
+import ServerEvent from '@/service/event/index.js';
+import RegisterServerEventHandler, { Context } from '@/core/registerServerEventHandler.js';
 import { createNotifications } from '@/modules/notification/notification.service.js';
 import { NotificationType } from '@/service/notification/index.js';
 
 type FriendRequestPayload = { sender_id: string; receiver_id: string };
 
 async function onFriendRequestAcceptedHandler(
-  { db }: EventContext,
+  { database:db }: Context,
   payload: FriendRequestPayload,
 ): Promise<void> {
   const { sender_id, receiver_id } = payload;
@@ -38,7 +39,7 @@ async function onFriendRequestAcceptedHandler(
 }
 
 ServerEvent.on(
-  'friend_request:accepted',
-  EventContextProvider(onFriendRequestAcceptedHandler, { withDatabase: true }),
+  'user:friend_request:accepted',
+  RegisterServerEventHandler(onFriendRequestAcceptedHandler, { withDatabase: true }),
 );
 
