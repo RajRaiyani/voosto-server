@@ -52,14 +52,15 @@ export async function Controller(req: Request, res: Response, next: NextFunction
 
     const joiningRequest = await createJoiningRequest(db, conversation_id, userId, is_mute);
 
-    ServerEvent.emit('conversation_joining_request:created', { conversation_id, user_id: userId });
+    ServerEvent.emit('conversation:conversation_joining_request:created', { conversation_id, user_id: userId });
   
     return res.status(200).json(joiningRequest);
   }
 
   await addMemberToConversation(db, conversation_id, userId, false, is_mute);
 
-  const userIo = SocketService.userIo;
+  const userIo = SocketService.io;
+
   if (userIo) {
     const member = await db.queryOne<{ id: string; full_name: string; profile_image_url: string | null }>(`
       SELECT u.id, u.full_name, f.url AS profile_image_url

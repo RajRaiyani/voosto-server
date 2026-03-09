@@ -58,6 +58,7 @@ export async function Controller(
   }
 
   let whereClause = ` 
+    u.is_deleted = false AND
     u.id != $current_user_id AND 
     COALESCE(u.settings->>'hide_from_near_by_users', 'false') = 'false' AND
     ub.blocked_id IS NULL AND

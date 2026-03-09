@@ -1,5 +1,5 @@
 import Database from '@/service/database/index.js';
-import { HardDeleteFile } from '@/modules/file/file.service.js';
+import { hardDeleteFile } from '@/modules/file/file.service.js';
 import Logger from '@/service/logger/index.js';
 
 
@@ -14,7 +14,7 @@ export async function task() {
     `);
 
     for (const file of filesToDelete) {
-      await HardDeleteFile(db, file.id);
+      await hardDeleteFile({ database: db }, { id: file.id });
       Logger.info(`Deleted file: ${file.key}`);
     }
 

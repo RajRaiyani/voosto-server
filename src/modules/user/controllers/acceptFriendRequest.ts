@@ -39,7 +39,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     RETURNING sender_id, receiver_id, status, created_at
   `, [sender_id, receiver_id]);
 
-  ServerEvent.emit('friend_request:accepted', { sender_id, receiver_id });
+  ServerEvent.emit('user:friend_request:accepted', { sender_id, receiver_id });
 
   return res.status(200).json(updatedMapping);
 }

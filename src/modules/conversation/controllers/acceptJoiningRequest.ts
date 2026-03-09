@@ -26,7 +26,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
 
   await db.queryOne('DELETE FROM conversation_joining_requests WHERE conversation_id = $1 AND user_id = $2', [conversation_id, user_id]);
 
-  ServerEvent.emit('conversation_joining_request:accepted', { conversation_id, user_id });
+  ServerEvent.emit('conversation:conversation_joining_request:accepted', { conversation_id, user_id });
 
   return res.status(204).send();
 }

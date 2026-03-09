@@ -1,5 +1,5 @@
 import Database from '@/service/database/index.js';
-import { ConvertFileToWebp } from '@/modules/file/file.service.js';
+import { convertImageToWebp } from '@/modules/file/file.service.js';
 import Logger from '@/service/logger/index.js';
 
 export async function task() {
@@ -14,7 +14,7 @@ export async function task() {
     console.log(filesToConvert);
 
     for (const file of filesToConvert) {
-      await ConvertFileToWebp(db, file.id);
+      await convertImageToWebp({ database: db }, { id: file.id });
       Logger.info(`Converted file: ${file.key}`);
     }
 
