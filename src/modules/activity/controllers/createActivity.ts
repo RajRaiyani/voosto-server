@@ -11,7 +11,7 @@ import ServerEvent from '@/service/event/index.js';
 export const ValidationSchema = {
   body: z.object({
     description: ActivityValidation.description(),
-    category: ActivityValidation.category(),
+    category_id: ConfigValidationSchema.uuid(),
     location: ConfigValidationSchema.location(),
     date: ActivityValidation.date(),
     time: ActivityValidation.time().nullish().optional(),
@@ -29,7 +29,7 @@ export async function Controller(
 ) {
   const {
     description,
-    category,
+    category_id,
     location,
     date,
     time,
@@ -59,7 +59,7 @@ export async function Controller(
       `
         INSERT INTO activities (
           description,
-          category,
+          category_id,
           latitude,
           longitude,
           date,
@@ -72,7 +72,7 @@ export async function Controller(
       `,
       [
         description,
-        category,
+        category_id,
         location.latitude,
         location.longitude,
         date,

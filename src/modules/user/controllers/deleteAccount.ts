@@ -1,5 +1,17 @@
 import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
+import z from 'zod';
+
+export const ValidationSchema = {
+  body: z.object({
+    reason: z.string().trim().max(3000, 'Account delete reason must be less than 500 characters').default(''),
+  })
+};
+
+
+function generateRandomNumber() {
+  return Math.floor(100000 + Math.random() * 900000);
+}
 
 export async function Controller(
   req: Request,
@@ -8,6 +20,7 @@ export async function Controller(
   db: DatabaseClient
 ) {
   const userId = req.user.id;
+  const { reason } = req.body as z.infer<typeof ValidationSchema.body>;
 
   const user = await db.queryOne<{
     id: string;
@@ -23,17 +36,19 @@ export async function Controller(
     return res.status(204).send();
   }
 
-  const updatedEmail = `deleted.${user.email}`;
+  const updatedEmail = `deleted.${user.email}.${generateRandomNumber()}`;
 
   await db.query(
     `
       UPDATE users
       SET email = $1,
+          account_delete_reason = $3,
           is_deleted = true
       WHERE id = $2
     `,
-    [updatedEmail, userId]
+    [updatedEmail, userId, reason]
   );
 
   return res.status(204).send();
 }
+

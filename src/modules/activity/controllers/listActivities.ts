@@ -131,7 +131,14 @@ export async function Controller(req: Request, res: Response, next: NextFunction
         'last_name', u.last_name,
         'full_name', u.full_name,
         'email', u.email,
-        'profile_image_url', f.url
+        'profile_image_url', f.url,
+        'country', json_build_object(
+          'id', c.id,
+          'name', c.name,
+          'code', c.code,
+          'dial_code', c.dial_code,
+          'flag', c.flag
+        )
       ) as created_by,
 
       COALESCE(ffm.members, '[]'::json) AS members,
@@ -150,6 +157,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     FROM activities a
     LEFT JOIN activity_categories ac ON ac.id = a.category_id
     LEFT JOIN users u ON a.created_by = u.id
+    LEFT JOIN countries c ON c.id = u.country_id
     LEFT JOIN files f ON f.id = u.profile_image_id
     LEFT JOIN conversations_with_members cwm ON cwm.id = a.conversation_id
     LEFT JOIN first_five_members ffm ON ffm.conversation_id = cwm.id

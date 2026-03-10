@@ -41,13 +41,14 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     if (updateData.bio) updateQueryArray.push('bio = $bio');
     if (updateData.profile_image_id) updateQueryArray.push('profile_image_id = $profile_image_id');
 
+    const setClause = [...updateQueryArray, 'updated_at = NOW()'].join(', ');
+
     const updatedUser = await db.namedQueryOne(
       `
       UPDATE users 
-      SET ${updateQueryArray.join(', ')}, updated_at = NOW()
+      SET ${setClause}
       WHERE id = $id
       RETURNING 
-        old.profile_image_id as old_profile_image_id,
         id, 
         first_name, 
         last_name, 

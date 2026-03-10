@@ -12,7 +12,7 @@ export const ValidationSchema = {
   }),
   body: z.object({
     description: ActivityValidation.description(),
-    category: ActivityValidation.category(),
+    category_id: ConfigValidationSchema.uuid(),
     location: ConfigValidationSchema.location(),
     date: ActivityValidation.date(),
     time: ActivityValidation.time().nullish().optional(),
@@ -23,7 +23,7 @@ export const ValidationSchema = {
 
 export async function Controller(req: Request, res: Response, next: NextFunction, db: DatabaseClient) {
   const { activity_id } = req.params as z.infer<typeof ValidationSchema.params>;
-  const { description, category, location, date, time, is_private, is_womans_only } = req.body as z.infer<typeof ValidationSchema.body>;
+  const { description, category_id, location, date, time, is_private, is_womans_only } = req.body as z.infer<typeof ValidationSchema.body>;
 
   try {
     await db.begin();
@@ -37,14 +37,14 @@ export async function Controller(req: Request, res: Response, next: NextFunction
       UPDATE activities
       SET 
         description = $1, 
-        category = $2, 
+        category_id = $2, 
         latitude = $3,
         longitude = $4,
         date = $5, 
         time = $6
       WHERE id = $7
       RETURNING *
-      `, [description, category, location.latitude, location.longitude, date, time, activity_id]);
+      `, [description, category_id, location.latitude, location.longitude, date, time, activity_id]);
 
     await db.query(`
         UPDATE conversations

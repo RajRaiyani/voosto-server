@@ -315,7 +315,8 @@ CREATE TABLE public.users (
     login_method character varying(100) DEFAULT 'normal'::character varying NOT NULL,
     settings jsonb DEFAULT '{}'::jsonb NOT NULL,
     is_deleted boolean DEFAULT false NOT NULL,
-    heard_about_us character varying(150)
+    heard_about_us character varying(150),
+    account_delete_reason text
 );
 
 
@@ -822,4 +823,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20260305075544'),
     ('20260305082748'),
     ('20260307084637'),
-    ('20260307103959');
+    ('20260307103959'),
+    ('20260309170447');

@@ -26,7 +26,7 @@ import { ValidationSchema as DeleteVisitedCountryValidationSchema, Controller as
 import { ValidationSchema as LoginWithGoogleValidationSchema, Controller as LoginWithGoogleController } from '@/modules/user/controllers/auth/loginWithGoogle.js';
 import { ValidationSchema as UpsertUserNotificationTokenValidationSchema, Controller as UpsertUserNotificationTokenController } from '@/modules/user/controllers/upsertUserNotificationToken.js';
 import { ValidationSchema as UpdateUserSettingValidationSchema, Controller as UpdateUserSettingController } from '@/modules/user/controllers/updateUserSetting.js';
-import { Controller as DeleteAccountController } from '@/modules/user/controllers/deleteAccount.js';
+import { ValidationSchema as DeleteAccountValidationSchema, Controller as DeleteAccountController } from '@/modules/user/controllers/deleteAccount.js';
 import { ValidationSchema as ReportUserValidationSchema, Controller as ReportUserController } from '@/modules/user/controllers/reportUser.js';
 import { ValidationSchema as BlockUserValidationSchema, Controller as BlockUserController } from '@/modules/user/controllers/blockUser.js';
 import { ValidationSchema as UnblockUserValidationSchema, Controller as UnblockUserController } from '@/modules/user/controllers/unblockUser.js';
@@ -89,7 +89,7 @@ router.route('/settings')
   .put(isUserLoggedIn, validate(UpdateUserSettingValidationSchema), withDatabase(UpdateUserSettingController));
 
 router.route('/delete-account')
-  .delete(isUserLoggedIn, withDatabase(DeleteAccountController));
+  .delete(isUserLoggedIn, validate(DeleteAccountValidationSchema), withDatabase(DeleteAccountController));
 
 router.route('/visited-countries/:country_id')
   .post(isUserLoggedIn, validate(AddVisitedCountryValidationSchema), withDatabase(AddVisitedCountryController))
