@@ -32,7 +32,8 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     SELECT
       a.id,
       a.description,
-      a.category,
+      ac.name as category,
+      ac.id as category_id,
       a.latitude,
       a.longitude,
       a.date,
@@ -81,6 +82,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
 
     FROM activities a
     LEFT JOIN users u ON a.created_by = u.id
+    LEFT JOIN activity_categories ac ON ac.id = a.category_id
     LEFT JOIN files f ON f.id = u.profile_image_id
     LEFT JOIN conversations c ON c.id = a.conversation_id
     LEFT JOIN conversation_members cm ON cm.conversation_id = c.id

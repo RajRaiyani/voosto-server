@@ -11,7 +11,7 @@ async function onNewActivityCreatedHandler({ database:db }: Context, activityId:
     SELECT
       a.id,
       a.description,
-      a.category,
+      ac.name as category,
       a.latitude,
       a.longitude,
       a.conversation_id,
@@ -23,6 +23,7 @@ async function onNewActivityCreatedHandler({ database:db }: Context, activityId:
       ) as created_by
 
     FROM activities a
+    LEFT JOIN activity_categories ac ON ac.id = a.category_id
     LEFT JOIN users u ON a.created_by = u.id
     LEFT JOIN files f ON f.id = u.profile_image_id
     WHERE a.id = $1
