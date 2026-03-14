@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
 import { z } from 'zod';
 import Schema from '@/config/validationSchema.js';
+import { removeMemberFromConversation } from '@/modules/conversation/conversation.service.js';
+
 
 export const ValidationSchema = {
   params: z.object({
@@ -19,12 +21,22 @@ export async function Controller(
   const userId = req.user!.id;
 
   const trip = await db.queryOne(
-    'SELECT id, created_by FROM trips WHERE id = $1 and created_by = $2',
+    'SELECT * FROM trips WHERE id = $1 and created_by = $2',
     [trip_id, userId]
   );
   if (!trip) return res.status(404).json({ message: 'Trip not found' });
 
-  await db.query('DELETE FROM trips WHERE id = $1', [trip_id]);
+  try{
+    await db.begin();
+    await db.query('DELETE FROM trips WHERE id = $1', [trip_id]);
+    const conversation = await db.queryOne('SELECT id FROM conversations WHERE place_id = $1', [trip.place_id]);
+    await removeMemberFromConversation({ database: db }, conversation?.id, userId);
+
+    await db.commit();
+  }catch(error){
+    await db.rollback();
+    throw error;
+  }
 
   return res.status(204).send();
 }

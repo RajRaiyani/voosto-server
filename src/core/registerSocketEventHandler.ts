@@ -15,7 +15,7 @@ export type Context = {
 export type SocketEventHandler = (
   ctx: Context,
   payload: any | undefined,
-  callback: SocketCallback
+  callback?: SocketCallback
 ) => Promise<void>;
 
 type HandleSocketHandlerOptions = {
@@ -53,7 +53,7 @@ export default function registerSocketEventHandler({
   options?: HandleSocketHandlerOptions;
 }) {
 
-  return async (payload: any, callback: SocketCallback) => {
+  return async (payload: any, callback?: SocketCallback) => {
 
     let validatedData = payload;
 

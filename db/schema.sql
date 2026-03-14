@@ -1,7 +1,7 @@
 \restrict dbmate
 
 -- Dumped from database version 18.3 (Debian 18.3-1.pgdg13+1)
--- Dumped by pg_dump version 18.1
+-- Dumped by pg_dump version 18.3
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -120,9 +120,9 @@ CREATE TABLE public.conversations (
     is_womans_only boolean DEFAULT false NOT NULL,
     display_picture_id uuid,
     is_deletable boolean DEFAULT true NOT NULL,
-    meta_data jsonb DEFAULT '{}'::jsonb NOT NULL,
     place_id character varying(255),
-    place_name character varying(255)
+    place_name character varying(255),
+    display_emoji character varying(5) DEFAULT '💬'::character varying NOT NULL
 );
 
 
@@ -251,7 +251,7 @@ CREATE TABLE public.trips (
     updated_at timestamp with time zone,
     place_id character varying(255) NOT NULL,
     place_name character varying(255) NOT NULL,
-    meta_data jsonb DEFAULT '{}'::jsonb NOT NULL
+    country_code character varying(3)
 );
 
 
@@ -316,7 +316,9 @@ CREATE TABLE public.users (
     settings jsonb DEFAULT '{}'::jsonb NOT NULL,
     is_deleted boolean DEFAULT false NOT NULL,
     heard_about_us character varying(150),
-    account_delete_reason text
+    account_delete_reason text,
+    latitude numeric(10,8),
+    longitude numeric(11,8)
 );
 
 
@@ -824,4 +826,8 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20260305082748'),
     ('20260307084637'),
     ('20260307103959'),
-    ('20260309170447');
+    ('20260309170447'),
+    ('20260312190329'),
+    ('20260314112235'),
+    ('20260314115420'),
+    ('20260314124513');

@@ -29,7 +29,7 @@ async function hardDeleteFileService({ database:db }: Context, { id }: { id: str
 
 
 async function updateFileStatusService({ database:db }: Context, { id, status }: { id: string, status: string }) {
-  const file = await db.queryOne('SELECT id, key, _status FROM files WHERE id = $1', [id]);
+  const file = await db.queryOne('SELECT id, key, url, _status FROM files WHERE id = $1', [id]);
   if (!file) throw new ServerError('NOT_FOUND', 'File not found');
   if (file._status === status) return file;
   await db.query('UPDATE files SET _status = $1 WHERE id = $2', [status, id]);
@@ -40,6 +40,7 @@ async function updateFileStatusService({ database:db }: Context, { id, status }:
 async function saveFileService(ctx: Context, { id }: { id: string }) {
   const file = await updateFileStatus(ctx, { id, status: 'saved' });
   Event.emit('file:saved', file);
+  return file;
 }
 
 

@@ -1,6 +1,6 @@
 import { DatabaseClient } from '@/service/database/index.js';
 import ServerError from '@/utils/serverError.js';
-
+import RegisterService, { Context as ServiceContext } from '@/core/registerService.js';
 
 
 export async function getConversationMembership(
@@ -47,6 +47,7 @@ interface Conversation {
   is_womans_only: boolean;
   created_at: Date;
   display_picture_url: string | null;
+  display_emoji: string;
 }
 
 
@@ -78,7 +79,7 @@ export async function getConversationById(
         c.is_womans_only,
         c.place_id,
         c.created_at,
-        c.meta_data,
+        c.display_emoji,
         $2 AS is_member,
         $3 AS notification_enabled,
         CASE WHEN f.id IS NOT NULL THEN f.url ELSE NULL END AS display_picture_url
@@ -97,9 +98,9 @@ export async function getConversationById(
         c.is_womans_only,
         c.place_id,
         c.created_at,
-        c.meta_data,
+        c.display_emoji,
         $3 AS is_member,
-        $4 AS notification_enabled,
+        $4 AS notification_enabled, 
         CASE WHEN f.id IS NOT NULL THEN f.url ELSE NULL END AS display_picture_url
       FROM conversations c
       LEFT JOIN conversation_members cm ON cm.conversation_id = c.id AND cm.user_id != $2
@@ -129,39 +130,6 @@ export type NewMessagePayload = {
 };
 
 
-export async function getMessageById(db: DatabaseClient, messageId: string): Promise<NewMessagePayload> {
-  return await db.queryOne(`
-    SELECT 
-      m.id, 
-      m.conversation_id, 
-      m.content, 
-      m.created_at, 
-      m.seen_at,
-
-      json_build_object(
-        'id', u.id,
-        'full_name', u.full_name
-      ) AS sender,
-
-      COALESCE(
-        json_agg(
-          json_build_object(
-            'id', f.id,
-            'url', f.url
-          )
-        ) FILTER (WHERE f.id IS NOT NULL),
-        '[]'::json
-      ) AS attachments
-
-    FROM messages m
-    LEFT JOIN users u ON u.id = m.sender_id
-    LEFT JOIN message_attachments ma ON ma.message_id = m.id
-    LEFT JOIN files f ON f.id = ma.file_id
-    GROUP BY m.id, u.id
-    HAVING m.id = $1
-  `, [messageId]);
-}
-
 
 /**
  * Create a message in a conversation. Caller must ensure user is participant.
@@ -178,7 +146,7 @@ export async function createMessage(
   { conversationId, senderId, content, attachments = [] }: CreateMessageInput
 ): Promise<NewMessagePayload> {
 
-  if (attachments.length && (!content || content.trim().length === 0)) throw new ServerError('ERROR', 'Message content is required');
+  if (!attachments.length && (!content || content.trim().length === 0)) throw new ServerError('ERROR', 'Message content is required');
 
   try{
     await db.begin();
@@ -200,7 +168,7 @@ export async function createMessage(
 
     await db.commit();
 
-    return await getMessageById(db, message.id);
+    return message;
     
   } catch (error) {
     await db.rollback();
@@ -284,7 +252,6 @@ interface CreateConversationInput {
   is_womans_only: boolean
   is_deletable?: boolean
   place_id?: string
-  meta_data?: Record<string, any>
   members: {
     id: string;
     is_admin: boolean;
@@ -293,7 +260,7 @@ interface CreateConversationInput {
 }
 
 export async function createConversation(db: DatabaseClient,  
-  { name, is_group = false, is_private = false, is_womans_only = false, members =[], is_deletable = true, place_id, meta_data = {} }:CreateConversationInput){
+  { name, is_group = false, is_private = false, is_womans_only = false, members =[], is_deletable = true, place_id }:CreateConversationInput){
   
   if (is_group) {
     if (is_deletable){
@@ -315,9 +282,10 @@ export async function createConversation(db: DatabaseClient,
     await db.begin();
 
     const conversation = await db.queryOne(`
-      INSERT INTO conversations (name, is_group, is_private, is_womans_only, is_deletable, place_id, meta_data) VALUES ($1, $2, $3, $4, $5, $6, $7)
-      RETURNING id, name, meta_data
-    `, [name, is_group, is_private, is_womans_only, is_deletable, place_id, meta_data]);
+      INSERT INTO conversations (name, is_group, is_private, is_womans_only, is_deletable, place_id) VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING id, name
+    `, [name, is_group, is_private, is_womans_only, is_deletable, place_id]);
+
 
 
     for (const participant of members) {
@@ -369,12 +337,32 @@ export async function isAdminOfConversation(db: DatabaseClient, conversationId: 
   return admin.is_admin;
 }
 
-export async function removeMemberFromConversation(db: DatabaseClient, conversationId: string, userId: string): Promise<void> {
-  const member = await db.queryOne(`
-    DELETE FROM conversation_members WHERE conversation_id = $1 AND user_id = $2
-    RETURNING conversation_id, user_id, is_admin
-  `, [conversationId, userId]);
+async function removeMemberFromConversationService({ database:db }: ServiceContext, conversationId: string, userId: string): Promise<void> {
+  try{
 
-  return member;
+    await db.begin();
+
+    const member = await db.queryOne(`
+      DELETE FROM conversation_members WHERE conversation_id = $1 AND user_id = $2
+      RETURNING conversation_id, user_id, is_admin
+    `, [conversationId, userId]);
+
+    const memberCount = await db.queryOne(`
+      SELECT COUNT(*) FROM conversation_members WHERE conversation_id = $1
+    `, [conversationId]);
+
+    if (memberCount.count === 0) {
+      await db.query('DELETE FROM conversations WHERE id = $1', [conversationId]);
+    }
+
+    await db.commit();
+    return member;
+  } catch (error) {
+    await db.rollback();
+    throw error;
+  }
+
 }
 
+
+export const removeMemberFromConversation = RegisterService(removeMemberFromConversationService);

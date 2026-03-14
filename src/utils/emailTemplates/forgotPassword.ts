@@ -22,7 +22,7 @@ function emailResetPassword(url: string) {
           <tr>
             <td style="background:#4050ff; padding:32px 40px; text-align:center;">
               <img
-                src="https://voosto.com/logo"
+                src="https://voosto.com/assets/logos/favicon.svg"
                 alt="Voosto"
                 width="120"
                 style="display:block; margin:0 auto; max-width:120px;"

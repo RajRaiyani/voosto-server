@@ -9,7 +9,6 @@ export const ValidationSchema = {
     place_name: z.string(),
     place_id: z.string().trim().min(1, 'Place ID is required'),
     date: TripValidation.date(),
-    meta_data: z.record(z.string(), z.any()).default({}),
     country_code: z.string().optional(),
   }),
 };
@@ -24,7 +23,6 @@ export async function Controller(
     place_name,
     place_id,
     date,
-    meta_data,
     country_code,
   } = req.body as z.infer<typeof ValidationSchema.body>;
 
@@ -32,7 +30,7 @@ export async function Controller(
   const existingTrip = await db.queryOne('SELECT id FROM trips WHERE created_by = $1 AND place_id = $2', [req.user.id, place_id]);
   if (existingTrip) return res.status(400).json({ message: 'Trip already exists' });
 
-  let placeConversation = await db.queryOne('SELECT id, name, meta_data FROM conversations WHERE place_id = $1', [place_id]);
+  let placeConversation = await db.queryOne('SELECT id, name FROM conversations WHERE place_id = $1', [place_id]);
   let country = null;
 
   if (!placeConversation) {
@@ -52,7 +50,7 @@ export async function Controller(
         place_name,
         date,
         created_by,
-        meta_data
+        country_code
       )
       VALUES ($1, $2, $3, $4, $5)
       RETURNING *
@@ -62,7 +60,7 @@ export async function Controller(
         place_name,
         date ?? null,
         req.user.id,
-        { ...(meta_data ?? {}), country: country }
+        country_code,
       ]
     );
 
@@ -76,11 +74,14 @@ export async function Controller(
         is_private: false,
         is_womans_only: false,
         is_deletable: false,
-        meta_data: {
-          country: country,
-        },
         members: [],
       });
+
+      await db.query(`
+        UPDATE conversations SET display_emoji = (
+          SELECT flag FROM countries WHERE code = $1
+        ) WHERE id = $2
+        `, [country_code, placeConversation.id]);
     }
 
     await db.commit();

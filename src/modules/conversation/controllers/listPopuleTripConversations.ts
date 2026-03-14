@@ -32,8 +32,8 @@ export async function Controller(
         c.place_id,
         c.place_name,
         c.display_picture_id,
+        c.display_emoji,
         c.created_at,
-        c.meta_data,
         COUNT(cm.user_id)::integer AS member_count
       FROM conversations c
       LEFT JOIN conversation_members cm ON cm.conversation_id = c.id
@@ -80,9 +80,9 @@ export async function Controller(
       cwm.is_womans_only,
       cwm.place_id,
       cwm.place_name,
-      cwm.meta_data,
       cwm.member_count,
       cwm.created_at,
+      cwm.display_emoji,
       CASE WHEN f.id IS NOT NULL THEN
         json_build_object('id', f.id, 'url', f.url)
       ELSE NULL END AS display_picture,

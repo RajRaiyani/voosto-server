@@ -24,7 +24,7 @@ export async function Controller(
 
   if (!conversation) return res.status(404).json({ message: 'Conversation not found' });
 
-  const [memberCountResponse, members, activity, trip, pendingRequest] = await Promise.all([
+  const [memberCountResponse, members, activity, trip, pendingRequest, mediaFiles] = await Promise.all([
     db.queryOne(`
       SELECT COUNT(*)::integer as member_count FROM conversation_members WHERE conversation_id = $1
     `, [conversation_id]),
@@ -82,7 +82,6 @@ export async function Controller(
         t.date,
         t.created_at,
         t.updated_at,
-        t.meta_data,
         json_build_object(
           'id', u.id,
           'full_name', u.full_name,
@@ -101,6 +100,16 @@ export async function Controller(
       SELECT conversation_id, created_at FROM conversation_joining_requests WHERE conversation_id = $1 AND user_id = $2
     `, [conversation_id, userId]),
 
+    db.queryAll(`
+      SELECT
+        f.id,
+        f.url
+      FROM message_attachments ma
+      LEFT JOIN files f ON f.id = ma.file_id
+      LEFT JOIN messages m ON m.id = ma.message_id
+      where m.conversation_id = $1
+      LIMIT 4
+      `, [conversation_id]),
   ]);
   
   const responseData: any = {
@@ -110,6 +119,7 @@ export async function Controller(
     pending_joining_request: pendingRequest,
     activity: activity,
     trip: trip,
+    media_files: mediaFiles,
   };
 
   return res.status(200).json(responseData);

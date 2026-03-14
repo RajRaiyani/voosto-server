@@ -15,7 +15,7 @@ export const ValidationSchema = {
     // in kilometers
     radius: z
       .coerce.number()
-      .min(1, 'Radius must be greater than 1 km')
+      .gt(0, 'Radius must be greater than 0 km')
       .max(5000, 'Radius must be less than 5000 km')
       .optional(),
     offset: Schema.pagination.offset(),
@@ -59,6 +59,7 @@ export async function Controller(
 
   let whereClause = ` 
     u.is_deleted = false AND
+    u.is_profile_completed = true AND
     u.id != $current_user_id AND 
     COALESCE(u.settings->>'hide_from_near_by_users', 'false') = 'false' AND
     ub.blocked_id IS NULL AND

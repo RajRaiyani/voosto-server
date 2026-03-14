@@ -43,8 +43,9 @@ async function onNewActivityCreatedHandler({ database:db }: Context, activityId:
     SELECT id FROM users
     WHERE 
       id = ANY($1) AND
+      id != $2 AND
       settings @> '{"notify_near_by_activities": true}'
-  `, [nearestUsers]);
+  `, [nearestUsers, activity.created_by.id]);
 
   await createNotifications(db, usersToNotify.map(user => user.id), {
     type: NotificationType.NEW_ACTIVITY,
@@ -54,6 +55,7 @@ async function onNewActivityCreatedHandler({ database:db }: Context, activityId:
     description: activity.description,
     category: activity.category,
     created_by: activity.created_by,
+    conversation_id: activity.conversation_id,
   });
   
 }

@@ -42,20 +42,26 @@ export async function createNotifications(
   db: DatabaseClient,
   user_ids: string[],
   notification: Notification,
+  options: {
+    saveToDatabase?: boolean;
+  } = { saveToDatabase: true },
 ) {
 
   const { title, body, type, ...meta_data } = notification;
 
   if (user_ids.length === 0) return [];
 
-  const notifications = await db.queryAll(
-    `
+  let notifications = [];
+  if (options.saveToDatabase) {
+    notifications = await db.queryAll(
+      `
     INSERT INTO notifications (user_id, type, title, body, meta_data)
     SELECT unnest($1::uuid[]), $2, $3, $4, $5
     RETURNING id, user_id, title, body, type, meta_data, created_at
   `,
-    [user_ids, notification.type, notification.title, notification.body, meta_data ?? {}],
-  );
+      [user_ids, notification.type, notification.title, notification.body, meta_data ?? {}],
+    );
+  }
 
   Socket.io.to(user_ids).emit('notification:new', notifications);
 

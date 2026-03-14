@@ -32,7 +32,6 @@ export async function Controller(
         c.is_womans_only,
         c.place_id,
         c.place_name,
-        c.meta_data,
         c.created_at,
         COUNT(cm.user_id) as member_count
       FROM conversations c
@@ -77,9 +76,9 @@ export async function Controller(
       t.place_id,
       t.place_name,
       t.date,
+      
       t.created_at,
       t.updated_at,
-      t.meta_data,
       COALESCE(ffm.members, '[]'::json) AS members,
       cwm.member_count::integer as member_count,
 
@@ -101,12 +100,22 @@ export async function Controller(
           'is_group', cwm.is_group,
           'is_private', cwm.is_private,
           'is_womans_only', cwm.is_womans_only,
-          'member_count', cwm.member_count,
-          'meta_data', cwm.meta_data
+          'member_count', cwm.member_count
         )
+      ELSE NULL END as conversation,
 
-      ELSE NULL END as conversation
+      CASE WHEN c.id IS NOT NULL THEN
+        json_build_object(
+          'id', c.id,
+          'name', c.name,
+          'code', c.code,
+          'dial_code', c.dial_code,
+          'flag', c.flag
+        )
+      ELSE NULL END as country
+
     FROM trips t
+    LEFT JOIN countries c ON c.code = t.country_code
     LEFT JOIN users u ON t.created_by = u.id
     LEFT JOIN files f ON f.id = u.profile_image_id
     LEFT JOIN conversations_with_members cwm ON cwm.place_id = t.place_id

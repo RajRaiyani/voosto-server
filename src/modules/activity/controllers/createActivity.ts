@@ -82,6 +82,12 @@ export async function Controller(
       ]
     );
 
+    await db.query(`
+      UPDATE conversations SET display_emoji = (
+        SELECT icon FROM activity_categories WHERE id = $1
+      ) WHERE id = $2
+      `, [category_id, activity.conversation_id]);
+
     if (activity && activity.latitude && activity.longitude) {
       await RedisClient.geoAdd('geo:activity', {
         longitude: activity.longitude,

@@ -3,12 +3,6 @@ import { DatabaseClient } from '@/service/database/index.js';
 import { z } from 'zod';
 import RedisClient from '@/service/redis/index.js';
 import Schema from '@/config/validationSchema.js';
-import Constants from '@/config/constant.js';
-
-const activityCategoriesIcons = Constants.activities.categories.reduce((acc, category) => {
-  acc[category.activity] = category.icon;
-  return acc;
-}, {});
 
 
 const dateOnlyRegex = /^\d{4}-\d{2}-\d{2}$/;
@@ -25,17 +19,23 @@ export const ValidationSchema = {
     limit: Schema.pagination.limit(),
     date: z.string().trim().regex(dateOnlyRegex, 'Date must be YYYY-MM-DD').optional(),
     user_id: Schema.uuid().optional(),
+    upcoming: z.string().trim().max(5).toLowerCase().transform(val =>{
+      if (val?.toLowerCase() === 'true') return true;
+      if (val?.toLowerCase() === 'false') return false;
+      return val;
+    }).optional(),
   }),
 };
 
 export async function Controller(req: Request, res: Response, next: NextFunction, db: DatabaseClient) {
-  const { search, location, radius, offset, limit, date, user_id } = req.validatedQuery as z.infer<typeof ValidationSchema.query>;
+  const { search, location, radius, offset, limit, date, user_id, upcoming } = req.validatedQuery as z.infer<typeof ValidationSchema.query>;
 
   const user = await db.queryOne('SELECT id, gender FROM users WHERE id = $1', [req.user.id]);
   if (!user) return res.status(404).json({ message: 'User not found' });
 
 
   let whereClause = ' TRUE ';
+  let orderByClause = ' a.created_at DESC ';
 
 
   const notWoman = user.gender === 'male' || user.gender === 'other' ? true : false;
@@ -68,6 +68,18 @@ export async function Controller(req: Request, res: Response, next: NextFunction
   if (date) whereClause += ' AND a.date = $date ';
   if (notWoman) whereClause += ' AND cwm.is_womans_only = FALSE ';
   if (user_id) whereClause += ' AND a.created_by = $user_id ';
+
+  if (upcoming !== undefined) {
+    const activityMoment = '(a.date + COALESCE(a.time, \'23:59\'::time))';
+    if (upcoming) {
+      whereClause += ` AND ${activityMoment} >= NOW() `;
+      orderByClause = ' a.date ASC , a.time ASC ';
+    } else {
+      whereClause += ` AND ${activityMoment} < NOW() `;
+      orderByClause = ' a.date DESC , a.time DESC ';
+    }
+  }
+
 
   const sqlQuery = `
     WITH conversations_with_members AS (
@@ -124,6 +136,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
       
       a.category_id,
       ac.name as category,
+      ac.icon as category_icon,
 
       json_build_object(
         'id', u.id,
@@ -162,7 +175,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     LEFT JOIN conversations_with_members cwm ON cwm.id = a.conversation_id
     LEFT JOIN first_five_members ffm ON ffm.conversation_id = cwm.id
     WHERE ${whereClause}
-    ORDER BY a.created_at DESC
+    ORDER BY ${orderByClause}
     LIMIT $limit OFFSET $offset
   `;
 
@@ -175,9 +188,6 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     user_id,
   });
 
-  activities.forEach(activity => {
-    activity.category_icon = activityCategoriesIcons[activity.category];
-  });
 
   return res.status(200).json(activities);
 }

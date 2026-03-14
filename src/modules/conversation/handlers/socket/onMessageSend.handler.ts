@@ -3,6 +3,8 @@ import Schema from '@/config/validationSchema.js';
 import { createMessage } from '@/modules/conversation/conversation.service.js';
 import { saveFile } from '@/modules/file/file.service.js';
 import { Context, SocketCallback } from '@/core/registerSocketEventHandler.js';
+import { createNotifications } from '@/modules/notification/notification.service.js';
+import { NotificationType } from '@/service/notification/index.js';
 
 
 export const ValidationSchema = z.object({
@@ -22,15 +24,17 @@ export async function Handler(
   const { socket, database: db } = ctx;
 
   const { conversation_id, content, attachments } = payload;
+  let message;
+  let savedAttachments = [];
 
   try{
     await db.begin();
 
-    await Promise.all(attachments.map(async (attachment) => {
-      await saveFile({ database:db }, { id: attachment });
+    savedAttachments = await Promise.all(attachments.map(async (attachment) => {
+      return await saveFile({ database:db }, { id: attachment });
     }));
   
-    await createMessage(db, {
+    message = await createMessage(db, {
       conversationId: conversation_id,
       senderId: socket.data.user.id,
       content: content.trim(),
@@ -38,6 +42,9 @@ export async function Handler(
     });
 
     await db.commit();
+
+    callback({ success: true, message_id: message.id });
+
   }catch (error) {
     await db.rollback();
     throw error;
@@ -47,10 +54,28 @@ export async function Handler(
     conversation_id,
     sender: socket.data.user,
     content,
-    attachments,
+    attachments: savedAttachments,
+    id: message.id,
   });
 
-  if (typeof callback === 'function') {
-    callback({ success: true });
+  const conversationMemberTokens = await db.queryAll(`
+      SELECT 
+        cm.user_id
+      FROM conversation_members cm
+      WHERE cm.conversation_id = $1 and cm.user_id != $2
+    `, [conversation_id, socket.data.user.id]);
+
+  const userIds = conversationMemberTokens.map(member => member.user_id);
+
+  if (userIds.length > 0) {
+    await createNotifications(db, userIds, {
+      type: NotificationType.NEW_MESSAGE,
+      title: `New message from ${socket.data.user.full_name}`,
+      body: content || attachments.length > 0 ? '📷 Photo' : '',
+      conversation_id,
+      message_id: message.id,
+    }, {
+      saveToDatabase: false,
+    });
   }
 }

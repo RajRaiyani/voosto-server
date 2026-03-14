@@ -81,7 +81,9 @@ const env = {
     androidClientId: process.env.GOOGLE_CLIENT_ID_ANDROID,
     webClientId: process.env.GOOGLE_CLIENT_ID_WEB,
     iosClientId: process.env.GOOGLE_CLIENT_ID_IOS,
-  }
+  },
+
+  informerEmail: process.env.INFORMER_EMAIL,
 };
 
 export default env;

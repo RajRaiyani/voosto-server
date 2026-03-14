@@ -61,7 +61,7 @@ export async function Controller(
         c.is_private,
         c.is_womans_only,
         c.display_picture_id,
-        c.meta_data,
+        c.display_emoji,
         c.created_at
       FROM conversation_members cm
       INNER JOIN conversations c ON c.id = cm.conversation_id
@@ -78,8 +78,8 @@ export async function Controller(
         cfuwm.is_private,
         cfuwm.is_womans_only,
         cfuwm.display_picture_id,
+        cfuwm.display_emoji,
         cfuwm.created_at,
-        cfuwm.meta_data,
         CASE WHEN lm.id IS NOT NULL THEN
           json_build_object(
             'id', lm.id,
@@ -103,7 +103,7 @@ export async function Controller(
         cfu.is_womans_only,
         cfu.created_at,
         cfu.last_message,
-        cfu.meta_data,
+        cfu.display_emoji,
         CASE WHEN f.id IS NOT NULL THEN
           json_build_object(
             'id', f.id,
@@ -125,7 +125,7 @@ export async function Controller(
         cfu.is_womans_only,
         cfu.created_at,
         cfu.last_message,
-        cfu.meta_data,
+        cfu.display_emoji,
         CASE WHEN f.id IS NOT NULL THEN
           json_build_object(
             'id', f.id,
@@ -154,7 +154,7 @@ export async function Controller(
       c.last_message,
       c.display_picture,
       c.created_at,
-      c.meta_data,
+      c.display_emoji,
 
       json_build_object(
         'id', a.id,

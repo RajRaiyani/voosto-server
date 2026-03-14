@@ -17,7 +17,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
   const isAdmin = await isAdminOfConversation(db, conversation_id, userId);
   if (isAdmin) return res.status(400).json({ message: 'Admin can not leave conversation' });
 
-  await removeMemberFromConversation(db, conversation_id, userId);
+  await removeMemberFromConversation({ database: db }, conversation_id, userId);
   
   return res.status(204).send();
 }

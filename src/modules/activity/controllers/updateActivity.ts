@@ -49,11 +49,14 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     await db.query(`
         UPDATE conversations
         SET 
+          display_emoji = (
+            SELECT icon FROM activity_categories WHERE id = $4
+          ),
           is_private = $1, 
           is_womans_only = $2
         WHERE id = $3
         RETURNING *
-      `, [is_private, is_womans_only, activity.conversation_id]);
+      `, [is_private, is_womans_only, activity.conversation_id, category_id]);
     await db.commit();
     
     return res.status(204).send();

@@ -11,6 +11,7 @@ import '@/modules/user/handlers/event/onFriendRequestCreated.js';
 import '@/modules/user/handlers/event/onFriendRequestAccepted.js';
 import '@/modules/conversation/handlers/event/onConversationJoiningRequestCreated.js';
 import '@/modules/conversation/handlers/event/onConversationJoiningRequestAccepted.js';
+import { LoadUsersToRedis } from './modules/user/scripts/loadUsersToRedis.js';
 
 import env from './config/env.js';
 
@@ -57,8 +58,9 @@ setImmediate(async () => {
   await redisClient.connect();
   Logger.info('Redis connected successfully ✅');
   await LoadActivitiesToRedis();
-  Logger.info('Database connected successfully ✅');
   Logger.info('Activities loaded to Redis successfully ✅');
+  await LoadUsersToRedis();
+  Logger.info('Users loaded to Redis successfully ✅');
 });
 
 export default app;

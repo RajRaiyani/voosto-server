@@ -80,7 +80,7 @@ router.route('/friend-requests/accept')
   .post(isUserLoggedIn, validate(AcceptFriendRequestValidationSchema), withDatabase(AcceptFriendRequestController));
 
 router.route('/location')
-  .put(isUserLoggedIn, validate(UpdateUserLocationValidationSchema), UpdateUserLocationController);
+  .put(isUserLoggedIn, validate(UpdateUserLocationValidationSchema), withDatabase(UpdateUserLocationController));
 
 router.route('/notification-tokens')
   .post(isUserLoggedIn, validate(UpsertUserNotificationTokenValidationSchema), withDatabase(UpsertUserNotificationTokenController));
