@@ -182,7 +182,7 @@ CREATE TABLE public.message_attachments (
 CREATE TABLE public.messages (
     id uuid DEFAULT uuidv7() NOT NULL,
     conversation_id uuid NOT NULL,
-    sender_id uuid NOT NULL,
+    sender_id uuid,
     content text NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     seen_at timestamp with time zone
@@ -831,4 +831,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20260314112235'),
     ('20260314115420'),
     ('20260314124513'),
-    ('20260315071036');
+    ('20260315071036'),
+    ('20260315093045');

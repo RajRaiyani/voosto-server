@@ -42,9 +42,11 @@ export async function createNotifications(
   db: DatabaseClient,
   user_ids: string[],
   notification: Notification,
-  options: {
-    saveToDatabase?: boolean;
-  } = { saveToDatabase: true },
+  transports: {
+    database?: boolean;
+    socket?: boolean;
+    pushNotifications?: boolean;
+  } = { database: true, socket: true, pushNotifications: true },
 ) {
 
   const { title, body, type, ...meta_data } = notification;
@@ -52,7 +54,8 @@ export async function createNotifications(
   if (user_ids.length === 0) return [];
 
   let notifications = [];
-  if (options.saveToDatabase) {
+
+  if (transports.database) {
     notifications = await db.queryAll(
       `
     INSERT INTO notifications (user_id, type, title, body, meta_data)
@@ -63,23 +66,28 @@ export async function createNotifications(
     );
   }
 
-  Socket.io.to(user_ids).emit('notification:new', notifications);
-
-  const tokenResponse = await db.queryAll(
-    'SELECT token FROM user_notification_tokens WHERE user_id = ANY($1)',
-    [user_ids],
-  );
-
-  const tokens = tokenResponse.map(token => token.token);
-
-  if (tokens.length > 0) {
-    await sendNotifications(db, tokens, {
-      title: title,
-      body: body,
-      type: type,
-      ...meta_data,
-    });
+  if (transports.socket) {
+    Socket.io.to(user_ids).emit('notification:new', notifications);
   }
+
+  if (transports.pushNotifications) {
+    const tokenResponse = await db.queryAll(
+      'SELECT token FROM user_notification_tokens WHERE user_id = ANY($1)',
+      [user_ids],
+    );
+
+    const tokens = tokenResponse.map(token => token.token);
+
+    if (tokens.length > 0) {
+      await sendNotifications(db, tokens, {
+        title: title,
+        body: body,
+        type: type,
+        ...meta_data,
+      });
+    }
+  }
+
   return notifications;
 }
 

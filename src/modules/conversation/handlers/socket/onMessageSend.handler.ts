@@ -3,8 +3,7 @@ import Schema from '@/config/validationSchema.js';
 import { createMessage } from '@/modules/conversation/conversation.service.js';
 import { saveFile } from '@/modules/file/file.service.js';
 import { Context, SocketCallback } from '@/core/registerSocketEventHandler.js';
-import { createNotifications } from '@/modules/notification/notification.service.js';
-import { NotificationType } from '@/service/notification/index.js';
+
 
 
 export const ValidationSchema = z.object({
@@ -39,6 +38,9 @@ export async function Handler(
       senderId: socket.data.user.id,
       content: content.trim(),
       attachments,
+    }, {
+      socket: true,
+      pushNotifications: true,
     });
 
     await db.commit();
@@ -57,25 +59,5 @@ export async function Handler(
     attachments: savedAttachments,
     id: message.id,
   });
-
-  const conversationMemberTokens = await db.queryAll(`
-      SELECT 
-        cm.user_id
-      FROM conversation_members cm
-      WHERE cm.conversation_id = $1 and cm.user_id != $2
-    `, [conversation_id, socket.data.user.id]);
-
-  const userIds = conversationMemberTokens.map(member => member.user_id);
-
-  if (userIds.length > 0) {
-    await createNotifications(db, userIds, {
-      type: NotificationType.NEW_MESSAGE,
-      title: `New message from ${socket.data.user.full_name}`,
-      body: content || attachments.length > 0 ? '📷 Photo' : '',
-      conversation_id,
-      message_id: message.id,
-    }, {
-      saveToDatabase: false,
-    });
-  }
+  
 }

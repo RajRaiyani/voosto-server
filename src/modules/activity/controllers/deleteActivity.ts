@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
 import { z } from 'zod';
 import ConfigValidationSchema from '@/config/validationSchema.js';
+import ServerEvent from '@/service/event/index.js';
 
 
 export const ValidationSchema = {
@@ -25,6 +26,8 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     await db.rollback();
     throw error;
   }
+
+  ServerEvent.emit('activity:deleted', activity_id, activity.conversation_id);
 
   return res.status(204).send();
 }

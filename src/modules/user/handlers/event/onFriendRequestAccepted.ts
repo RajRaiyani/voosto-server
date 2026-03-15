@@ -1,7 +1,6 @@
 import ServerEvent from '@/service/event/index.js';
 import RegisterServerEventHandler, { Context } from '@/core/registerServerEventHandler.js';
 import { createNotifications } from '@/modules/notification/notification.service.js';
-import { NotificationType } from '@/service/notification/index.js';
 
 type FriendRequestPayload = { sender_id: string; receiver_id: string };
 
@@ -28,7 +27,7 @@ async function onFriendRequestAcceptedHandler(
   if (!receiver) return;
 
   await createNotifications(db, [sender_id], {
-    type: NotificationType.FRIEND_REQUEST_ACCEPTED,
+    type: 'friend_request_accepted',
     title: 'Friend request accepted',
     body: `${receiver.full_name} accepted your friend request.`,
     sender_id,

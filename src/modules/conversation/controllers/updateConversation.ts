@@ -10,7 +10,7 @@ export const ValidationSchema = {
   }),
   body: z
     .object({
-      name: Schema.name().optional(),
+      name: z.string().trim().max(150, 'Name must be less than 150 characters').optional(),
       display_picture_id: Schema.uuid().nullable().optional(),
       notification_enabled: z.boolean().optional(),
     })

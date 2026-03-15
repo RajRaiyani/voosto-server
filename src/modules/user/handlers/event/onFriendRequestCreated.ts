@@ -1,7 +1,6 @@
 import ServerEvent from '@/service/event/index.js';
 import RegisterServerEventHandler, { Context } from '@/core/registerServerEventHandler.js';
 import { createNotifications } from '@/modules/notification/notification.service.js';
-import { NotificationType } from '@/service/notification/index.js';
 
 type FriendRequestPayload = { sender_id: string; receiver_id: string };
 
@@ -29,7 +28,7 @@ async function onFriendRequestCreatedHandler(
   if (!sender) return;
 
   await createNotifications(db, [receiver_id], {
-    type: NotificationType.NEW_FRIEND_REQUEST,
+    type: 'new_friend_request',
     title: 'New friend request',
     body: `${sender.full_name} sent you a friend request.`,
     sender_id,

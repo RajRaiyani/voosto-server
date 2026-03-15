@@ -1,7 +1,7 @@
 import { DatabaseClient } from '@/service/database/index.js';
 import ServerError from '@/utils/serverError.js';
 import RegisterService, { Context as ServiceContext } from '@/core/registerService.js';
-
+import { createNotifications } from '@/modules/notification/notification.service.js';
 
 export async function getConversationMembership(
   db: DatabaseClient,
@@ -137,13 +137,20 @@ export type NewMessagePayload = {
  */
 interface CreateMessageInput {
   conversationId: string;
-  senderId: string;
+  senderId?: string | null | undefined;
   content: string;
-  attachments: string[];
+  attachments?: string[];
 }
 export async function createMessage(
   db: DatabaseClient,
-  { conversationId, senderId, content, attachments = [] }: CreateMessageInput
+  { conversationId, senderId, content, attachments = [] }: CreateMessageInput,
+  transports: {
+    pushNotifications?: boolean;
+    socket?: boolean;
+  } = {
+    pushNotifications: true,
+    socket: true,
+  }
 ): Promise<NewMessagePayload> {
 
   if (!attachments.length && (!content || content.trim().length === 0)) throw new ServerError('ERROR', 'Message content is required');
@@ -151,22 +158,52 @@ export async function createMessage(
   try{
     await db.begin();
 
-    const message = await db.queryOne(`
-    INSERT INTO messages (conversation_id, sender_id, content)
-    VALUES ($1, $2, $3)
-    RETURNING id, conversation_id, sender_id, content, created_at, seen_at
-  `,
-    [conversationId, senderId, content?.trim()]
+    const message = await db.queryOne(
+      `
+        INSERT INTO messages (conversation_id, sender_id, content)
+        VALUES ($1, $2, $3)
+        RETURNING id, conversation_id, sender_id, content, created_at, seen_at
+      `,
+      [conversationId, senderId, content?.trim()]
     );
 
     for (const attachment of attachments) {
-      await db.query(`
-      INSERT INTO message_attachments (message_id, file_id)
-      VALUES ($1, $2)
-    `, [message.id, attachment]);
+      await db.query(
+        `
+          INSERT INTO message_attachments (message_id, file_id)
+          VALUES ($1, $2)
+        `, 
+        [message.id, attachment]
+      );
     }
 
     await db.commit();
+
+    if (transports.pushNotifications || transports.socket) {
+
+      const users = await db.queryAll(
+        'SELECT user_id FROM conversation_members WHERE conversation_id = $1 AND user_id != $2 AND notification_enabled = true',
+        [conversationId, senderId]
+      );
+
+      const sender = await db.queryOne(
+        'SELECT full_name FROM users WHERE id = $1',
+        [senderId]
+      );
+
+      await createNotifications(db, users.map(user => user.user_id), {
+        type: 'new_message',
+        title: `New message from ${sender?.full_name}`,
+        body: content ? content : attachments.length > 0 ? '📷 Photo' : '',
+        conversation_id: conversationId,
+        message_id: message.id,
+      }, {
+        database: false,
+        socket: transports.socket,
+        pushNotifications: transports.pushNotifications,
+      });
+    }
+
 
     return message;
     
@@ -174,6 +211,7 @@ export async function createMessage(
     await db.rollback();
     throw error;
   }
+
 }
 
 

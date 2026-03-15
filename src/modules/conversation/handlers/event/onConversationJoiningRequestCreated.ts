@@ -1,7 +1,6 @@
 import ServerEvent from '@/service/event/index.js';
 import RegisterServerEventHandler, { Context } from '@/core/registerServerEventHandler.js';
 import { createNotifications } from '@/modules/notification/notification.service.js';
-import { NotificationType } from '@/service/notification/index.js';
 
 type ConversationJoiningRequestPayload = {
   conversation_id: string;
@@ -41,7 +40,7 @@ async function onConversationJoiningRequestCreatedHandler(
   if (adminIds.length === 0) return;
 
   await createNotifications(db, adminIds, {
-    type: NotificationType.NEW_CONVERSATION_JOINING_REQUEST,
+    type: 'new_conversation_joining_request',
     title: 'New join request',
     body: `${requester.full_name} requested to join your group.`,
     conversation_id,

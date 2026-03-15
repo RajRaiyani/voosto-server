@@ -4,6 +4,7 @@
 declare global {
   interface ServerEvents {
     'activity:created': (activityId: string) => void;
+    'activity:deleted': (activityId: string, conversationId: string) => void;
   }
 }
 

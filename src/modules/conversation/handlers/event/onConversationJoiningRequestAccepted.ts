@@ -1,7 +1,6 @@
 import ServerEvent from '@/service/event/index.js';
 import RegisterServerEventHandler, { Context } from '@/core/registerServerEventHandler.js';
 import { createNotifications } from '@/modules/notification/notification.service.js';
-import { NotificationType } from '@/service/notification/index.js';
 
 type ConversationJoiningRequestAcceptedPayload = {
   conversation_id: string;
@@ -34,7 +33,7 @@ async function onConversationJoiningRequestAcceptedHandler(
   const groupName = conversation.name || 'the group';
 
   await createNotifications(db, [user_id], {
-    type: NotificationType.CONVERSATION_JOINING_REQUEST_ACCEPTED,
+    type: 'conversation_joining_request_accepted',
     title,
     body: `Your request to join "${groupName}" was accepted.`,
     conversation_id: conversation.id,

@@ -2,7 +2,6 @@ import ServerEvent from '@/service/event/index.js';
 import RegisterServerEventHandler, { Context } from '@/core/registerServerEventHandler.js';
 import { createNotifications } from '@/modules/notification/notification.service.js';
 import RedisClient from '@/service/redis/index.js';
-import { NotificationType } from '@/service/notification/index.js';
 
 
 async function onNewActivityCreatedHandler({ database:db }: Context, activityId: string) {
@@ -48,7 +47,7 @@ async function onNewActivityCreatedHandler({ database:db }: Context, activityId:
   `, [nearestUsers, activity.created_by.id]);
 
   await createNotifications(db, usersToNotify.map(user => user.id), {
-    type: NotificationType.NEW_ACTIVITY,
+    type: 'new_activity',
     title: 'New activity created near you.',
     body: `New activity created near you by ${activity.created_by.full_name}.`,
     activity_id: activity.id,

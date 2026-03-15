@@ -24,11 +24,15 @@ export const ValidationSchema = {
       if (val?.toLowerCase() === 'false') return false;
       return val;
     }).optional(),
-  }),
+    timestamp: Schema.timestamp().optional(),
+  }).refine(
+    (data) => data.upcoming === undefined || data.timestamp !== undefined,
+    { message: 'timestamp is required when upcoming is provided', path: ['timestamp'] }
+  ),
 };
 
 export async function Controller(req: Request, res: Response, next: NextFunction, db: DatabaseClient) {
-  const { search, location, radius, offset, limit, date, user_id, upcoming } = req.validatedQuery as z.infer<typeof ValidationSchema.query>;
+  const { search, location, radius, offset, limit, date, user_id, upcoming, timestamp } = req.validatedQuery as z.infer<typeof ValidationSchema.query>;
 
   const user = await db.queryOne('SELECT id, gender FROM users WHERE id = $1', [req.user.id]);
   if (!user) return res.status(404).json({ message: 'User not found' });
@@ -72,10 +76,10 @@ export async function Controller(req: Request, res: Response, next: NextFunction
   if (upcoming !== undefined) {
     const activityMoment = '(a.date + COALESCE(a.time, \'23:59\'::time))';
     if (upcoming) {
-      whereClause += ` AND ${activityMoment} >= NOW() `;
+      whereClause += ` AND ${activityMoment} >= $timestamp `;
       orderByClause = ' a.date ASC , a.time ASC ';
     } else {
-      whereClause += ` AND ${activityMoment} < NOW() `;
+      whereClause += ` AND ${activityMoment} < $timestamp `;
       orderByClause = ' a.date DESC , a.time DESC ';
     }
   }
@@ -186,6 +190,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     limit,
     offset,
     user_id,
+    timestamp: timestamp ? timestamp.toISOString() : null,
   });
 
 
