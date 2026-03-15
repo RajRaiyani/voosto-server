@@ -295,8 +295,8 @@ CREATE TABLE public.user_posts (
 
 CREATE TABLE public.users (
     id uuid DEFAULT uuidv7() NOT NULL,
-    first_name character varying(100) NOT NULL,
-    last_name character varying(100) NOT NULL,
+    first_name character varying(100),
+    last_name character varying(100),
     full_name character varying(255) GENERATED ALWAYS AS ((((first_name)::text || ' '::text) || (last_name)::text)) STORED,
     email character varying(255) NOT NULL,
     is_email_verified boolean DEFAULT false NOT NULL,
@@ -830,4 +830,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20260312190329'),
     ('20260314112235'),
     ('20260314115420'),
-    ('20260314124513');
+    ('20260314124513'),
+    ('20260315071036');

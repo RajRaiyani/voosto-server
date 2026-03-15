@@ -31,6 +31,7 @@ import { ValidationSchema as ReportUserValidationSchema, Controller as ReportUse
 import { ValidationSchema as BlockUserValidationSchema, Controller as BlockUserController } from '@/modules/user/controllers/blockUser.js';
 import { ValidationSchema as UnblockUserValidationSchema, Controller as UnblockUserController } from '@/modules/user/controllers/unblockUser.js';
 import { ValidationSchema as ListBlockedUsersValidationSchema, Controller as ListBlockedUsersController } from '@/modules/user/controllers/listBlockedUsers.js';
+import { ValidationSchema as LoginWithAppleValidationSchema, Controller as LoginWithAppleController } from '@/modules/user/controllers/auth/loginWithApple.js';
 
 const router = express.Router();
 
@@ -48,6 +49,9 @@ router.route('/login')
 
 router.route('/login-with-google')
   .post(validate(LoginWithGoogleValidationSchema), withDatabase(LoginWithGoogleController));
+
+router.route('/login-with-apple')
+  .post(validate(LoginWithAppleValidationSchema), withDatabase(LoginWithAppleController));
 
 router.route('/forgot-password')
   .post(validate(ForgotPasswordValidationSchema), withDatabase(ForgotPasswordController));
