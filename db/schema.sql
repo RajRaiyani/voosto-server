@@ -122,7 +122,8 @@ CREATE TABLE public.conversations (
     is_deletable boolean DEFAULT true NOT NULL,
     place_id character varying(255),
     place_name character varying(255),
-    display_emoji character varying(5) DEFAULT '💬'::character varying NOT NULL
+    display_emoji character varying(5) DEFAULT '💬'::character varying NOT NULL,
+    country_code character varying(4)
 );
 
 
@@ -832,4 +833,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20260314115420'),
     ('20260314124513'),
     ('20260315071036'),
-    ('20260315093045');
+    ('20260315093045'),
+    ('20260316043747');

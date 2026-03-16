@@ -30,7 +30,7 @@ export async function Controller(
   const existingTrip = await db.queryOne('SELECT id FROM trips WHERE created_by = $1 AND place_id = $2', [req.user.id, place_id]);
   if (existingTrip) return res.status(400).json({ message: 'Trip already exists' });
 
-  let placeConversation = await db.queryOne('SELECT id, name FROM conversations WHERE place_id = $1', [place_id]);
+  let placeConversation = await db.queryOne('SELECT id, name, country_code FROM conversations WHERE place_id = $1', [place_id]);
   let country = null;
 
   if (!placeConversation) {
@@ -60,7 +60,7 @@ export async function Controller(
         place_name,
         date ?? null,
         req.user.id,
-        country_code,
+        country_code ?? placeConversation?.country_code,
       ]
     );
 
@@ -75,6 +75,7 @@ export async function Controller(
         is_womans_only: false,
         is_deletable: false,
         members: [],
+        country_code: country_code ?? placeConversation?.country_code,
       });
 
       await db.query(`

@@ -290,6 +290,7 @@ interface CreateConversationInput {
   is_womans_only: boolean
   is_deletable?: boolean
   place_id?: string
+  country_code?: string
   members: {
     id: string;
     is_admin: boolean;
@@ -298,7 +299,7 @@ interface CreateConversationInput {
 }
 
 export async function createConversation(db: DatabaseClient,  
-  { name, is_group = false, is_private = false, is_womans_only = false, members =[], is_deletable = true, place_id }:CreateConversationInput){
+  { name, is_group = false, is_private = false, is_womans_only = false, members =[], is_deletable = true, place_id, country_code }:CreateConversationInput){
   
   if (is_group) {
     if (is_deletable){
@@ -320,9 +321,9 @@ export async function createConversation(db: DatabaseClient,
     await db.begin();
 
     const conversation = await db.queryOne(`
-      INSERT INTO conversations (name, is_group, is_private, is_womans_only, is_deletable, place_id) VALUES ($1, $2, $3, $4, $5, $6)
+      INSERT INTO conversations (name, is_group, is_private, is_womans_only, is_deletable, place_id, country_code) VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING id, name
-    `, [name, is_group, is_private, is_womans_only, is_deletable, place_id]);
+    `, [name, is_group, is_private, is_womans_only, is_deletable, place_id, country_code]);
 
 
 

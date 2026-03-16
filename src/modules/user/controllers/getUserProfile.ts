@@ -121,8 +121,18 @@ export async function Controller(req: Request, res: Response, next: NextFunction
             t.place_id, 
             t.date, 
             t.created_at,
-            c.id as conversation_id
+            c.id as conversation_id,
+            CASE WHEN cn.id IS NOT NULL THEN
+              json_build_object(
+                'id', cn.id,
+                'name', cn.name,
+                'code', cn.code,
+                'dial_code', cn.dial_code,
+                'flag', cn.flag
+              )
+            ELSE NULL END as country
           FROM trips t
+          LEFT JOIN countries cn ON cn.code = t.country_code
           LEFT JOIN conversations c ON c.place_id = t.place_id
           WHERE t.created_by = u.id AND (t.date IS NULL OR t.date > NOW())
           ORDER BY t.date DESC
