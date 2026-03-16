@@ -6,7 +6,7 @@ import errorHandler from './middleware/errorHandler.js';
 import appRoute from './app.routes.js';
 import redisClient from './service/redis/index.js';
 import { LoadActivitiesToRedis } from './modules/activity/activity.script.js';
-import '@/modules/activity/handlers/event/onNewActivityCreated.js';
+import '@/modules/activity/activity.init.js';
 import '@/modules/user/handlers/event/onFriendRequestCreated.js';
 import '@/modules/user/handlers/event/onFriendRequestAccepted.js';
 import '@/modules/conversation/handlers/event/onConversationJoiningRequestCreated.js';

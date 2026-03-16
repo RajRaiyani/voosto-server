@@ -111,7 +111,8 @@ export async function Controller(req: Request, res: Response, next: NextFunction
             'name', place_name,
             'place_id', place_id,
             'date', date,
-            'conversation_id', conversation_id
+            'conversation_id', conversation_id,
+            'country', country
           )
         )
         FROM (
