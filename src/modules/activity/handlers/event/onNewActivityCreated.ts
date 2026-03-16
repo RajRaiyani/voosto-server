@@ -11,6 +11,7 @@ async function onNewActivityCreatedHandler({ database:db }: Context, activityId:
       a.id,
       a.description,
       ac.name as category,
+      ac.icon as category_icon,
       a.latitude,
       a.longitude,
       a.conversation_id,
@@ -43,7 +44,7 @@ async function onNewActivityCreatedHandler({ database:db }: Context, activityId:
     WHERE 
       id = ANY($1) AND
       id != $2 AND
-      settings @> '{"notify_near_by_activities": true}'
+      (settings->'notify_near_by_activities' is null or settings @> '{"notify_near_by_activities": true}')
   `, [nearestUsers, activity.created_by.id]);
 
   await createNotifications(db, usersToNotify.map(user => user.id), {
@@ -53,8 +54,14 @@ async function onNewActivityCreatedHandler({ database:db }: Context, activityId:
     activity_id: activity.id,
     description: activity.description,
     category: activity.category,
-    created_by: activity.created_by,
+    category_icon: activity.category_icon,
+    created_by: activity.created_by.full_name,
+    profile_image_url: activity.created_by.profile_image_url,
     conversation_id: activity.conversation_id,
+  }, {
+    database: true,
+    socket: true,
+    pushNotifications: true,
   });
   
 }

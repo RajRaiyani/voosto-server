@@ -2,6 +2,7 @@ import { DatabaseClient } from '@/service/database/index.js';
 import Socket from '@/socket.js';
 import { Notification } from '@/service/notification/index.js';
 import { sendMulticastMessage } from '@/service/notification/sendMessage.js';
+import Logger from '@/service/logger/index.js';
 
 const tokenValidationErrors = [
   'messaging/registration-token-not-registered',
@@ -22,8 +23,12 @@ export async function sendNotifications(
   const tokensToDelete = [];
 
   results.responses.forEach((result, index) => {
-    if (!result.success && tokenValidationErrors.includes(result.error?.code)) {
-      tokensToDelete.push(tokens[index]);
+    if (!result.success) {
+      if (tokenValidationErrors.includes(result.error?.code)){
+        tokensToDelete.push(tokens[index]);
+      }else{
+        Logger.error(`Failed to send notification to token ${tokens[index]}`, result.error);
+      }
     }
   });
 

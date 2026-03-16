@@ -241,11 +241,11 @@ export async function listConversationMessages(db: DatabaseClient, conversationI
       m.created_at, 
       m.seen_at,
 
-      json_build_object(
+      CASE WHEN u.id IS NOT NULL THEN json_build_object(
         'id', u.id,
         'full_name', u.full_name,
         'profile_image_url', uf.url
-      ) AS sender,
+      ) ELSE NULL END AS sender,
 
       COALESCE(array_agg(json_build_object(
         'id', f.id,

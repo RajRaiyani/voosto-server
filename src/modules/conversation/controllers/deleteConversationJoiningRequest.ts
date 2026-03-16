@@ -3,6 +3,7 @@ import { DatabaseClient } from '@/service/database/index.js';
 import { z } from 'zod';
 import Schema from '@/config/validationSchema.js';
 import { isAdminOfConversation } from '@/modules/conversation/conversation.service.js';
+import ServerEvent from '@/service/event/index.js';
 
 export const ValidationSchema = {
   params: z.object({
@@ -19,6 +20,8 @@ export async function Controller(req: Request, res: Response, next: NextFunction
   if (!isAdmin) return res.status(403).json({ message: 'You are not an admin of this group' });
 
   await db.queryOne('DELETE FROM conversation_joining_requests WHERE conversation_id = $1 AND user_id = $2', [conversation_id, user_id]);
+
+  ServerEvent.emit('conversation:conversation_joining_request:deleted', { conversation_id, user_id, deleted_by: requestUserId });
 
   return res.status(204).send();
 }

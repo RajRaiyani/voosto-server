@@ -35,6 +35,13 @@ async function onFriendRequestAcceptedHandler(
     receiver_name: receiver.full_name,
     receiver_profile_image_url: receiver.profile_image_url,
   });
+
+  await db.query(`
+    DELETE FROM notifications WHERE 
+      type = 'new_friend_request' and
+      user_id = $2 and
+      meta_data->>'sender_id' = $1
+    `, [sender_id, receiver_id]);
 }
 
 ServerEvent.on(

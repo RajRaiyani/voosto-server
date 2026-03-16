@@ -5,13 +5,14 @@ import { createNotifications } from '@/modules/notification/notification.service
 type ConversationJoiningRequestAcceptedPayload = {
   conversation_id: string;
   user_id: string;
+  accepted_by: string;
 };
 
 async function onConversationJoiningRequestAcceptedHandler(
   { database:db }: Context,
   payload: ConversationJoiningRequestAcceptedPayload,
 ): Promise<void> {
-  const { conversation_id, user_id } = payload;
+  const { conversation_id, user_id, accepted_by } = payload;
 
   const conversation = await db.queryOne<{
     id: string;
@@ -40,6 +41,13 @@ async function onConversationJoiningRequestAcceptedHandler(
     conversation_name: conversation.name,
     conversation_display_picture_url: conversation.display_picture_url,
   });
+
+  await db.query(`
+    DELETE FROM notifications WHERE 
+      type = 'new_conversation_joining_request' and
+      user_id = $2 and
+      meta_data->>'conversation_id' = $1
+  `, [conversation_id, accepted_by]);
 }
 
 ServerEvent.on(

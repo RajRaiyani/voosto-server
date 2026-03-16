@@ -22,11 +22,20 @@ export async function Controller(req: Request, res: Response, next: NextFunction
   const isAdmin = await isAdminOfConversation(db, conversation_id, userId);
   if (!isAdmin) return res.status(403).json({ message: 'You are not an admin of this group' });
 
-  await addMemberToConversation(db, conversation_id, user_id, false, !request.notification_enabled);
+  try{
+    await db.begin();
 
-  await db.queryOne('DELETE FROM conversation_joining_requests WHERE conversation_id = $1 AND user_id = $2', [conversation_id, user_id]);
+    await addMemberToConversation(db, conversation_id, user_id, false, !request.notification_enabled);
+    await db.queryOne('DELETE FROM conversation_joining_requests WHERE conversation_id = $1 AND user_id = $2', [conversation_id, user_id]);
 
-  ServerEvent.emit('conversation:conversation_joining_request:accepted', { conversation_id, user_id });
+    await db.commit();
+  }catch(error){
+    await db.rollback();
+    throw error;
+  }
+
+
+  ServerEvent.emit('conversation:conversation_joining_request:accepted', { conversation_id, user_id, accepted_by: userId });
 
   return res.status(204).send();
 }
