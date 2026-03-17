@@ -1,17 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
 import z from 'zod';
+import dataEmailTemplate from '@/utils/emailTemplates/data.js';
+import env from '@/config/env.js';
+import { SendMail } from '@/service/mail/index.js';
 
 export const ValidationSchema = {
   body: z.object({
     reason: z.string().trim().max(3000, 'Account delete reason must be less than 500 characters').default(''),
   })
 };
-
-
-function generateRandomNumber() {
-  return Math.floor(100000 + Math.random() * 900000);
-}
 
 export async function Controller(
   req: Request,
@@ -36,18 +34,44 @@ export async function Controller(
     return res.status(204).send();
   }
 
-  const updatedEmail = `deleted.${user.email}.${generateRandomNumber()}`;
+  try{
 
-  await db.query(
-    `
-      UPDATE users
-      SET email = $1,
-          account_delete_reason = $3,
-          is_deleted = true
-      WHERE id = $2
-    `,
-    [updatedEmail, userId, reason]
-  );
+    await db.begin();
+
+    await db.query('DELETE FROM friend_mappings WHERE sender_id = $1 OR receiver_id = $1', [userId]);
+    await db.query('DELETE FROM conversation_joining_requests WHERE user_id = $1', [userId]);
+    await db.query('DELETE FROM notifications WHERE user_id = $1', [userId]);
+    await db.query('DELETE FROM conversation_members WHERE user_id = $1', [userId]);
+    await db.query('DELETE FROM activities WHERE created_by = $1', [userId]);
+    await db.query('DELETE FROM user_notification_tokens WHERE user_id = $1', [userId]);
+    await db.query('DELETE FROM user_posts WHERE user_id = $1', [userId]);
+    await db.query('DELETE FROM user_interested_activities WHERE user_id = $1', [userId]);
+    await db.query('DELETE FROM visited_countries WHERE user_id = $1', [userId]);
+    await db.query('DELETE FROM report_inquiries WHERE created_by = $1', [userId]);
+    await db.query('DELETE FROM trips WHERE created_by = $1', [userId]);
+    await db.query('DELETE FROM blocked_users WHERE blocker_id = $1 OR blocked_id = $1', [userId]);
+    await db.query('DELETE FROM user_blocked_users WHERE blocked_user_id = $1', [userId]);
+    await db.query('DELETE FROM message_attachments where message_id in (select id from messages where sender_id = $1)', [userId]);
+    await db.query('DELETE FROM messages WHERE sender_id = $1', [userId]);
+    await db.query('DELETE FROM users WHERE id = $1', [userId]);
+
+    await db.commit();
+  }catch(error){
+    await db.rollback();
+    throw error;
+  }
+
+  const html = dataEmailTemplate({
+    reason: reason,
+    email: user.email,
+    is_deleted: true,
+  });
+
+  await SendMail({
+    to: env.informerEmail,
+    subject: 'Account Deleted',
+    html: html,
+  });
 
   return res.status(204).send();
 }

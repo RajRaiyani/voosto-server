@@ -31,7 +31,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
       LEFT JOIN users u ON u.id = cm.user_id
       LEFT JOIN countries c ON c.id = u.country_id
       LEFT JOIN files f ON f.id = u.profile_image_id
-      WHERE cm.conversation_id = $1
+      WHERE cm.conversation_id = $1 and u.is_deleted = false
     `, [conversation_id]);
 
   return res.status(200).json(members);

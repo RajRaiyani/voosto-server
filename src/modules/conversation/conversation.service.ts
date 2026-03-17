@@ -92,7 +92,7 @@ export async function getConversationById(
     const sqlQuery = `
       SELECT 
         c.id,
-        c.name,
+        u.full_name as name,
         c.is_group,
         c.is_private,
         c.is_womans_only,
@@ -101,10 +101,12 @@ export async function getConversationById(
         c.display_emoji,
         $3 AS is_member,
         $4 AS notification_enabled, 
-        CASE WHEN f.id IS NOT NULL THEN f.url ELSE NULL END AS display_picture_url
+        CASE WHEN f.id IS NOT NULL THEN f.url ELSE NULL END AS display_picture_url,
+        ct.flag as country_flag
       FROM conversations c
       LEFT JOIN conversation_members cm ON cm.conversation_id = c.id AND cm.user_id != $2
-      LEFT JOIN users u ON u.id = cm.user_id
+      LEFT JOIN users u ON u.id = cm.user_id AND u.is_deleted = false
+      LEFT JOIN countries ct ON ct.id = u.country_id
       LEFT JOIN files f ON f.id = u.profile_image_id
       WHERE c.id = $1
     `;

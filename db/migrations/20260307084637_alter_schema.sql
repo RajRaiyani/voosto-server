@@ -7,16 +7,6 @@ create table activity_categories (
   icon varchar(5) not null
 );
 
-insert into activity_categories (name, icon) values
-  ('Food & Drinks', '🍽️'),
-  ('Nightlife', '🎉'),
-  ('Outdoor & Active', '🏕️'),
-  ('Sightseeing', '🗺️'),
-  ('Entertainment', '🎭'),
-  ('Shopping', '🛍️'),
-  ('Wellness', '🧘'),
-  ('Rideshare', '🚗'),
-  ('Social', '💬');
 
 update activities set category = 'Sightseeing' where category = 'Other';
 update users set interested_activity = 'Food & Drinks' where interested_activity = 'All activities';

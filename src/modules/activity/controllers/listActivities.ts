@@ -65,6 +65,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     ) as string[];
 
     whereClause += ' AND a.id = ANY($activity_ids) ';
+    orderByClause = ' array_position($activity_ids, a.id::text) ASC ';
   }
 
 

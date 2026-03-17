@@ -18,10 +18,10 @@ const isProduction = env.env === 'prod';
 # * * * * * *
 */
 
-// Run at midnight every 10 days
+// Run at midnight every 2 days
 export const FlushUnTrackedFilesJob = isProduction ?
-  cron.createTask('0 0 */10 * *', './scripts/flushUnTrackedFiles.script.js', { timezone: 'Asia/Kolkata', }) :
-  cron.createTask('0 0 */10 * *', flushUnTrackedFilesTask, { timezone: 'Asia/Kolkata', });
+  cron.createTask('0 0 */2 * *', './scripts/flushUnTrackedFiles.script.js', { timezone: 'Asia/Kolkata', }) :
+  cron.createTask('0 0 */2 * *', flushUnTrackedFilesTask, { timezone: 'Asia/Kolkata', });
 
 // Run at 2:00 AM every 3 days
 export const FlushFilesJob = isProduction ?

@@ -82,8 +82,14 @@ export async function Controller(req: Request, res: Response, next: NextFunction
       ) as is_friend,
 
       (
-        SELECT CASE WHEN COUNT(*) > 0 THEN true ELSE false END FROM friend_mappings fm WHERE fm.status = 'pending' AND ((fm.sender_id = $2 AND fm.receiver_id = u.id) OR (fm.sender_id = u.id AND fm.receiver_id = $2))
-      ) as has_pending_friend_request,
+        SELECT 
+          json_build_object(
+            'sender_id', sender_id,
+            'receiver_id', receiver_id
+          )
+        FROM friend_mappings fm WHERE fm.status = 'pending' AND ((fm.sender_id = $2 AND fm.receiver_id = u.id) OR (fm.sender_id = u.id AND fm.receiver_id = $2))
+        LIMIT 1
+      ) as pending_friend_request,
 
       (
         SELECT COUNT(*)::integer FROM visited_countries vc WHERE vc.user_id = u.id
