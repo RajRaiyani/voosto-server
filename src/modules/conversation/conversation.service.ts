@@ -120,10 +120,10 @@ export type NewMessagePayload = {
   conversation_id: string;
   content: string;
   created_at: Date;
-  seen_at: null | Date;
   sender: {
     id: string;
     full_name: string;
+    profile_image_url: string | null;
   };
   attachments: {
     id: string;
@@ -164,7 +164,7 @@ export async function createMessage(
       `
         INSERT INTO messages (conversation_id, sender_id, content)
         VALUES ($1, $2, $3)
-        RETURNING id, conversation_id, sender_id, content, created_at, seen_at
+        RETURNING id, conversation_id, sender_id, content, created_at
       `,
       [conversationId, senderId, content?.trim()]
     );
@@ -195,7 +195,7 @@ export async function createMessage(
 
       await createNotifications(db, users.map(user => user.user_id), {
         type: 'new_message',
-        title: `New message from ${sender?.full_name}`,
+        title: `${sender?.full_name}`,
         body: content ? content : attachments.length > 0 ? '📷 Photo' : '',
         conversation_id: conversationId,
         message_id: message.id,
@@ -224,9 +224,14 @@ interface listConversationMessagesQuery {
   search?: string;
 }
 
-export async function listConversationMessages(db: DatabaseClient, conversationId: string, { offset=0, limit=100, search=null }: listConversationMessagesQuery): Promise<NewMessagePayload[]> {
+export async function listConversationMessages(
+  db: DatabaseClient,
+  conversationId: string,
+  userId: string,
+  { offset=0, limit=100, search=null }: listConversationMessagesQuery
+): Promise<NewMessagePayload[]> {
 
-  const values = [conversationId, offset, limit];
+  const values = [conversationId, offset, limit, userId];
 
   let whereClause = ' m.conversation_id = $1 ';
 
@@ -240,13 +245,20 @@ export async function listConversationMessages(db: DatabaseClient, conversationI
       m.id, 
       m.conversation_id, 
       m.content, 
-      m.created_at, 
-      m.seen_at,
+      m.created_at,
 
       CASE WHEN u.id IS NOT NULL THEN json_build_object(
         'id', u.id,
-        'full_name', u.full_name,
-        'profile_image_url', uf.url
+        'full_name',
+          CASE
+            WHEN b1.blocker_id IS NOT NULL OR b2.blocker_id IS NOT NULL THEN 'Voosto User'
+            ELSE u.full_name
+          END,
+        'profile_image_url',
+          CASE
+            WHEN b1.blocker_id IS NOT NULL OR b2.blocker_id IS NOT NULL THEN 'https://voosto.com/assets/logos/favicon.png'
+            ELSE uf.url
+          END
       ) ELSE NULL END AS sender,
 
       COALESCE(array_agg(json_build_object(
@@ -257,10 +269,19 @@ export async function listConversationMessages(db: DatabaseClient, conversationI
     FROM messages m
     LEFT JOIN users u ON u.id = m.sender_id
     LEFT JOIN files uf ON uf.id = u.profile_image_id
+
+    LEFT JOIN blocked_users b1
+      ON b1.blocker_id = $4
+      AND b1.blocked_id = u.id
+    LEFT JOIN blocked_users b2
+      ON b2.blocker_id = u.id
+      AND b2.blocked_id = $4
+
     LEFT JOIN message_attachments ma ON ma.message_id = m.id
     LEFT JOIN files f ON f.id = ma.file_id
+
     WHERE ${whereClause}
-    GROUP BY m.id, u.id, uf.id
+    GROUP BY m.id, u.id, uf.id, uf.url, b1.blocker_id, b2.blocker_id
     ORDER BY m.created_at DESC
     OFFSET $2 LIMIT $3
   `, values);

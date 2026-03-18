@@ -11,7 +11,7 @@ export const ValidationSchema = {
     conversation_id: Schema.uuid(),
   }),
 
-  query: z.object({
+  body: z.object({
     is_mute: z.boolean().default(false),
   }),
 };
@@ -19,7 +19,7 @@ export const ValidationSchema = {
 export async function Controller(req: Request, res: Response, next: NextFunction, db: DatabaseClient) {
 
   const { conversation_id } = req.params as z.infer<typeof ValidationSchema.params>;
-  const { is_mute } = req.validatedQuery as z.infer<typeof ValidationSchema.query>;
+  const { is_mute } = req.body as z.infer<typeof ValidationSchema.body>;
   
   const userId = req.user.id;
 

@@ -18,11 +18,13 @@ async function onConversationJoiningRequestAcceptedHandler(
     id: string;
     name: string | null;
     display_picture_url: string | null;
+    display_emoji: string;
   }>(`
     SELECT
       c.id,
       c.name,
-      f.url AS display_picture_url
+      f.url AS display_picture_url,
+      c.display_emoji
     FROM conversations c
     LEFT JOIN files f ON f.id = c.display_picture_id
     WHERE c.id = $1
@@ -39,7 +41,8 @@ async function onConversationJoiningRequestAcceptedHandler(
     body: `Your request to join "${groupName}" was accepted.`,
     conversation_id: conversation.id,
     conversation_name: conversation.name,
-    conversation_display_picture_url: conversation.display_picture_url,
+    conversation_display_picture_url: conversation.display_picture_url ?? '',
+    conversation_display_emoji: conversation.display_emoji,
   });
 
   await db.query(`

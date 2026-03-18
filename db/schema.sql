@@ -177,6 +177,17 @@ CREATE TABLE public.message_attachments (
 
 
 --
+-- Name: message_reads; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.message_reads (
+    message_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    seen_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
 -- Name: messages; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -185,8 +196,7 @@ CREATE TABLE public.messages (
     conversation_id uuid NOT NULL,
     sender_id uuid,
     content text NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    seen_at timestamp with time zone
+    created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -395,6 +405,14 @@ ALTER TABLE ONLY public.files
 
 ALTER TABLE ONLY public.message_attachments
     ADD CONSTRAINT pk_message_attachments_message_id_file_id PRIMARY KEY (message_id, file_id);
+
+
+--
+-- Name: message_reads pk_message_reads_message_id_user_id; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.message_reads
+    ADD CONSTRAINT pk_message_reads_message_id_user_id PRIMARY KEY (message_id, user_id);
 
 
 --
@@ -654,6 +672,22 @@ ALTER TABLE ONLY public.message_attachments
 
 
 --
+-- Name: message_reads fk_message_reads_message_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.message_reads
+    ADD CONSTRAINT fk_message_reads_message_id FOREIGN KEY (message_id) REFERENCES public.messages(id);
+
+
+--
+-- Name: message_reads fk_message_reads_user_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.message_reads
+    ADD CONSTRAINT fk_message_reads_user_id FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
 -- Name: messages fk_messages_conversation_id; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -835,4 +869,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20260315071036'),
     ('20260315093045'),
     ('20260316043747'),
-    ('20260316175515');
+    ('20260316175515'),
+    ('20260318162521');

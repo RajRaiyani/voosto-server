@@ -27,7 +27,7 @@ export async function Controller(
 
   await ensureMember(db, conversation_id, userId);
 
-  const messages = await listConversationMessages(db, conversation_id, { offset, limit, search });
+  const messages = await listConversationMessages(db, conversation_id, userId, { offset, limit, search });
 
   return res.status(200).json(messages);
 }

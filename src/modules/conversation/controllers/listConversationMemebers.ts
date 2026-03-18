@@ -31,8 +31,9 @@ export async function Controller(req: Request, res: Response, next: NextFunction
       LEFT JOIN users u ON u.id = cm.user_id
       LEFT JOIN countries c ON c.id = u.country_id
       LEFT JOIN files f ON f.id = u.profile_image_id
-      WHERE cm.conversation_id = $1 and u.is_deleted = false
-    `, [conversation_id]);
+      WHERE cm.conversation_id = $1 and u.is_deleted = false and 
+      not exists (select 1 from blocked_users bu where (bu.blocker_id = $2 and u.id = bu.blocked_id) or (bu.blocked_id = $2 and u.id = bu.blocker_id))
+      `, [conversation_id, req.user.id]);
 
   return res.status(200).json(members);
 }

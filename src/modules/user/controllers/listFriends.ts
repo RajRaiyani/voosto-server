@@ -44,7 +44,8 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     LEFT JOIN files f ON f.id = u.profile_image_id
     LEFT JOIN countries c ON c.id = u.country_id
     WHERE (fm.sender_id = $1 OR fm.receiver_id = $1) 
-      AND fm.status = 'accepted'
+      AND fm.status = 'accepted' and
+      not exists (select 1 from blocked_users bu where (bu.blocker_id = $1 and u.id = bu.blocked_id) or (bu.blocked_id = $1 and u.id = bu.blocker_id))
     ORDER BY fm.created_at DESC
   `, [user_id]);
 

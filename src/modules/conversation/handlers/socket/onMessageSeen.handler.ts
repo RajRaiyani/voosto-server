@@ -11,23 +11,31 @@ export async function Handler(ctx: Context, payload: z.infer<typeof ValidationSc
 
   const { message_id } = payload as z.infer<typeof ValidationSchema>;
 
+  const userId = socket.data.user?.id;
+  if (!userId) return callback({ success: false, message: 'Unauthorized' });
 
-  const message = await db.queryOne(`
-    SELECT * FROM messages WHERE id = $1
-  `, [message_id]);
+  const message = await db.queryOne(
+    `
+      SELECT m.conversation_id
+      FROM messages m
+      INNER JOIN conversation_members cm
+        ON cm.conversation_id = m.conversation_id
+        AND cm.user_id = $2
+      WHERE m.id = $1
+    `,
+    [message_id, userId]
+  );
 
-  if (!message) {
-    return callback({ success: false, message: 'Message not found' });
-  }
+  if (!message) return callback({ success: false, message: 'Message not found' });
 
-  await db.query(`
-    UPDATE messages SET seen_at = now() WHERE id = $1
-  `, [message_id]);
-
-  socket.to(message.conversation_id).emit('message:seen', {
-    message_id,
-    seen_at: message.seen_at,
-  });
+  await db.query(
+    `
+      INSERT INTO message_reads (message_id, user_id)
+      VALUES ($1, $2)
+      ON CONFLICT DO NOTHING
+    `,
+    [message_id, userId]
+  );
 
   if (typeof callback === 'function') {
     callback({ success: true });

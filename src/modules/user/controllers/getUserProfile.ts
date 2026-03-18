@@ -19,7 +19,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     `
     SELECT 1
     FROM blocked_users ub
-    WHERE (ub.blocker_id = $2 AND ub.blocked_id = $1)
+    WHERE (ub.blocker_id = $2 AND ub.blocked_id = $1) or (ub.blocker_id = $1 AND ub.blocked_id = $2)
   `,
     [currentUserId, user_id]
   );

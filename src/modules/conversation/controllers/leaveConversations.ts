@@ -17,7 +17,33 @@ export async function Controller(req: Request, res: Response, next: NextFunction
   const isAdmin = await isAdminOfConversation(db, conversation_id, userId);
   if (isAdmin) return res.status(400).json({ message: 'Admin can not leave conversation' });
 
-  await removeMemberFromConversation({ database: db }, conversation_id, userId);
+  const conversation = await db.queryOne(`
+    SELECT is_group FROM conversations WHERE id = $1
+  `, [conversation_id]);
+
+  try{
+    await db.begin();
+
+    if (conversation?.is_group) {
   
-  return res.status(204).send();
+      await removeMemberFromConversation({ database: db }, conversation_id, userId);
+
+    }else {
+      await db.query('DELETE FROM conversation_members WHERE conversation_id = $1', [conversation_id]);
+      await db.query('DELETE FROM conversation_joining_requests WHERE conversation_id = $1', [conversation_id]);
+      await db.query('DELETE FROM messages WHERE conversation_id = $1', [conversation_id]);
+      await db.query('DELETE FROM conversations WHERE id = $1', [conversation_id]);
+    }
+  
+    
+    await db.commit();
+
+    return res.status(204).send();
+
+
+  } catch (error) {
+    await db.rollback();
+    throw error;
+  }
+
 }

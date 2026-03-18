@@ -28,29 +28,28 @@ export async function Controller(
   const conversations = await db.queryAll(
     `
     WITH last_msg AS (
-      SELECT DISTINCT ON (conversation_id)
-        id,
-        conversation_id,
-        content,
-        created_at,
-        sender_id,
-        seen_at
-      FROM messages
-      ORDER BY conversation_id, created_at DESC
+      SELECT DISTINCT ON (m.conversation_id)
+        m.id,
+        m.conversation_id,
+        m.content,
+        m.created_at,
+        m.sender_id,
+        mr.seen_at AS seen_at
+      FROM messages m
+      LEFT JOIN message_reads mr
+        ON mr.message_id = m.id
+        AND mr.user_id = $1
+      ORDER BY m.conversation_id, m.created_at DESC
     ),
 
-    blocked_users AS (
-      SELECT blocker_id AS other_user_id
-      FROM blocked_users
-      WHERE blocked_id = $1
-    ),
+
 
     blocked_conversations AS (
       SELECT DISTINCT cm.conversation_id
       FROM conversation_members cm
       LEFT JOIN conversations c ON c.id = cm.conversation_id
-      JOIN blocked_users bu ON bu.other_user_id = cm.user_id
-      WHERE c.is_group = false
+      JOIN users u ON u.id = cm.user_id
+      WHERE c.is_group = false and not exists (select 1 from blocked_users bu where (bu.blocker_id = $1 and u.id = bu.blocked_id) or (bu.blocked_id = $1 and u.id = bu.blocker_id))
     ),
 
     conversations_for_user_without_message AS (
