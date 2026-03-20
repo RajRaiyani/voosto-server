@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
 import { z } from 'zod';
 import Schema from '@/config/validationSchema.js';
-import { isAdminOfConversation, removeMemberFromConversation } from '@/modules/conversation/conversation.service.js';
+import { isAdminOfConversation, removeMemberFromConversation, deleteConversation } from '@/modules/conversation/conversation.service.js';
 
 export const ValidationSchema = {
   params: z.object({
@@ -29,12 +29,8 @@ export async function Controller(req: Request, res: Response, next: NextFunction
       await removeMemberFromConversation({ database: db }, conversation_id, userId);
 
     }else {
-      await db.query('DELETE FROM conversation_members WHERE conversation_id = $1', [conversation_id]);
-      await db.query('DELETE FROM conversation_joining_requests WHERE conversation_id = $1', [conversation_id]);
-      await db.query('DELETE FROM messages WHERE conversation_id = $1', [conversation_id]);
-      await db.query('DELETE FROM conversations WHERE id = $1', [conversation_id]);
+      await deleteConversation({ database: db }, conversation_id);
     }
-  
     
     await db.commit();
 

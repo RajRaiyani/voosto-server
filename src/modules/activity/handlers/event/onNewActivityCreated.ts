@@ -31,6 +31,10 @@ async function onNewActivityCreatedHandler({ database:db }: Context, activityId:
 
   if (!activity) return;
 
+  const conversation = await db.queryOne(`
+    SELECT id, is_womans_only FROM conversations WHERE id = $1
+  `, [activity.conversation_id]);
+
   const nearestUsers = await RedisClient.geoSearch('geo:user', {
     longitude: activity.longitude,
     latitude: activity.latitude,
@@ -44,13 +48,13 @@ async function onNewActivityCreatedHandler({ database:db }: Context, activityId:
     WHERE 
       id = ANY($1) AND
       id != $2 AND
-      (settings->'notify_near_by_activities' is null or settings @> '{"notify_near_by_activities": true}')
-  `, [nearestUsers, activity.created_by.id]);
+      (settings->'notify_near_by_activities' is null or settings @> '{"notify_near_by_activities": true}') AND
+      ($3 = false OR users.gender = 'female')
+  `, [nearestUsers, activity.created_by.id, conversation.is_womans_only]);
 
   await createNotifications(db, usersToNotify.map(user => user.id), {
     type: 'new_activity',
-    title: 'New activity created near you.',
-    body: `New activity created near you by ${activity.created_by.full_name}.`,
+    title: `${activity.created_by.full_name} posted a new activity`,
     activity_id: activity.id,
     description: activity.description,
     category: activity.category,

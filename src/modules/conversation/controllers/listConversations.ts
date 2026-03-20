@@ -47,9 +47,14 @@ export async function Controller(
     blocked_conversations AS (
       SELECT DISTINCT cm.conversation_id
       FROM conversation_members cm
-      LEFT JOIN conversations c ON c.id = cm.conversation_id
+      INNER JOIN conversations c ON c.id = cm.conversation_id
       JOIN users u ON u.id = cm.user_id
-      WHERE c.is_group = false and not exists (select 1 from blocked_users bu where (bu.blocker_id = $1 and u.id = bu.blocked_id) or (bu.blocked_id = $1 and u.id = bu.blocker_id))
+      WHERE c.is_group = false
+        AND EXISTS (
+          SELECT 1 FROM blocked_users bu
+          WHERE (bu.blocker_id = $1 AND u.id = bu.blocked_id)
+            OR (bu.blocked_id = $1 AND u.id = bu.blocker_id)
+        )
     ),
 
     conversations_for_user_without_message AS (
@@ -64,9 +69,8 @@ export async function Controller(
         c.created_at
       FROM conversation_members cm
       INNER JOIN conversations c ON c.id = cm.conversation_id
-      LEFT JOIN blocked_conversations bc ON bc.conversation_id = c.id
       WHERE cm.user_id = $1
-        AND bc.conversation_id IS NULL
+        AND c.id not in (select conversation_id from blocked_conversations)
     ),
 
     conversations_for_user AS (

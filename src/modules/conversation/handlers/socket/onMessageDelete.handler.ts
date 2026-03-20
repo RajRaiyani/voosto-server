@@ -40,9 +40,10 @@ export async function Handler(ctx: Context, payload: z.infer<typeof ValidationSc
   }
 
   await db.query('DELETE FROM message_attachments WHERE message_id = $1', [message_id]);
+  await db.query('DELETE FROM message_reads WHERE message_id = $1', [message_id]);
   await db.query('DELETE FROM messages WHERE id = $1', [message_id]);
 
-  socket.to(message.conversation_id).emit('message:deleted', {
+  socket.to(message.conversation_id).emit('message:delete', {
     message_id,
     conversation_id: message.conversation_id,
   });

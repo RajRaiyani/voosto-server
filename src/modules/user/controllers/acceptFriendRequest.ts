@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
 import { z } from 'zod';
 import ConfigValidationSchema from '@/config/validationSchema.js';
-import ServerEvent from '@/service/event/index.js';
+import { acceptFriendRequest } from '@/modules/user/user.service.js';
 
 export const ValidationSchema = {
   body: z.object({
@@ -32,14 +32,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     return res.status(400).json({ message: 'Invalid request status' });
   }
 
-  const updatedMapping = await db.queryOne(`
-    UPDATE friend_mappings 
-    SET status = 'accepted'
-    WHERE sender_id = $1 AND receiver_id = $2
-    RETURNING sender_id, receiver_id, status, created_at
-  `, [sender_id, receiver_id]);
-
-  ServerEvent.emit('user:friend_request:accepted', { sender_id, receiver_id });
+  const updatedMapping = await acceptFriendRequest({ database: db }, { sender_id, receiver_id });
 
   return res.status(200).json(updatedMapping);
 }

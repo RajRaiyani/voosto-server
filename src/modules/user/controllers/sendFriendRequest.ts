@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { DatabaseClient } from '@/service/database/index.js';
 import { z } from 'zod';
 import ConfigValidationSchema from '@/config/validationSchema.js';
-import ServerEvent from '@/service/event/index.js';
+import { createFriendRequest } from '@/modules/user/user.service.js';
 
 export const ValidationSchema = {
   body: z.object({
@@ -37,13 +37,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     }
   }
 
-  const friendMapping = await db.queryOne(`
-    INSERT INTO friend_mappings (sender_id, receiver_id, status)
-    VALUES ($1, $2, 'pending')
-    RETURNING sender_id, receiver_id, status, created_at
-  `, [sender_id, receiver_id]);
-
-  ServerEvent.emit('user:friend_request:created', { sender_id, receiver_id });
+  const friendMapping = await createFriendRequest({ database: db }, { sender_id, receiver_id });
 
   return res.status(201).json(friendMapping);
 }

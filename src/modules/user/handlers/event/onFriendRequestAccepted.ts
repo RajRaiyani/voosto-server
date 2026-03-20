@@ -24,16 +24,39 @@ async function onFriendRequestAcceptedHandler(
     WHERE u.id = $1
   `, [receiver_id]);
 
-  if (!receiver) return;
+  const sender = await db.queryOne(`
+    SELECT
+      u.id,
+      u.full_name,
+      f.url as profile_image_url
+    FROM users u
+    LEFT JOIN files f ON f.id = u.profile_image_id
+    WHERE u.id = $1
+  `, [sender_id]);
+
+  if (!sender || !receiver) return;
+
 
   await createNotifications(db, [sender_id], {
     type: 'friend_request_accepted',
-    title: 'Friend request accepted',
-    body: `${receiver.full_name} accepted your friend request.`,
+    title: `${receiver.full_name} is now your friend`,
     sender_id,
     receiver_id,
-    receiver_name: receiver.full_name,
-    receiver_profile_image_url: receiver.profile_image_url,
+  }, {
+    database: true,
+    socket: true,
+    pushNotifications: true,
+  });
+  
+  await createNotifications(db, [receiver_id], {
+    type: 'friend_request_accepted',
+    title: `${sender.full_name} is now your friend`,
+    sender_id,
+    receiver_id,
+  }, {
+    database: true,
+    socket: true,
+    pushNotifications: true,
   });
 
   await db.query(`

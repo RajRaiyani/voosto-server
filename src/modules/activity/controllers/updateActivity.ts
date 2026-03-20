@@ -3,6 +3,7 @@ import { DatabaseClient } from '@/service/database/index.js';
 import { z } from 'zod';
 import ConfigValidationSchema from '@/config/validationSchema.js';
 import ActivityValidation from './activity.validation.js';
+import { acceptConversationJoiningRequest } from '@/modules/conversation/conversation.service.js';
 
 
 
@@ -53,10 +54,18 @@ export async function Controller(req: Request, res: Response, next: NextFunction
             SELECT icon FROM activity_categories WHERE id = $4
           ),
           is_private = $1, 
-          is_womans_only = $2
+          is_womans_only = $2,
+          name = $5
         WHERE id = $3
         RETURNING *
-      `, [is_private, is_womans_only, activity.conversation_id, category_id]);
+      `, [is_private, is_womans_only, activity.conversation_id, category_id, description.slice(0, 200)]);
+
+    if (!is_private) {
+      const joiningRequests = await db.queryAll('SELECT conversation_id, user_id FROM conversation_joining_requests WHERE conversation_id = $1', [activity.conversation_id]);
+
+      await Promise.all(joiningRequests.map(joiningRequest => acceptConversationJoiningRequest({ database: db }, { conversation_id: joiningRequest.conversation_id, user_id: joiningRequest.user_id, accepted_by: req.user.id })));
+    }
+    
     await db.commit();
     
     return res.status(204).send();

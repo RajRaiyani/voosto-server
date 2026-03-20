@@ -19,7 +19,7 @@ async function onFriendRequestDeletedHandler(
 }
 
 ServerEvent.on(
-  'user:friend_request:deleted',
+  'user:friend_request:rejected',
   RegisterServerEventHandler(onFriendRequestDeletedHandler, { withDatabase: true }),
 );
 

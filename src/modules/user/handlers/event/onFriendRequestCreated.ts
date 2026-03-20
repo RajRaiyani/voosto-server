@@ -29,8 +29,7 @@ async function onFriendRequestCreatedHandler(
 
   await createNotifications(db, [receiver_id], {
     type: 'new_friend_request',
-    title: 'New friend request',
-    body: `${sender.full_name} sent you a friend request.`,
+    title: `${sender.full_name} sent you a friend request.`,
     sender_id,
     receiver_id,
     sender_name : sender.full_name,

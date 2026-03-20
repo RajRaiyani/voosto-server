@@ -18,6 +18,10 @@ async function Handler({ database:db }: Context, activityId: string, conversatio
     content: 'Activity deleted for this Conversation',
     id: message.id
   });
+
+  await db.query(`
+    DELETE FROM notifications where meta_data->>'activity_id'::text = $1::text
+    `, [activityId]);
 }
 
 ServerEvent.on('activity:deleted', RegisterServerEventHandler(Handler, { withDatabase: true }));

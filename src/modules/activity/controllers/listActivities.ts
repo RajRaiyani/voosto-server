@@ -38,7 +38,12 @@ export async function Controller(req: Request, res: Response, next: NextFunction
   if (!user) return res.status(404).json({ message: 'User not found' });
 
 
-  let whereClause = ' TRUE ';
+  let whereClause = `
+    not exists (select 1 from blocked_users bu where (
+      (bu.blocker_id = a.created_by AND bu.blocked_id = $current_user_id)
+      OR (bu.blocked_id = a.created_by AND bu.blocker_id = $current_user_id)
+    ))
+  `;
   let orderByClause = ' a.created_at DESC ';
 
 
@@ -187,11 +192,12 @@ export async function Controller(req: Request, res: Response, next: NextFunction
   const activities = await db.namedQueryAll(sqlQuery, {
     search: search ? `%${search}%` : null,
     activity_ids,
+    current_user_id: req.user.id,
     date: date ?? null,
     limit,
     offset,
     user_id,
-    timestamp: timestamp ? timestamp.toISOString() : null,
+    timestamp: timestamp,
   });
 
 

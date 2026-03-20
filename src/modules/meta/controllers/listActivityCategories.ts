@@ -6,7 +6,8 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     SELECT
       id,
       name,
-      icon
+      icon,
+      description
     FROM activity_categories
     ORDER BY name ASC
   `);

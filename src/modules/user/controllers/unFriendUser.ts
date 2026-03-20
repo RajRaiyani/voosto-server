@@ -3,6 +3,7 @@ import { DatabaseClient } from '@/service/database/index.js';
 
 import { z } from 'zod';
 import Schema from '@/config/validationSchema.js';
+import { unFriendUser } from '@/modules/user/user.service.js';
 
 export const ValidationSchema = {
   params: z.object({
@@ -14,10 +15,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
   const { user_id } = req.params as z.infer<typeof ValidationSchema.params>;
   const currentUserId = req.user.id;
 
-  await db.query(`
-    DELETE FROM friend_mappings 
-    WHERE (sender_id = $1 AND receiver_id = $2) OR (sender_id = $2 AND receiver_id = $1)
-  `, [currentUserId, user_id]);
+  await unFriendUser({ database: db }, { sender_id: currentUserId, receiver_id: user_id });
 
   return res.status(204).send();
 }

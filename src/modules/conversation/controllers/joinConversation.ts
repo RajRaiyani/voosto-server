@@ -4,7 +4,7 @@ import { z } from 'zod';
 import Schema from '@/config/validationSchema.js';
 import { getConversationById, isMemberOfConversation, addMemberToConversation, createJoiningRequest } from '@/modules/conversation/conversation.service.js';
 import SocketService from '@/socket.js';
-import ServerEvent from '@/service/event/index.js';
+
 
 export const ValidationSchema = {
   params: z.object({
@@ -41,18 +41,15 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     return res.status(400).json({ message: 'You cannot join a womans only conversation as a man' });
   }
 
+
   if (conversation.is_private ) {
     const pendingRequest = await db.queryOne(`
     SELECT conversation_id, created_at FROM conversation_joining_requests WHERE conversation_id = $1 AND user_id = $2
   `, [conversation_id, userId]);  
 
-    if (pendingRequest) {
-      return res.status(200).json(pendingRequest);
-    }
+    if (pendingRequest) return res.status(200).json(pendingRequest);
 
     const joiningRequest = await createJoiningRequest(db, conversation_id, userId, is_mute);
-
-    ServerEvent.emit('conversation:conversation_joining_request:created', { conversation_id, user_id: userId });
   
     return res.status(200).json(joiningRequest);
   }

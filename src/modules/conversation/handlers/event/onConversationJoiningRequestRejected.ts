@@ -8,7 +8,7 @@ type ConversationJoiningRequestDeletedPayload = {
   deleted_by: string;
 };
 
-async function onConversationJoiningRequestDeletedHandler(
+async function Handler(
   { database:db }: Context,
   payload: ConversationJoiningRequestDeletedPayload,
 ): Promise<void> {
@@ -37,7 +37,7 @@ async function onConversationJoiningRequestDeletedHandler(
 }
 
 ServerEvent.on(
-  'conversation:conversation_joining_request:deleted',
-  RegisterServerEventHandler(onConversationJoiningRequestDeletedHandler, { withDatabase: true }),
+  'conversation:conversation_joining_request:rejected',
+  RegisterServerEventHandler(Handler, { withDatabase: true }),
 );
 

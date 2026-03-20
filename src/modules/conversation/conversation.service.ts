@@ -1,7 +1,12 @@
 import { DatabaseClient } from '@/service/database/index.js';
 import ServerError from '@/utils/serverError.js';
-import RegisterService, { Context as ServiceContext } from '@/core/registerService.js';
 import { createNotifications } from '@/modules/notification/notification.service.js';
+import ServerEvent from '@/service/event/index.js';
+import Socket from '@/socket.js';
+
+
+export * from '@/modules/conversation/services/conversationJoin.service.js';
+export * from '@/modules/conversation/services/conversationOperation.service.js';
 
 export async function getConversationMembership(
   db: DatabaseClient,
@@ -359,6 +364,17 @@ export async function createConversation(db: DatabaseClient,
 
     await db.commit();
 
+    const conversationMembers = await db.queryAll(`
+      SELECT user_id FROM conversation_members WHERE conversation_id = $1
+    `, [conversation.id]);
+
+    if (conversationMembers.length > 0) {
+      for (const member of conversationMembers) {
+        Socket.io.in(member.user_id).socketsJoin(conversation.id);
+      }
+      Socket.io.in(conversation.id).emit('conversation:new', { conversation_id: conversation.id });
+    }
+
     return conversation;
   } catch (error) {
     await db.rollback();
@@ -375,6 +391,10 @@ export async function addMemberToConversation(db: DatabaseClient, conversationId
       RETURNING conversation_id, user_id, is_admin, notification_enabled
     `, [conversationId, userId, isAdmin, !isMute]);
 
+  if (member) {
+    Socket.io.in(userId).socketsJoin(conversationId);
+  }
+
   return member;
 }
 
@@ -385,6 +405,8 @@ export async function createJoiningRequest(db: DatabaseClient, conversationId: s
     VALUES ($1, $2, $3)
     RETURNING conversation_id, user_id, notification_enabled
   `, [conversationId, userId, !isMute]);
+
+  ServerEvent.emit('conversation:conversation_joining_request:created', { conversation_id: conversationId, user_id: userId });
 
   return joiningRequest;
 }
@@ -399,32 +421,3 @@ export async function isAdminOfConversation(db: DatabaseClient, conversationId: 
   return admin.is_admin;
 }
 
-async function removeMemberFromConversationService({ database:db }: ServiceContext, conversationId: string, userId: string): Promise<void> {
-  try{
-
-    await db.begin();
-
-    const member = await db.queryOne(`
-      DELETE FROM conversation_members WHERE conversation_id = $1 AND user_id = $2
-      RETURNING conversation_id, user_id, is_admin
-    `, [conversationId, userId]);
-
-    const memberCount = await db.queryOne(`
-      SELECT COUNT(*) FROM conversation_members WHERE conversation_id = $1
-    `, [conversationId]);
-
-    if (memberCount.count === 0) {
-      await db.query('DELETE FROM conversations WHERE id = $1', [conversationId]);
-    }
-
-    await db.commit();
-    return member;
-  } catch (error) {
-    await db.rollback();
-    throw error;
-  }
-
-}
-
-
-export const removeMemberFromConversation = RegisterService(removeMemberFromConversationService);

@@ -67,7 +67,8 @@ CREATE TABLE public.activities (
 CREATE TABLE public.activity_categories (
     id uuid DEFAULT uuidv7() NOT NULL,
     name character varying(100) NOT NULL,
-    icon character varying(5) NOT NULL
+    icon character varying(5) NOT NULL,
+    description text
 );
 
 
@@ -210,8 +211,8 @@ CREATE TABLE public.notifications (
     user_id uuid NOT NULL,
     meta_data jsonb DEFAULT '{}'::jsonb NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    body text DEFAULT ''::text NOT NULL,
-    title text DEFAULT ''::text NOT NULL
+    body text DEFAULT ''::text,
+    title text DEFAULT ''::text
 );
 
 
@@ -870,4 +871,6 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20260315093045'),
     ('20260316043747'),
     ('20260316175515'),
-    ('20260318162521');
+    ('20260318162521'),
+    ('20260319175004'),
+    ('20260319182934');

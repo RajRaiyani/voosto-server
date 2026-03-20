@@ -19,7 +19,14 @@ export async function sendNotifications(
 ) {
 
 
-  const results = await sendMulticastMessage(tokens, notification);
+  const notificationToSend = Object.keys(notification).reduce((acc, key) => {
+    if (notification[key] !== undefined) {
+      acc[key] = notification[key];
+    }
+    return acc;
+  }, {} as Notification);
+  
+  const results = await sendMulticastMessage(tokens, notificationToSend);
   const tokensToDelete = [];
 
   results.responses.forEach((result, index) => {
@@ -103,25 +110,6 @@ export async function deleteNotification(db: DatabaseClient, { id }: { id: strin
   `, [id]);
 }
 
-export async function listUserNotifications(db: DatabaseClient, userId: string, { offset=0, limit=100 }: { offset?: number; limit?: number } = {}) {
-  const notifications = await db.queryAll(
-    `
-    SELECT 
-      n.id, n.type, n.meta_data, n.created_at, n.title, n.body,
-      f.url as display_picture_url,
-      c.display_emoji as display_emoji
-    FROM notifications n
-    LEFT JOIN users u ON u.id::text = n.meta_data->>'sender_id'
-    LEFT JOIN conversations c ON c.id::text = n.meta_data->>'conversation_id'
-    LEFT JOIN files f ON f.id = u.profile_image_id OR f.id = c.display_picture_id
-    WHERE user_id = $1
-    ORDER BY created_at DESC
-    OFFSET $2 LIMIT $3
-  `,
-    [userId, offset, limit],
-  );
-  return notifications;
-}
 
 
 export async function clearUserNotifications(db: DatabaseClient, userId: string) {

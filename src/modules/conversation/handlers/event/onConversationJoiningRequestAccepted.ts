@@ -30,15 +30,16 @@ async function onConversationJoiningRequestAcceptedHandler(
     WHERE c.id = $1
   `, [conversation_id]);
 
+  const acceptedBy = await db.queryOne(`
+    SELECT full_name FROM users WHERE id = $1
+  `, [accepted_by]);
+
   if (!conversation) return;
 
-  const title = 'Join request accepted';
-  const groupName = conversation.name || 'the group';
 
   await createNotifications(db, [user_id], {
     type: 'conversation_joining_request_accepted',
-    title,
-    body: `Your request to join "${groupName}" was accepted.`,
+    title: `${acceptedBy.full_name} accepted you in ${conversation.name}`,
     conversation_id: conversation.id,
     conversation_name: conversation.name,
     conversation_display_picture_url: conversation.display_picture_url ?? '',

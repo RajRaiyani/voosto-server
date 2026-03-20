@@ -50,7 +50,8 @@ export async function Controller(
     await db.query('DELETE FROM report_inquiries WHERE created_by = $1', [userId]);
     await db.query('DELETE FROM trips WHERE created_by = $1', [userId]);
     await db.query('DELETE FROM blocked_users WHERE blocker_id = $1 OR blocked_id = $1', [userId]);
-    await db.query('DELETE FROM user_blocked_users WHERE blocked_user_id = $1', [userId]);
+    await db.query('DELETE FROM message_reads WHERE user_id = $1', [userId]);
+    await db.query('DELETE FROM message_reads WHERE message_id in (select id from messages where sender_id = $1)', [userId]);
     await db.query('DELETE FROM message_attachments where message_id in (select id from messages where sender_id = $1)', [userId]);
     await db.query('DELETE FROM messages WHERE sender_id = $1', [userId]);
     await db.query('DELETE FROM users WHERE id = $1', [userId]);

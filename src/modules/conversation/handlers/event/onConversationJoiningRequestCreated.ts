@@ -13,6 +13,10 @@ async function onConversationJoiningRequestCreatedHandler(
 ): Promise<void> {
   const { conversation_id, user_id } = payload;
 
+  const conversation = await db.queryOne(`
+    SELECT name FROM conversations WHERE id = $1
+  `, [conversation_id]);
+
   const requester = await db.queryOne<{
     id: string;
     full_name: string;
@@ -41,8 +45,7 @@ async function onConversationJoiningRequestCreatedHandler(
 
   await createNotifications(db, adminIds, {
     type: 'new_conversation_joining_request',
-    title: 'New join request',
-    body: `${requester.full_name} requested to join your group.`,
+    title: `${requester.full_name} wants to join ${conversation.name}`,
     conversation_id,
     requester_id: requester.id,
     requester_name: requester.full_name,

@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import Logger from '../logger/index.js';
+
 
 type TypedEmitter<T extends { [K in keyof T]: (...args: any[]) => void }> = {
   on<K extends keyof T>(event: K, listener: T[K]): TypedEmitter<T>;
@@ -12,7 +12,7 @@ type TypedEmitter<T extends { [K in keyof T]: (...args: any[]) => void }> = {
 const eventEmitter: TypedEmitter<ServerEvents> = new EventEmitter();
 
 eventEmitter.on('error', (error) => {
-  Logger.error(error);
+  console.error(error);
 });
 
 export default eventEmitter;
