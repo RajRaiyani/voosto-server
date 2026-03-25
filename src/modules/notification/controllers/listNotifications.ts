@@ -36,7 +36,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
       LEFT JOIN users u ON u.id::text = n.meta_data->>'receiver_id'
       LEFT JOIN files f ON f.id = u.profile_image_id
       WHERE n.type = 'friend_request_accepted'
-      AND n.user_id = $1 and n.meta_data->>'sender_id' = $1::text
+      AND n.user_id = $1
     ),
 
     friend_request_accepted_notifications_self AS (
@@ -47,8 +47,8 @@ export async function Controller(req: Request, res: Response, next: NextFunction
       FROM notifications n
       LEFT JOIN users u ON u.id::text = n.meta_data->>'sender_id'
       LEFT JOIN files f ON f.id = u.profile_image_id
-      WHERE n.type = 'friend_request_accepted'
-      AND n.user_id = $1 and n.meta_data->>'receiver_id' = $1::text
+      WHERE n.type = 'friend_request_accepted_self'
+      AND n.user_id = $1
     ),
     
     new_friend_request_notifications AS (
@@ -78,8 +78,8 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     conversation_joining_request_accepted_notifications AS (
       SELECT 
         n.*,
-        f.url as display_picture_url,
-        c.display_emoji
+        c.display_emoji,
+        f.url as display_picture_url
       FROM notifications n
       LEFT JOIN conversations c ON c.id::text = n.meta_data->>'conversation_id'
       LEFT JOIN files f ON f.id = c.display_picture_id

@@ -39,7 +39,7 @@ async function onConversationJoiningRequestAcceptedHandler(
 
   await createNotifications(db, [user_id], {
     type: 'conversation_joining_request_accepted',
-    title: `${acceptedBy.full_name} accepted you in ${conversation.name}`,
+    title: `${acceptedBy.full_name} accepted you in ${conversation.name}.`,
     conversation_id: conversation.id,
     conversation_name: conversation.name,
     conversation_display_picture_url: conversation.display_picture_url ?? '',

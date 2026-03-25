@@ -45,7 +45,7 @@ async function onConversationJoiningRequestCreatedHandler(
 
   await createNotifications(db, adminIds, {
     type: 'new_conversation_joining_request',
-    title: `${requester.full_name} wants to join ${conversation.name}`,
+    title: `${requester.full_name} wants to join ${conversation.name}.`,
     conversation_id,
     requester_id: requester.id,
     requester_name: requester.full_name,

@@ -24,7 +24,7 @@ export const ValidationSchema = {
       if (val?.toLowerCase() === 'false') return false;
       return val;
     }).optional(),
-    timestamp: Schema.timestamp().optional(),
+    timestamp: z.coerce.date().optional(),
   }).refine(
     (data) => data.upcoming === undefined || data.timestamp !== undefined,
     { message: 'timestamp is required when upcoming is provided', path: ['timestamp'] }
@@ -83,10 +83,8 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     const activityMoment = '(a.date + COALESCE(a.time, \'23:59\'::time))';
     if (upcoming) {
       whereClause += ` AND ${activityMoment} >= $timestamp `;
-      orderByClause = ' a.date ASC , a.time ASC ';
     } else {
       whereClause += ` AND ${activityMoment} < $timestamp `;
-      orderByClause = ' a.date DESC , a.time DESC ';
     }
   }
 

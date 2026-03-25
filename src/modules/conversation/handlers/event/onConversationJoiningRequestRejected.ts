@@ -29,7 +29,7 @@ async function Handler(
 
   await createNotifications(db, [user_id], {
     type: 'conversation_joining_request_deleted',
-    title: 'Join request deleted',
+    title: 'Join request rejected.',
     body: `Your request to join "${conversation.name || 'the group'}" was deleted.`,
     conversation_id: conversation_id,
     conversation_display_emoji: conversation.display_emoji,

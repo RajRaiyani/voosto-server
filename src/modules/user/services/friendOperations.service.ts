@@ -40,6 +40,16 @@ async function unFriendUserServices(ctx: ServiceContext, { sender_id, receiver_i
     ServerEvent.emit('user:friend_request:rejected', { sender_id, receiver_id });
   }
 
+  await ctx.database.query(`
+    DELETE FROM notifications 
+    WHERE 
+      type in ('new_friend_request', 'friend_request_accepted', 'friend_request_accepted_self') and
+      (
+        (meta_data->>'sender_id' = $1 AND meta_data->>'receiver_id' = $2) OR 
+        (meta_data->>'sender_id' = $2 AND meta_data->>'receiver_id' = $1)
+      )
+    `, [sender_id, receiver_id]);
+
   return friendMapping;
 }
 

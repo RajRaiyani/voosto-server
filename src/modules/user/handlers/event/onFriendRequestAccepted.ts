@@ -39,7 +39,7 @@ async function onFriendRequestAcceptedHandler(
 
   await createNotifications(db, [sender_id], {
     type: 'friend_request_accepted',
-    title: `${receiver.full_name} is now your friend`,
+    title: `${receiver.full_name} is now your friend.`,
     sender_id,
     receiver_id,
   }, {
@@ -49,7 +49,7 @@ async function onFriendRequestAcceptedHandler(
   });
   
   await createNotifications(db, [receiver_id], {
-    type: 'friend_request_accepted',
+    type: 'friend_request_accepted_self',
     title: `${sender.full_name} is now your friend`,
     sender_id,
     receiver_id,
