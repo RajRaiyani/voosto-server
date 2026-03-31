@@ -370,9 +370,9 @@ export async function createConversation(db: DatabaseClient,
 
     if (conversationMembers.length > 0) {
       for (const member of conversationMembers) {
-        Socket.io.in(member.user_id).socketsJoin(conversation.id);
+        Socket.io?.in(member.user_id).socketsJoin(conversation.id);
       }
-      Socket.io.in(conversation.id).emit('conversation:new', { conversation_id: conversation.id });
+      Socket.io?.in(conversation.id).emit('conversation:new', { conversation_id: conversation.id });
     }
 
     return conversation;

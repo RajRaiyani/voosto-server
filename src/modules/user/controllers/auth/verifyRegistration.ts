@@ -33,7 +33,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     RETURNING *
   `, [tokenData.first_name, tokenData.last_name, tokenData.email, passwordHash]);
 
-  const tokenExpiresAt = new Date(Date.now() + 24 * 3600000);
+  const tokenExpiresAt = new Date(Date.now() + 24 * 3600000 * 20);
 
   const authTokenPayload = {
     type: 'user_auth_token',

@@ -35,7 +35,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
 
   if (!isPasswordValid) return res.status(400).json({ message: 'Invalid email or password' });
 
-  const tokenExpiresAt = new Date(Date.now() + 24 * 3600000);
+  const tokenExpiresAt = new Date(Date.now() + 24 * 3600000 * 20);
 
   const authTokenPayload = {
     type: 'user_auth_token',

@@ -54,7 +54,7 @@ async function onNewActivityCreatedHandler({ database:db }: Context, activityId:
 
   await createNotifications(db, usersToNotify.map(user => user.id), {
     type: 'new_activity',
-    title: `${activity.created_by.full_name} posted a new activity`,
+    title: `${activity.created_by.full_name} posted a new activity.`,
     activity_id: activity.id,
     description: activity.description,
     category: activity.category,

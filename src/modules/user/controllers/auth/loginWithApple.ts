@@ -7,11 +7,13 @@ import JwtToken from '@/utils/jwtToken.js';
 export const ValidationSchema = {
   body: z.object({
     token: z.string().trim().nonempty().max(5000),
+    first_name: z.string().trim().max(200).nullish(),
+    last_name: z.string().trim().max(200).nullish(),
   })
 };
 
 export async function Controller(req: Request, res: Response, next: NextFunction, db: DatabaseClient) {
-  const { token } = req.body as z.infer<typeof ValidationSchema.body>;
+  const { token, first_name, last_name } = req.body as z.infer<typeof ValidationSchema.body>;
 
   const payload = await verifyAppleToken(token);
 
@@ -21,12 +23,21 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     WHERE email = $1
   `, [payload.email]);
 
+  if (user && !user.is_profile_completed && (first_name || last_name)) {
+    user = await db.queryOne(`
+      UPDATE users
+      SET first_name = $1, last_name = $2
+      WHERE id = $3
+      RETURNING *
+    `, [first_name, last_name, user.id]);
+  }
+
   if (!user) {
     user = await db.queryOne(`
-      INSERT INTO users (email, is_email_verified, login_method)
-      VALUES ($1, true, 'apple_auth')
+      INSERT INTO users (email, is_email_verified, login_method, first_name, last_name)
+      VALUES ($1, true, 'apple_auth', $2, $3)
       RETURNING *
-    `, [payload.email]);
+    `, [payload.email, first_name, last_name]);
   }
 
   const tokenExpiresAt = new Date(Date.now() + 24 * 3600000);
