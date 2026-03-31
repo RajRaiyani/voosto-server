@@ -33,18 +33,23 @@ export async function Controller(req: Request, res: Response, next: NextFunction
     RETURNING *
   `, [tokenData.first_name, tokenData.last_name, tokenData.email, passwordHash]);
 
-  const tokenExpiresAt = new Date(Date.now() + 24 * 3600000 * 20);
+  const tokenExpiresAt = new Date(Date.now() + 24 * 3600000 * 2);
 
   const authTokenPayload = {
     type: 'user_auth_token',
     user_id: user.id,
   };
   const authToken = JwtToken.encode(authTokenPayload, { expiresIn: `${tokenExpiresAt.getTime() - Date.now()}ms` });
+  const refreshToken = JwtToken.encode({
+    type: 'user_refresh_token',
+    user_id: user.id,
+  }, { expiresIn: '10d' });
 
   await db.query('DELETE FROM tokens WHERE token = $1', [token]);
 
   return res.status(200).json({ 
     token: authToken,
+    refresh_token: refreshToken,
     user: {
       id: user.id,
       first_name: user.first_name,

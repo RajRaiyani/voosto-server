@@ -32,6 +32,7 @@ import { ValidationSchema as BlockUserValidationSchema, Controller as BlockUserC
 import { ValidationSchema as UnblockUserValidationSchema, Controller as UnblockUserController } from '@/modules/user/controllers/unblockUser.js';
 import { ValidationSchema as ListBlockedUsersValidationSchema, Controller as ListBlockedUsersController } from '@/modules/user/controllers/listBlockedUsers.js';
 import { ValidationSchema as LoginWithAppleValidationSchema, Controller as LoginWithAppleController } from '@/modules/user/controllers/auth/loginWithApple.js';
+import { ValidationSchema as RefreshTokenValidationSchema, Controller as RefreshTokenController } from '@/modules/user/controllers/auth/refresToken.js';
 
 const router = express.Router();
 
@@ -46,6 +47,9 @@ router.route('/verify-registration')
 
 router.route('/login')
   .post(validate(LoginUserValidationSchema), withDatabase(LoginUserController));
+
+router.route('/refresh-token')
+  .post(validate(RefreshTokenValidationSchema), withDatabase(RefreshTokenController));
 
 router.route('/login-with-google')
   .post(validate(LoginWithGoogleValidationSchema), withDatabase(LoginWithGoogleController));
@@ -114,6 +118,7 @@ router.route('/:user_id/block')
 
 router.route('/:user_id/report')
   .post(isUserLoggedIn, validate(ReportUserValidationSchema), withDatabase(ReportUserController));
+
 
 
 export default router;

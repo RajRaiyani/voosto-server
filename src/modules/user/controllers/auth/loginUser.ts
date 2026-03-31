@@ -35,7 +35,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
 
   if (!isPasswordValid) return res.status(400).json({ message: 'Invalid email or password' });
 
-  const tokenExpiresAt = new Date(Date.now() + 24 * 3600000 * 20);
+  const tokenExpiresAt = new Date(Date.now() + 24 * 3600000 * 2);
 
   const authTokenPayload = {
     type: 'user_auth_token',
@@ -43,6 +43,10 @@ export async function Controller(req: Request, res: Response, next: NextFunction
   };
   
   const authToken = JwtToken.encode(authTokenPayload, { expiresIn: `${tokenExpiresAt.getTime() - Date.now()}ms` });
+  const refreshToken = JwtToken.encode({
+    type: 'user_refresh_token',
+    user_id: user.id,
+  }, { expiresIn: '10d' });
 
   return res.status(200).json({ 
     user: {
@@ -54,6 +58,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
       is_profile_completed: user.is_profile_completed,
     },
     token: authToken,
+    refresh_token: refreshToken,
     expires_at: tokenExpiresAt.toISOString(),
   });
 }

@@ -73,54 +73,14 @@ async function uploadUsers() {
         profileImageId = newFile.id;
       }
 
-      await db.namedQueryOne(`
-        INSERT INTO users (
-          first_name, 
-          last_name, 
-          email, 
-          password_hash, 
-          gender, 
-          country_id, 
-          bio, 
-          latitude, 
-          longitude, 
-          date_of_birth, 
-          profile_image_id,
-          is_profile_completed,
-          is_email_verified,
-          is_fake_user
-        )
-        VALUES (
-          $first_name, 
-          $last_name, 
-          $email, 
-          $password_hash, 
-          $gender, 
-          (SELECT id FROM countries WHERE code = $country_code),
-          $bio, 
-          $latitude, 
-          $longitude, 
-          $date_of_birth, 
-          $profile_image_id,
-          true,
-          true,
-          true
-        )
+      const updatedUser = await db.namedQueryOne(`
+        UPDATE users SET 
+          profile_image_id = $profile_image_id
+        WHERE email = $email
         RETURNING *
-      `, {
-        first_name: user.first_name,
-        last_name: user.last_name,
-        email: user.email,
-        password_hash: user.password_hash,
-        gender: user.gender,
-        country_code: user.country_code,
-        bio: user.bio,
-        latitude: user.latitude,
-        longitude: user.longitude,
-        date_of_birth: user.date_of_birth,
-        profile_image_id: profileImageId,
-      });
+      `, { profile_image_id: profileImageId, email: user.email });
       await db.commit();
+      console.log(updatedUser);
       console.log('Uploaded user: ' + user.email);
 
     } catch (error) {
