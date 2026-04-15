@@ -47,13 +47,13 @@ async function uploadUsers() {
       last_name: user.last_name,
       email: user.email,
       password_hash: '$2b$07$ld3otBu3bsxG7ICLIldQ8OYfFkhgYzt1vPXavb3tLbKRFg9fVtNOS',
-      gender: user.gender,
+      gender: user.gender.toLowerCase(),
       country_code: user.country_code,
       bio: user.bio,
       latitude: Number(user.latitude),
       longitude: Number(user.longitude),
       date_of_birth: `${year}-${month}-${day}`,
-      profile_image: generateFileId(path.join(__dirname, '../../tmp/images', user.first_name.toLowerCase() + '.jpeg')),
+      // profile_image: generateFileId(path.join(__dirname, '../../tmp/images', user.first_name.toLowerCase() + '.jpeg')),
     };
   });
 
@@ -67,20 +67,24 @@ async function uploadUsers() {
     const db = await Database.getConnection();
     try {
       await db.begin();
-      let profileImageId = null;
-      if (user.profile_image) {
-        const newFile = await registerNewFile({ database:db }, { filePath: user.profile_image });
-        profileImageId = newFile.id;
-      }
+      // let profileImageId = null;
+      // if (user.profile_image) {
+      //   const newFile = await registerNewFile({ database:db }, { filePath: user.profile_image });
+      //   profileImageId = newFile.id;
+      // }
 
-      const updatedUser = await db.namedQueryOne(`
-        UPDATE users SET 
-          profile_image_id = $profile_image_id
-        WHERE email = $email
+      const newUser = await db.queryOne(`
+        INSERT INTO users (first_name, last_name, email, password_hash, gender, bio, latitude, longitude, date_of_birth, country_id, is_fake_user, is_profile_completed)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,
+          (SELECT id FROM countries WHERE code = $10)
+          , true
+          , true
+        )
         RETURNING *
-      `, { profile_image_id: profileImageId, email: user.email });
+      `, [user.first_name, user.last_name, user.email, user.password_hash, user.gender, user.bio, user.latitude, user.longitude, user.date_of_birth, user.country_code]);
       await db.commit();
-      console.log(updatedUser);
+      
+      console.log(newUser);
       console.log('Uploaded user: ' + user.email);
 
     } catch (error) {

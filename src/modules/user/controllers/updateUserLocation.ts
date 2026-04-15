@@ -13,6 +13,14 @@ export const ValidationSchema = {
 export async function Controller(req: Request, res: Response, next: NextFunction, db: DatabaseClient) {
   const { location } = req.body as z.infer<typeof ValidationSchema.body>;
 
+  const user = await db.queryOne(`
+    SELECT id FROM users
+    WHERE id = $1 and is_fake_user = false
+  `, [req.user.id]);
+
+  if (!user) {
+    return res.status(204).send();
+  }
 
   await RedisClient.geoAdd('geo:user', 
     {
@@ -25,7 +33,7 @@ export async function Controller(req: Request, res: Response, next: NextFunction
   await db.query(`
     UPDATE users
     SET longitude = $1, latitude = $2
-    WHERE id = $3
+    WHERE id = $3 and is_fake_user = false
   `, [location.longitude, location.latitude, req.user.id]);
 
 

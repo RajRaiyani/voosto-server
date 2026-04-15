@@ -86,8 +86,8 @@ export default {
         .coerce.number()
         .int()
         .min(1, 'Limit must be greater than 0')
-        .max(500, 'Limit must be less than 100')
-        .default(30),
+        .max(2000, 'Limit must be less than 2000')
+        .default(50),
   },
   sort_orders: (...fields: string[]) =>
     z

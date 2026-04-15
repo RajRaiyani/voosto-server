@@ -14,6 +14,7 @@ import { ValidationSchema as ListConversationJoiningRequestSchema, Controller as
 import { ValidationSchema as DeleteConversationJoiningRequestSchema, Controller as DeleteConversationJoiningRequestController } from '@/modules/conversation/controllers/deleteConversationJoiningRequest.js';
 import { ValidationSchema as ListConversationMembersSchema, Controller as ListConversationMembersController } from '@/modules/conversation/controllers/listConversationMemebers.js';
 import { ValidationSchema as ListPopularTripConversationsSchema, Controller as ListPopularTripConversationsController } from '@/modules/conversation/controllers/listPopuleTripConversations.js';
+import { ValidationSchema as RemoveMemberSchema, Controller as RemoveMemberController } from '@/modules/conversation/controllers/removeMember.js';
 
 const router = express.Router();
 
@@ -57,6 +58,10 @@ router
 router
   .route('/:conversation_id/join-request/:user_id/delete')
   .delete(isUserLoggedIn, validate(DeleteConversationJoiningRequestSchema), withDatabase(DeleteConversationJoiningRequestController));
+
+router
+  .route('/:conversation_id/members/:user_id/remove')
+  .delete(isUserLoggedIn, validate(RemoveMemberSchema), withDatabase(RemoveMemberController));
 
 router
   .route('/:conversation_id/members')
