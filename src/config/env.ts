@@ -70,6 +70,7 @@ const env = {
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     region: process.env.AWS_REGION,
     s3Bucket: process.env.AWS_S3_BUCKET,
+    s3BackupBucket: process.env.AWS_S3_BACKUP_BUCKET,
   },
 
   razorpay: {

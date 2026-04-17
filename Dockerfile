@@ -15,6 +15,7 @@ FROM node:24-alpine
 
 WORKDIR /app
 
+RUN apk add --no-cache postgresql18-client
 RUN npm install -g dbmate
 
 COPY package.json package-lock.json ./
