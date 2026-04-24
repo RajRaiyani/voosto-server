@@ -4,6 +4,8 @@ import { task as flushUnTrackedFilesTask } from './scripts/flushUnTrackedFiles.s
 import { task as flushFilesTask } from './scripts/flushFiles.script.js';
 import { task as databaseBackupTask } from './scripts/databaseBackup.script.js';
 import { task as fileBackupTask } from './scripts/fileBackup.script.js';
+import { LoadActivitiesToRedis } from '@/modules/activity/activity.script.js';
+import { LoadUsersToRedis } from '@/modules/user/scripts/loadUsersToRedis.js';
 
 const isProduction = env.env === 'prod';
 
@@ -40,3 +42,9 @@ export const databaseBackupJob = isProduction
 export const fileBackupJob = isProduction
   ? cron.createTask('0 3 */3 * *', './scripts/fileBackup.script.js', { timezone: 'Asia/Kolkata' })
   : cron.createTask('0 3 */3 * *', fileBackupTask, { timezone: 'Asia/Kolkata' });
+
+// Run at 4:00 AM every day
+export const LoadActivitiesToRedisJob = cron.createTask('0 4 * * *', LoadActivitiesToRedis, { timezone: 'Asia/Kolkata' });
+
+// Run at 5:00 AM every day
+export const LoadUsersToRedisJob = cron.createTask('0 5 * * *', LoadUsersToRedis, { timezone: 'Asia/Kolkata' });

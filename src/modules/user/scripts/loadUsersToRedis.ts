@@ -5,6 +5,8 @@ export async function LoadUsersToRedis() {
   const db = await Database.getConnection();
 
   try {
+    await RedisClient.del('geo:user');
+    
     const users = await db.queryAll<{ member: string, latitude: number, longitude: number }>('SELECT id as member, latitude, longitude FROM users where latitude is not null and longitude is not null');
     if (users.length > 0) {
       await RedisClient.geoAdd('geo:user', users.filter(user => Number.isFinite(user.latitude) && Number.isFinite(user.longitude)));

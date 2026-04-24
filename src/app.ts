@@ -9,6 +9,14 @@ import { LoadActivitiesToRedis } from './modules/activity/activity.script.js';
 import '@/modules/activity/activity.init.js';
 import '@/modules/user/user.init.js';
 import '@/modules/conversation/conversation.init.js';
+import {
+  LoadActivitiesToRedisJob,
+  LoadUsersToRedisJob,
+  databaseBackupJob,
+  fileBackupJob,
+  FlushUnTrackedFilesJob,
+  FlushFilesJob,
+} from '@/cron/jobs.js';
 
 import { LoadUsersToRedis } from './modules/user/scripts/loadUsersToRedis.js';
 
@@ -54,12 +62,29 @@ app.use(errorHandler);
 
 
 setImmediate(async () => {
+
+  redisClient.on('connect', async () => {
+    await LoadActivitiesToRedis();
+    Logger.info('Activities loaded to Redis successfully ✅');
+    await LoadUsersToRedis();
+    Logger.info('Users loaded to Redis successfully ✅');
+  });
+  
   await redisClient.connect();
   Logger.info('Redis connected successfully ✅');
-  await LoadActivitiesToRedis();
-  Logger.info('Activities loaded to Redis successfully ✅');
-  await LoadUsersToRedis();
-  Logger.info('Users loaded to Redis successfully ✅');
+
+  await LoadActivitiesToRedisJob.start();
+  Logger.info('Load Activities to Redis job started ✅');
+  await LoadUsersToRedisJob.start();
+  Logger.info('Load Users to Redis job started ✅');
+  await databaseBackupJob.start();
+  Logger.info('Database backup job started ✅');
+  await fileBackupJob.start();
+  Logger.info('File backup job started ✅');
+  await FlushUnTrackedFilesJob.start();
+  Logger.info('Flush Un Tracked Files job started ✅');
+  await FlushFilesJob.start();
+  Logger.info('Flush Files job started ✅');
 });
 
 export default app;

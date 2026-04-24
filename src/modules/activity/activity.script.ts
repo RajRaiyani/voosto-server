@@ -5,6 +5,8 @@ export async function LoadActivitiesToRedis() {
   const db = await Database.getConnection();
 
   try {
+    await RedisClient.del('geo:activity');
+    
     const activities = await db.queryAll<{ member: string, latitude: number, longitude: number }>('SELECT id as member, latitude::float, longitude::float FROM activities where latitude is not null and longitude is not null');
 
     // Redis GEOADD rejects NaN/Infinity, so keep only finite coordinates.
