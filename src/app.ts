@@ -63,7 +63,7 @@ app.use(errorHandler);
 
 setImmediate(async () => {
 
-  redisClient.on('connect', async () => {
+  redisClient.on('ready', async () => {
     await LoadActivitiesToRedis();
     Logger.info('Activities loaded to Redis successfully ✅');
     await LoadUsersToRedis();
