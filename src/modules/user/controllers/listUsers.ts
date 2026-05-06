@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { DatabaseClient } from '@/service/database/index.js';
 import RedisClient from '@/service/redis/index.js';
 import Schema from '@/config/validationSchema.js';
+import { LoadUsersToRedis } from '@/modules/user/scripts/loadUsersToRedis.js';
 
 export const ValidationSchema = {
   query: z.object({
@@ -37,6 +38,13 @@ export async function Controller(
   let userIds: string[] = [];
 
   if (location) {
+
+    // find if geo:user has any record
+    const userCount = await RedisClient.zCard('geo:user');
+    if (Number(userCount) <= 10) {
+      await LoadUsersToRedis();
+    }
+
     userIds = (await RedisClient.geoSearch(
       'geo:user',
       {

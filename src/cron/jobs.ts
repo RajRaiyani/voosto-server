@@ -6,6 +6,7 @@ import { task as databaseBackupTask } from './scripts/databaseBackup.script.js';
 import { task as fileBackupTask } from './scripts/fileBackup.script.js';
 import { LoadActivitiesToRedis } from '@/modules/activity/activity.script.js';
 import { LoadUsersToRedis } from '@/modules/user/scripts/loadUsersToRedis.js';
+import { task as convertToWebpTask } from './scripts/convertToWebp.js';
 
 const isProduction = env.env === 'prod';
 
@@ -48,3 +49,8 @@ export const LoadActivitiesToRedisJob = cron.createTask('0 4 * * *', LoadActivit
 
 // Run at 5:00 AM every day
 export const LoadUsersToRedisJob = cron.createTask('0 5 * * *', LoadUsersToRedis, { timezone: 'Asia/Kolkata' });
+
+// Run at every 3 hours
+export const ConvertToWebpJob =  isProduction ? 
+  cron.createTask('0 */3 * * *', './scripts/convertToWebp.script.js', { timezone: 'Asia/Kolkata' }) : 
+  cron.createTask('0 */3 * * *', convertToWebpTask, { timezone: 'Asia/Kolkata' });

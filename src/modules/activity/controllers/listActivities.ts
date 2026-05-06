@@ -3,6 +3,7 @@ import { DatabaseClient } from '@/service/database/index.js';
 import { z } from 'zod';
 import RedisClient from '@/service/redis/index.js';
 import Schema from '@/config/validationSchema.js';
+import { LoadActivitiesToRedis } from '@/modules/activity/activity.script.js';
 
 
 const dateOnlyRegex = /^\d{4}-\d{2}-\d{2}$/;
@@ -53,6 +54,13 @@ export async function Controller(req: Request, res: Response, next: NextFunction
   
   
   if (location) {
+
+    // find if geo:activity has any record
+    const activityCount = await RedisClient.zCard('geo:activity');
+
+    if (Number(activityCount) === 0) {
+      await LoadActivitiesToRedis();
+    }
 
     activity_ids = await RedisClient.geoSearch(
       'geo:activity', 

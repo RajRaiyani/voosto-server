@@ -18,7 +18,9 @@ export async function task() {
       Logger.info(`Converted file: ${file.key}`);
     }
 
-  } finally {
+  }catch(error) {
+    Logger.error(error);
+  }finally {
     db.release();
   }
 
