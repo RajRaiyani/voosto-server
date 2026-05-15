@@ -39,6 +39,7 @@ export async function Handler(ctx: Context, payload: z.infer<typeof ValidationSc
     return;
   }
 
+  await db.query('DELETE FROM message_reactions WHERE message_id = $1', [message_id]);
   await db.query('DELETE FROM message_attachments WHERE message_id = $1', [message_id]);
   await db.query('DELETE FROM message_reads WHERE message_id = $1', [message_id]);
   await db.query('DELETE FROM messages WHERE id = $1', [message_id]);

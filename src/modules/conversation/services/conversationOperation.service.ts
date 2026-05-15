@@ -10,6 +10,7 @@ async function deleteConversationService({ database:db }: ServiceContext, conver
 
     await db.query('DELETE FROM conversation_members WHERE conversation_id = $1', [conversation_id]);
     await db.query('DELETE FROM conversation_joining_requests WHERE conversation_id = $1', [conversation_id]);
+    await db.query('DELETE FROM message_reactions WHERE message_id in (select id from messages where conversation_id = $1)', [conversation_id]);
     await db.query('DELETE FROM message_reads WHERE message_id in (select id from messages where conversation_id = $1)', [conversation_id]);
     await db.query('DELETE FROM message_attachments where message_id in (select id from messages where conversation_id = $1)', [conversation_id]);
     await db.query('DELETE FROM messages WHERE conversation_id = $1', [conversation_id]);

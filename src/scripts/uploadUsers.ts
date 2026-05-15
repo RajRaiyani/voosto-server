@@ -3,9 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import { v7 as uuidv7 } from 'uuid';
 import Database from '@/service/database/index.js';
-import { registerNewFile } from '@/modules/file/file.service.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -26,15 +24,6 @@ function readCsvFile(filePath: string) {
       .on('end', () => resolve(results));
   });
 }
-
-function generateFileId(filepath: string) {
-  if (!fs.existsSync(filepath)) return null;
-  const newFilePath = path.join(uploadDirectory, uuidv7() + path.extname(filepath));
-  fs.copyFileSync(filepath, newFilePath);
-  return newFilePath;
-}
-
-
 
 async function uploadUsers() {
   let users = await readCsvFile(path.join(__dirname, '../../tmp/userData.csv'));

@@ -5,7 +5,6 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import Database from '@/service/database/index.js';
 import { createConversation } from '@/modules/conversation/conversation.service.js';
-import RedisClient from '@/service/redis/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

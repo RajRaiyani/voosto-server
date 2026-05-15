@@ -6,6 +6,7 @@ import { ValidationSchema as ListConversationsSchema, Controller as ListConversa
 import { ValidationSchema as GetConversationSchema, Controller as GetConversationController } from '@/modules/conversation/controllers/getConversation.js';
 import { ValidationSchema as UpdateConversationSchema, Controller as UpdateConversationController } from '@/modules/conversation/controllers/updateConversation.js';
 import { ValidationSchema as ListMessagesSchema, Controller as ListMessagesController } from '@/modules/conversation/controllers/listMessages.js';
+import { ValidationSchema as ListMessageReactionsSchema, Controller as ListMessageReactionsController } from '@/modules/conversation/controllers/listMessageReactions.js';
 import { ValidationSchema as GetPrivateConversationSchema, Controller as GetPrivateConversationController } from '@/modules/conversation/controllers/getPersonalConversation.js';
 import { ValidationSchema as JoinConversationSchema, Controller as JoinConversationController } from '@/modules/conversation/controllers/joinConversation.js';
 import { ValidationSchema as AcceptJoiningRequestSchema, Controller as AcceptJoiningRequestController } from '@/modules/conversation/controllers/acceptJoiningRequest.js';
@@ -38,6 +39,10 @@ router
 router
   .route('/:conversation_id/messages')
   .get(isUserLoggedIn, validate(ListMessagesSchema), withDatabase(ListMessagesController));
+
+router
+  .route('/:conversation_id/messages/:message_id/reactions')
+  .get(isUserLoggedIn, validate(ListMessageReactionsSchema), withDatabase(ListMessageReactionsController));
 
 router
   .route('/:conversation_id/join')

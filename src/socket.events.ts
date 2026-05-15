@@ -4,6 +4,7 @@ import { ValidationSchema as MessageSendValidationSchema, Handler as MessageSend
 import { Handler as onUserDisconnectHandler } from '@/modules/user/handlers/socket/onUserDisconnect.handler.js';
 import { ValidationSchema as MessageSeenValidationSchema, Handler as MessageSeenHandler } from '@/modules/conversation/handlers/socket/onMessageSeen.handler.js';
 import { ValidationSchema as MessageDeleteValidationSchema, Handler as MessageDeleteHandler } from '@/modules/conversation/handlers/socket/onMessageDelete.handler.js';
+import { ValidationSchema as MessageReactionValidationSchema, Handler as MessageReactionHandler } from '@/modules/conversation/handlers/socket/onMessageReaction.handler.js';
 
 export default async function Handler({ io, socket }: SocketContext) {
 
@@ -49,6 +50,14 @@ export default async function Handler({ io, socket }: SocketContext) {
     socket,
     schema: MessageDeleteValidationSchema,
     handler: MessageDeleteHandler,
+    options: { withDatabase: true },
+  }));
+
+  socket.on('message:reaction', handleSocketHandler({
+    io,
+    socket,
+    schema: MessageReactionValidationSchema,
+    handler: MessageReactionHandler,
     options: { withDatabase: true },
   }));
 
