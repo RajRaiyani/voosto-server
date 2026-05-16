@@ -1,0 +1,48 @@
+services:
+  postgres-18:
+    restart: always
+    image: postgres:18
+    container_name: postgres-18
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-1234567890}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_18_voosto_data:/var/lib/postgresql
+
+  redis:
+    restart: always
+    image: redis-stack:latest
+    container_name: voosto-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  voosto-server:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    pull_policy: always
+    depends_on:
+      - postgres-18
+      - redis
+    container_name: voosto-server
+    ports:
+      - "3007:3007"
+    env_file:
+      - ./.env.dev
+    volumes:
+      # Persist file uploads
+      - ./files:/app/files
+      - ./logs:/app/logs
+      - ./tmp:/app/tmp
+    command: sh -c "npx dbmate up && npm run start"
+
+volumes:
+  postgres_18_voosto_data:
+    driver: local
+  redis_data:
+    driver: local
