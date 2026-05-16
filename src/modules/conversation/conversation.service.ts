@@ -212,24 +212,30 @@ const messageReplySenderJsonSql = buildMessageSenderJsonSql('rmu', 'rmuf', 'rmb1
 
 const messageReactionsJsonSql = (viewerParam: string) => `
   COALESCE((
-    SELECT json_agg(reaction_group ORDER BY reaction_group->>'emoji')
+    SELECT json_agg(
+      json_build_object('emoji', grouped.emoji, 'users', grouped.users)
+      ORDER BY grouped.emoji
+    )
     FROM (
-      SELECT json_build_object(
-        'emoji', mr.emoji,
-        'users', json_agg(json_build_object(
-          'user_id', rxu.id,
-          'full_name',
-            CASE
-              WHEN rxb1.blocker_id IS NOT NULL OR rxb2.blocker_id IS NOT NULL THEN 'Voosto User'
-              ELSE rxu.full_name
-            END,
-          'profile_image_url',
-            CASE
-              WHEN rxb1.blocker_id IS NOT NULL OR rxb2.blocker_id IS NOT NULL THEN 'https://voosto.com/assets/logos/favicon.png'
-              ELSE rxf.url
-            END,
-          'created_at', mr.created_at
-        ) ORDER BY mr.created_at) AS reaction_group
+      SELECT
+        mr.emoji,
+        json_agg(
+          json_build_object(
+            'user_id', rxu.id,
+            'full_name',
+              CASE
+                WHEN rxb1.blocker_id IS NOT NULL OR rxb2.blocker_id IS NOT NULL THEN 'Voosto User'
+                ELSE rxu.full_name
+              END,
+            'profile_image_url',
+              CASE
+                WHEN rxb1.blocker_id IS NOT NULL OR rxb2.blocker_id IS NOT NULL THEN 'https://voosto.com/assets/logos/favicon.png'
+                ELSE rxf.url
+              END,
+            'created_at', mr.created_at
+          )
+          ORDER BY mr.created_at
+        ) AS users
       FROM message_reactions mr
       JOIN users rxu ON rxu.id = mr.user_id
       LEFT JOIN files rxf ON rxf.id = rxu.profile_image_id
@@ -241,7 +247,7 @@ const messageReactionsJsonSql = (viewerParam: string) => `
         AND rxb2.blocked_id = ${viewerParam}
       WHERE mr.message_id = m.id
       GROUP BY mr.emoji
-    ) grouped_reactions
+    ) grouped
   ), '[]'::json)
 `;
 

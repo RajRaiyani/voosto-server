@@ -1,6 +1,6 @@
 \restrict dbmate
 
--- Dumped from database version 18.3 (Debian 18.3-1.pgdg13+1)
+-- Dumped from database version 18.2 (Debian 18.2-1.pgdg13+1)
 -- Dumped by pg_dump version 18.3
 
 SET statement_timeout = 0;
@@ -178,6 +178,18 @@ CREATE TABLE public.message_attachments (
 
 
 --
+-- Name: message_reactions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.message_reactions (
+    message_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    emoji character varying(32) NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
 -- Name: message_reads; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -197,7 +209,8 @@ CREATE TABLE public.messages (
     conversation_id uuid NOT NULL,
     sender_id uuid,
     content text NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    reply_to_message_id uuid
 );
 
 
@@ -330,7 +343,8 @@ CREATE TABLE public.users (
     heard_about_us character varying(150),
     account_delete_reason text,
     latitude numeric(10,8),
-    longitude numeric(11,8)
+    longitude numeric(11,8),
+    is_fake_user boolean DEFAULT false NOT NULL
 );
 
 
@@ -406,6 +420,14 @@ ALTER TABLE ONLY public.files
 
 ALTER TABLE ONLY public.message_attachments
     ADD CONSTRAINT pk_message_attachments_message_id_file_id PRIMARY KEY (message_id, file_id);
+
+
+--
+-- Name: message_reactions pk_message_reactions_message_id_user_id; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.message_reactions
+    ADD CONSTRAINT pk_message_reactions_message_id_user_id PRIMARY KEY (message_id, user_id);
 
 
 --
@@ -577,6 +599,13 @@ ALTER TABLE ONLY public.users
 
 
 --
+-- Name: idx_messages_reply_to_message_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_messages_reply_to_message_id ON public.messages USING btree (reply_to_message_id);
+
+
+--
 -- Name: activities fk_activities_category_id; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -673,6 +702,22 @@ ALTER TABLE ONLY public.message_attachments
 
 
 --
+-- Name: message_reactions fk_message_reactions_message_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.message_reactions
+    ADD CONSTRAINT fk_message_reactions_message_id FOREIGN KEY (message_id) REFERENCES public.messages(id) ON DELETE CASCADE;
+
+
+--
+-- Name: message_reactions fk_message_reactions_user_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.message_reactions
+    ADD CONSTRAINT fk_message_reactions_user_id FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
 -- Name: message_reads fk_message_reads_message_id; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -694,6 +739,14 @@ ALTER TABLE ONLY public.message_reads
 
 ALTER TABLE ONLY public.messages
     ADD CONSTRAINT fk_messages_conversation_id FOREIGN KEY (conversation_id) REFERENCES public.conversations(id);
+
+
+--
+-- Name: messages fk_messages_reply_to_message_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.messages
+    ADD CONSTRAINT fk_messages_reply_to_message_id FOREIGN KEY (reply_to_message_id) REFERENCES public.messages(id) ON DELETE SET NULL;
 
 
 --
@@ -873,4 +926,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20260316175515'),
     ('20260318162521'),
     ('20260319175004'),
-    ('20260319182934');
+    ('20260319182934'),
+    ('20260515120000');
