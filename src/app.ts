@@ -16,6 +16,7 @@ import {
   fileBackupJob,
   FlushUnTrackedFilesJob,
   FlushFilesJob,
+  ExtendFakeUserActivityDatesJob,
 } from '@/cron/jobs.js';
 
 import { LoadUsersToRedis } from './modules/user/scripts/loadUsersToRedis.js';
@@ -85,6 +86,8 @@ setImmediate(async () => {
   Logger.info('Flush Un Tracked Files job started ✅');
   await FlushFilesJob.start();
   Logger.info('Flush Files job started ✅');
+  await ExtendFakeUserActivityDatesJob.start();
+  Logger.info('Extend fake user activity dates job started ✅');
 });
 
 export default app;
